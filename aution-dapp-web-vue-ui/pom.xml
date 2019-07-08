@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.cesgroup</groupId>
+    <artifactId>aution-dapp</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>aution-dapp-web-vue-ui</artifactId>
+  <name>${project.artifactId}</name>
+  <packaging>pom</packaging>
+ 
+
+    <properties>
+        <node.version>v11.14.0</node.version>
+        <npm.version>6.7.0</npm.version>
+        <npm.download.root>https://registry.npmjs.org/npm/</npm.download.root>
+        <node.download.root>https://npm.taobao.org/mirrors/node/</node.download.root>
+        <npm.registry>https://registry.npmjs.org/</npm.registry>
+        <npm.registry.taobao>https://registry.npm.taobao.org/</npm.registry.taobao>
+        <npm.mirror.chromedriver>https://npm.taobao.org/mirrors/chromedriver/</npm.mirror.chromedriver>
+        <frontend.maven.plugin.version>1.2</frontend.maven.plugin.version>
+    </properties>
+    
+ <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.maven.plugin.version}</version>
+
+                <configuration>
+                    <workingDirectory>vue-dapp</workingDirectory>
+                </configuration>
+
+                <executions>
+                    <!-- Install our node and npm version to run npm/node scripts-->
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                            <npmDownloadRoot>${npm.download.root}</npmDownloadRoot>
+                            <nodeDownloadRoot>${node.download.root}</nodeDownloadRoot>
+                        </configuration>
+                    </execution>
+
+                    <!--&lt;!&ndash; Set NPM Registry &ndash;&gt;-->
+                    <execution>
+                        <id>npm set registry</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>config set registry ${npm.registry.taobao}</arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Set SSL privilege -->
+                    <execution>
+                        <id>npm set non-strict ssl</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- Optional configuration which provides for running any npm command -->
+                        <configuration>
+                            <arguments>config set strict-ssl false</arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Install chromedriver dependency -->
+                    <execution>
+                        <id>npm install chromedriver</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- optional: default phase is "generate-resources" -->
+                        <phase>generate-resources</phase>
+
+                        <!-- Optional configuration which provides for running any npm command -->
+                        <configuration>
+                            <arguments>install chromedriver --chromedriver_cdnurl=${npm.mirror.chromedriver} --unsafe-perm=true</arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Install all dependencies -->
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <!-- optional: default phase is "generate-resources" -->
+                        <phase>generate-resources</phase>
+
+                        <!-- Optional configuration which provides for running any npm command -->
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <!--&lt;!&ndash; Build and minify static files &ndash;&gt;-->
+                    <!--<execution>-->
+                        <!--<id>npm run build</id>-->
+                        <!--<goals>-->
+                            <!--<goal>npm</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<arguments>run build</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>target.dev2</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.maven.plugin.version}</version>
+
+                        <configuration>
+                            <workingDirectory>vue-dapp</workingDirectory>
+                        </configuration>
+
+                        <!-- Build and minify static files -->
+                        <executions>
+                            <execution>
+                                <id>npm run build</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build-dev2</arguments>
+                                    <!--<environmentVariables>-->
+                                        <!--&lt;!&ndash; Var value take from maven properties &ndash;&gt;-->
+                                        <!--<NODE_ENV>DEV2</NODE_ENV>-->
+                                    <!--</environmentVariables>-->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>target.uat</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.maven.plugin.version}</version>
+
+                        <configuration>
+                            <workingDirectory>vue-cBaas2.0</workingDirectory>
+                        </configuration>
+
+                        <!-- Build and minify static files -->
+                        <executions>
+                            <execution>
+                                <id>npm run build</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build-test</arguments>
+                                    <!--<environmentVariables>-->
+                                        <!--&lt;!&ndash; Var value take from maven properties &ndash;&gt;-->
+                                        <!--<NODE_ENV>TEST</NODE_ENV>-->
+                                    <!--</environmentVariables>-->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>target.prd</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend.maven.plugin.version}</version>
+
+                        <configuration>
+                            <workingDirectory>vue-cBaas2.0</workingDirectory>
+                        </configuration>
+
+                        <!-- Build and minify static files -->
+                        <executions>
+                            <execution>
+                                <id>npm run build</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build-production</arguments>
+                                    <!--<environmentVariables>-->
+                                        <!--&lt;!&ndash; Var value take from maven properties &ndash;&gt;-->
+                                        <!--<NODE_ENV>PRODUCTION</NODE_ENV>-->
+                                    <!--</environmentVariables>-->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
