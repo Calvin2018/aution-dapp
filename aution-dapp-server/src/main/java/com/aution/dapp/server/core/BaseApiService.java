@@ -4,8 +4,6 @@ package com.aution.dapp.server.core;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -22,7 +20,6 @@ import com.google.gson.reflect.TypeToken;
  * @since 1.0
  */
 public class BaseApiService {
-  private static final Log LOGGER = LogFactory.getLog(BaseApiService.class);
   protected AppContext appContext;
   protected Properties configuration;
 
@@ -73,60 +70,65 @@ public class BaseApiService {
    * @return
    * @throws IOException
    */
-  protected <T> T doPost(HttpPost post, HttpClientContext clientContext, TypeToken<RestApiResponse<T>> typeToken)
-      throws IOException {
+  protected <T> RestApiResponse<T> doPost(HttpPost post, HttpClientContext clientContext, TypeToken<RestApiResponse<T>> typeToken)
+      throws ApiException,IOException {
     RestApiResponse<T> response = appContext.getHttpClient().execute(post,
         new RestApiResponseHandler<>(typeToken), clientContext);
 
+    
+    if (response.getStatusCode() != HttpStatus.SC_OK) {
+        throw new ApiException(response.getStatusCode(),response.getHeaders(),response.getMsg());
+    }
     String code = response.getCode();
-    dealWithResponseCode(code);
-    return response.getData();
+    dealWithResponseCode(code,response);
+    return response;
   }
 
-  protected void dealWithResponseCode(String code) {
+  protected <T> void dealWithResponseCode(String code,RestApiResponse<T> response) throws ApiException {
 	  
 	  switch(code) {
 	  case ApiConstants.CODE_SUCCESS:
 		  break;
 	  case ApiConstants.CODE_REQUEST_EROR:
-		  break;
-	  case ApiConstants.CODE_PARAM_INVALID:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
+	case ApiConstants.CODE_PARAM_INVALID:
+		throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_PARAM_EROR:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TIMESTAMP_EXPIRED:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TOKEN_ERROR:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_ORDER_REPEAT:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_SIGN_ERROR:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_APPID_ERROR:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_USERID_NULL:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TRANSACTION_EXCEPTION:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_CHECK_FAILED:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_INSUFFICIENT_BALANCE:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TRANSACTION_NOT_EXIST:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_REFUND_FAILED:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_FEE_FAILED:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_CORRECT_FAILED:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_OPERATE_FREQUENTLY:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TRY_AGAIN_LATER:
-		  break;
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_ORDER_COMPLETED:
-		  break;  
-	  
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString()); 
+	  default :
+		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString()); 
 	  }
 	  
 	  
@@ -144,7 +146,7 @@ public class BaseApiService {
     RestApiResponse<T> response = appContext.getHttpClient().execute(get,
         new RestApiResponseHandler<>(typeToken), clientContext);
     String code = response.getCode();
-    dealWithResponseCode( code);
+    dealWithResponseCode( code,response);
 
     return response.getData();
   }
@@ -162,8 +164,12 @@ public class BaseApiService {
     RestApiResponse<T> response = appContext.getHttpClient().execute(delete,
         new RestApiResponseHandler<>(typeToken), clientContext);
 
+    if (response.getStatusCode() != HttpStatus.SC_OK) {
+        throw new ApiException(response.getStatusCode(),response.getHeaders(),"");
+    }
+
     String code = response.getCode();
-    dealWithResponseCode( code);
+    dealWithResponseCode( code,response);
 
     return response.getData();
   }
@@ -185,8 +191,12 @@ public class BaseApiService {
     RestApiResponse<T> response = appContext.getHttpClient().execute(put,
         new RestApiResponseHandler<>(typeToken), clientContext);
 
+    if (response.getStatusCode() != HttpStatus.SC_OK) {
+        throw new ApiException(response.getStatusCode(),response.getHeaders(),"");
+    }
+
     String code = response.getCode();
-    dealWithResponseCode( code);
+    dealWithResponseCode( code,response);
     return response.getData();
   }
 }

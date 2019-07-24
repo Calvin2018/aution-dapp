@@ -120,9 +120,9 @@ public class ApiException extends IOException {
   }
 
   /**
-   * Get the HTTP status code.
+   * Get the  status code.
    *
-   * @return HTTP status code
+   * @return  status code
    */
   public int getStatusCode() {
     return code;

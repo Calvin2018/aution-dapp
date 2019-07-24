@@ -23,13 +23,13 @@ public class Transaction {
 	@Column(name="to_user_id")
 	private String toUserId;
 	//转入金额
-	private double price;
+	private Double price;
 	//商品id
 	@Column(name="goods_id")
-	private String gId;
+	private String goodsId;
 	//交易时间
 	@Column(name="tx_time")
-	private long txTime;
+	private Long txTime;
 	//待定字段
 	private String temp;
 	
@@ -51,22 +51,23 @@ public class Transaction {
 	public void setToUserId(String toUserId) {
 		this.toUserId = toUserId;
 	}
-	public double getPrice() {
+	public Double getPrice() {
 		return price;
 	}
-	public void setPrice(double price) {
+	public void setPrice(Double price) {
 		this.price = price;
 	}
-	public String getgId() {
-		return gId;
+	
+	public String getGoodsId() {
+		return goodsId;
 	}
-	public void setgId(String gId) {
-		this.gId = gId;
+	public void setGoodsId(String goodsId) {
+		this.goodsId = goodsId;
 	}
-	public long getTxTime() {
+	public Long getTxTime() {
 		return txTime;
 	}
-	public void setTxTime(long txTime) {
+	public void setTxTime(Long txTime) {
 		this.txTime = txTime;
 	}
 	public String getTemp() {
@@ -81,7 +82,7 @@ public class Transaction {
 	@Override
 	public String toString() {
 		return "Transactioin [txId=" + txId + ", fromUserId=" + fromUserId + ", toUserId=" + toUserId + ", price="
-				+ price + ", gId=" + gId + ", txTime=" + txTime + ", temp=" + temp + "]";
+				+ price + ", goodsId=" + goodsId + ", txTime=" + txTime + ", temp=" + temp + "]";
 	}
 
 	

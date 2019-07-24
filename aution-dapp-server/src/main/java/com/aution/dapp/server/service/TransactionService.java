@@ -39,7 +39,7 @@ public class TransactionService {
    */
   public List<Transaction> findAllTransactionByTimeSort(String sort){
 	  if(!Strings.isNullOrEmpty(sort))
-		  return tRepository.findAllTransactionByTimeSort(sort).getContent();
+		  return tRepository.findAllTransactionByTimeSort(sort);
 	  throw new IllegalArgumentException("Arguments sort are required");
   }
   /**
@@ -49,7 +49,7 @@ public class TransactionService {
    */
   public List<Transaction> findAllTransactionByPriceSort(String sort){
 	  if(!Strings.isNullOrEmpty(sort))
-		  return tRepository.findAllTransactionByPriceSort(sort).getContent();
+		  return tRepository.findAllTransactionByPriceSort(sort);
 	  throw new IllegalArgumentException("Arguments sort are required");
   }
   /**
@@ -59,7 +59,7 @@ public class TransactionService {
    */
   public List<Transaction> findTransactionByParms(Transaction transaction){
 	  if(null != transaction)
-		  return tRepository.findTransactionByParms(transaction).getContent();
+		  return tRepository.findTransactionByParms(transaction);
 	  throw new IllegalArgumentException("Arguments transaction are required");
   }
 }

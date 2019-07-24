@@ -17,7 +17,7 @@ public class Goods {
 	//商品唯一id
 	@Id
 	@Column(name = "goods_id")
-	private String gId;
+	private String goodsId;
 	//卖家id
 	@Column(name = "seller_id")
 	private String sellerId;
@@ -30,102 +30,62 @@ public class Goods {
 	private Integer type;
 	//商品起拍价
 	@Column(name = "start_price")
-	private Double sPrice;
+	private Double startPrice;
 	//商品起拍时间
 	@Column(name = "start_time")
-	private Long sTime;
+	private Long startTime;
 	//商品竞拍截止时间
 	@Column(name = "end_time")
-	private Long eTime;
+	private Long endTime;
 	//商品详情
 	private String details;
 	//商品图片地址
 	private String imgs;
 	//当前商品价格
 	@Column(name = "current_price")
-	private Double cPrice;
+	private Double currentPrice;
 	//商品成交评价
 	private String content;
 	//商品状态 1:正在运行 2：竞拍成功 3：竞拍失败
 	private Integer status;
+	//用户头像
+	private String avatar;
+	//用户名称
+	@Column(name = "user_name")
+	private String userName;
+	@Column(name = "user_phone")
+	private String userPhone;
+	
+	public String getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	
+	public String getUserPhone() {
+		return userPhone;
+	}
+	public void setUserPhone(String userPhone) {
+		this.userPhone = userPhone;
+	}
+
+
 	//待定字段
 	private String temp;
-	public String getgId() {
-		return gId;
-	} 
-	public void setgId(String gId) {
-		this.gId = gId;
+	public String getGoodsId() {
+		return goodsId;
 	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public Integer getType() {
-		return type;
-	}
-	public void setType(Integer type) {
-		this.type = type;
-	}
-	public Double getsPrice() {
-		return sPrice;
-	}
-	public void setsPrice(Double sPrice) {
-		this.sPrice = sPrice;
-	}
-	public Long getsTime() {
-		return sTime;
-	}
-	public void setsTime(Long sTime) {
-		this.sTime = sTime;
-	}
-	
-	public Long geteTime() {
-		return eTime;
-	}
-	public void seteTime(Long eTime) {
-		this.eTime = eTime;
-	}
-	public String getDetails() {
-		return details;
-	}
-	public void setDetails(String details) {
-		this.details = details;
-	}
-	public String getImgs() {
-		return imgs;
-	}
-	public void setImgs(String imgs) {
-		this.imgs = imgs;
-	}
-	public Double getcPrice() {
-		return cPrice;
-	}
-	public void setcPrice(Double cPrice) {
-		this.cPrice = cPrice;
-	}
-	public String getContent() {
-		return content;
-	}
-	public void setContent(String content) {
-		this.content = content;
-	}
-	public String getTemp() {
-		return temp;
-	}
-	public void setTemp(String temp) {
-		this.temp = temp;
-	}
-	public Goods() {
-		super();
-	}
-	
-	public Integer getStatus() {
-		return status;
-	}
-	public void setStatus(Integer status) {
-		this.status = status;
+	public void setGoodsId(String goodsId) {
+		this.goodsId = goodsId;
 	}
 	public String getSellerId() {
 		return sellerId;
@@ -139,13 +99,81 @@ public class Goods {
 	public void setBuyerId(String buyerId) {
 		this.buyerId = buyerId;
 	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public Integer getType() {
+		return type;
+	}
+	public void setType(Integer type) {
+		this.type = type;
+	}
+	public Double getStartPrice() {
+		return startPrice;
+	}
+	public void setStartPrice(Double startPrice) {
+		this.startPrice = startPrice;
+	}
+	public Long getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Long startTime) {
+		this.startTime = startTime;
+	}
+	public Long getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Long endTime) {
+		this.endTime = endTime;
+	}
+	public String getDetails() {
+		return details;
+	}
+	public void setDetails(String details) {
+		this.details = details;
+	}
+	public String getImgs() {
+		return imgs;
+	}
+	public void setImgs(String imgs) {
+		this.imgs = imgs;
+	}
+	public Double getCurrentPrice() {
+		return currentPrice;
+	}
+	public void setCurrentPrice(Double currentPrice) {
+		this.currentPrice = currentPrice;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	public String getTemp() {
+		return temp;
+	}
+	public void setTemp(String temp) {
+		this.temp = temp;
+	}
+	public Goods() {
+		super();
+	}
 	@Override
 	public String toString() {
-		return "Goods [gId=" + gId + ", sellerId=" + sellerId + ", buyerId=" + buyerId + ", title=" + title + ", type="
-				+ type + ", sPrice=" + sPrice + ", sTime=" + sTime + ", eTime=" + eTime + ", details=" + details
-				+ ", imgs=" + imgs + ", cPrice=" + cPrice + ", content=" + content + ", status=" + status + ", temp="
-				+ temp + "]";
+		return "Goods [goodsId=" + goodsId + ", sellerId=" + sellerId + ", buyerId=" + buyerId + ", title=" + title
+				+ ", type=" + type + ", startPrice=" + startPrice + ", startTime=" + startTime + ", endTime=" + endTime
+				+ ", details=" + details + ", imgs=" + imgs + ", currentPrice=" + currentPrice + ", content=" + content
+				+ ", status=" + status + ", avatar=" + avatar + ", userName=" + userName + ", userPhone=" + userPhone
+				+ ", temp=" + temp + "]";
 	}
-	
-	
 }

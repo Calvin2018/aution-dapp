@@ -1,6 +1,6 @@
 package com.aution.dapp.server.model;
 
-
+//主键类 待定
 public class HistoryIds {
 
 	private String gId;

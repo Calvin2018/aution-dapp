@@ -3,10 +3,13 @@ package com.aution.dapp.server.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.repository.HistoryRepository;
 import com.google.common.base.Strings;
@@ -28,8 +31,8 @@ public class HistoryService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findAllHistory(Pageable pageable ){
-		return historyRepository.findAllHistory(pageable).getContent();
+	public List<History> findAllHistory(){
+		return historyRepository.findAllHistory();
 	}
 	/**
 	 * 通过竞拍用户id和商品id查询竞拍历史记录
@@ -38,9 +41,9 @@ public class HistoryService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findHistoryByUserIdAndGoods(String user_id,String gId,Pageable pageable){
-		 if(!Strings.isNullOrEmpty(user_id)&&!Strings.isNullOrEmpty(gId))
-			 return historyRepository.findHistoryByUserIdAndGoodsId(user_id, gId, pageable).getContent();
+	public List<History> findHistoryByUserIdAndGoodsId(String userId,String gId,Pageable pageable){
+		 if(!Strings.isNullOrEmpty(userId)&&!Strings.isNullOrEmpty(gId))
+			 return historyRepository.findHistoryByUserIdAndGoodsId(userId, gId, pageable);
 		 throw new IllegalArgumentException("Arguments user_id and gId are required");
 	}
 	/**
@@ -49,9 +52,9 @@ public class HistoryService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findHistoryByUserId(String user_id,Pageable pageable){
-		if(!Strings.isNullOrEmpty(user_id))
-			return historyRepository.findHistoryByUserId(user_id, pageable).getContent();
+	public List<History> findHistoryByUserId(String userId,Pageable pageable){
+		if(!Strings.isNullOrEmpty(userId))
+			return historyRepository.findHistoryByUserId(userId, pageable);
 		throw new IllegalArgumentException("Arguments user_id are required");
 	}
 	/**
@@ -61,21 +64,50 @@ public class HistoryService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Pageable pageable){
-		if(!Strings.isNullOrEmpty(gId)&&!Strings.isNullOrEmpty(sort))
-			return historyRepository.findHistoryByGoodsIdAndTimeSort(gId,sort, pageable).getContent();
-		throw new IllegalArgumentException("Arguments gId and sort are required");
+	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
+		if(!Strings.isNullOrEmpty(gId)) {
+			if(sort.toUpperCase().equals("ASC")) {
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("end_time").ascending()));
+			}else if(sort.toUpperCase().equals("DESC")){
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("end_time").descending()));
+			}else {
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId,PageRequest.of(page, size));
+			}
+		}
+			
+		throw new IllegalArgumentException("Arguments gId are required");
 	}
+
 	/**
-	 * 通过商品id和价格排序查询历史列表
-	 * @param gId 商品id
-	 * @param sort 价格排序方式 ASC DESC
+	 * 通过商品id 用户id分组及价格排序方式查询历史记录
+	 * @param gId
+	 * @param sort
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findHistoryByGoodsIdAndPriceSort(String gId,String sort,Pageable pageable){
-		if(!Strings.isNullOrEmpty(gId)&&!Strings.isNullOrEmpty(sort))
-			return historyRepository.findHistoryByGoodsIdAndPriceSort(gId,sort, pageable).getContent();
-		throw new IllegalArgumentException("Arguments gId and sort are required");
+	public List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(String gId,String sort,Integer page,Integer size){
+		if(!Strings.isNullOrEmpty(gId)) {
+			if(sort.toUpperCase().equals("ASC")) {
+				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size,Sort.by("bid_price").ascending()));
+			}else if(sort.toUpperCase().equals("DESC")){
+				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size,Sort.by("bid_price").descending()));
+			}else {
+				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId,PageRequest.of(page, size));
+			}
+				
+		}
+		throw new IllegalArgumentException("Arguments gId is required");
+
+	}
+	
+	public List<History> findHistoryByTradeNoAndGidAndPriceSort(String tradeNo) throws ApiException {
+		if(!Strings.isNullOrEmpty(tradeNo)) {
+			Pageable pageable = PageRequest.of(0, 2);
+			List<History> list = historyRepository.findHistoryByTradeNoAndGidAndPriceSort(tradeNo, pageable);
+			return list;
+		}
+			
+		throw new IllegalArgumentException("Arguments tradeNo are required");
+		
 	}
 }
