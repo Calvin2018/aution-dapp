@@ -26,6 +26,39 @@ public class History {
 	private Long bidTime;
 	//用户判断竞拍是否支付  0：未支付 1：支付成功
 	private String temp;
+
+	//用户头像
+	private String avatar;
+	//用户名称
+	@Column(name = "user_name")
+	private String userName;
+	@Column(name = "user_phone")
+	private String userPhone;
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserPhone() {
+		return userPhone;
+	}
+
+	public void setUserPhone(String userPhone) {
+		this.userPhone = userPhone;
+	}
+
 	public String getTradeNo() {
 		return tradeNo;
 	}
@@ -65,9 +98,19 @@ public class History {
 	public History() {
 		super();
 	}
+
 	@Override
 	public String toString() {
-		return "History [tradeNo=" + tradeNo + ", goodsId=" + goodsId + ", userId=" + userId + ", bidPrice=" + bidPrice
-				+ ", bidTime=" + bidTime + ", temp=" + temp + "]";
+		return "History{" +
+				"tradeNo='" + tradeNo + '\'' +
+				", goodsId='" + goodsId + '\'' +
+				", userId='" + userId + '\'' +
+				", bidPrice=" + bidPrice +
+				", bidTime=" + bidTime +
+				", temp='" + temp + '\'' +
+				", avatar='" + avatar + '\'' +
+				", userName='" + userName + '\'' +
+				", userPhone='" + userPhone + '\'' +
+				'}';
 	}
 }

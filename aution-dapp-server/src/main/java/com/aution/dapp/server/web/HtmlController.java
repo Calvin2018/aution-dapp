@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.service.HistoryService;
 
+import java.util.Date;
+
 
 @Controller
 public class HtmlController {
@@ -27,6 +29,7 @@ public class HtmlController {
 		History history = new History();
 		history.setTradeNo(tradeNo);
 		history.setTemp("1");
+		history.setBidTime(new Date().getTime());
 		historyService.updateHistory(history);
 		LOGGER.debug("finnish update table t_history,tradeNo: %s",tradeNo);
 		
