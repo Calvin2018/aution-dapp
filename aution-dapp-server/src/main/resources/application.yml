@@ -1,7 +1,6 @@
 # 日志配置
 logging.level: 
   root: INFO
-  com.cesgroup.platform: TRACE
 # 系统配置
 # 服务器配置
 server:
