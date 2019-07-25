@@ -2,6 +2,7 @@ package com.aution.dapp.server.web;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.core.RestApiResponse;
@@ -29,7 +33,7 @@ import com.google.gson.reflect.TypeToken;
 
 import net.sf.json.JSONObject;
 
-@RestController
+@Controller
 public class SystemController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SystemController.class);
@@ -53,19 +57,20 @@ public class SystemController {
 		return historyService.findAllHistory();
 	}
 	
-	@RequestMapping(value="",method=RequestMethod.GET)
-	@ResponseBody
-	public  String echo(String access_token) throws IOException {
-		System.out.println(access_token);
+	@RequestMapping(value="")
+	public  String echo(@RequestParam("access_token")String accessToken) throws IOException {
 		
-		Map<String,String> test = dappService.getUserInfo(access_token);
+		Map<String,String> test = dappService.getUserInfo(accessToken);
 		String userId = test.get("job_number");
 		String avatar = test.get("avatar");
 		String userName = test.get("user_name");
 		String userPhone = test.get("user_phone");
 		goodsService.insertUser(userId, avatar, userName,userPhone);
+		//Map<String,String> map = new HashMap<String,String>();
+		//map.put("access_token", accessToken);
+		//ModelAndView model = new ModelAndView("index.html",map);
 		
-		return access_token;
+		return "redirect:index.html?accessToken="+accessToken;
 		
 	} 
 	@RequestMapping(value="/test",method=RequestMethod.GET)
