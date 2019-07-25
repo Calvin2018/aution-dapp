@@ -24,6 +24,7 @@ public class History {
 	//竞拍时间
 	@Column(name="bid_time")
 	private Long bidTime;
+	//用户判断竞拍是否支付  0：未支付 1：支付成功
 	private String temp;
 	public String getTradeNo() {
 		return tradeNo;

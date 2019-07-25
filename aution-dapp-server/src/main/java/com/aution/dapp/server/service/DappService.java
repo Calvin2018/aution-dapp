@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -137,24 +138,40 @@ public class DappService {
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
 		
 		String accessToken = appClient.getAccessToken();
-		
+		String tradeNo = GenerateNoUtil.generateTradeNo();
 		PayRequest payRequest = new PayRequest();
 		payRequest.setAmount(new BigDecimal(price));
 		// 支付结果提醒url 必填
 		payRequest.setNotifyUrl(configuration.getProperty(ApiConstants.DA_NOTIFY_URL));
 		payRequest.setUserId(userId);
 		payRequest.setDetail("");
-		payRequest.setOrderDetailUrl("");
-		payRequest.setTitle("bid");
-		payRequest.setTradeNo(GenerateNoUtil.generateTradeNo());
+		payRequest.setOrderDetailUrl(configuration.getProperty(ApiConstants.DA_DETAIL_URL));
+		payRequest.setTitle("竞拍");
+		payRequest.setTradeNo(tradeNo);
 		
 		String payUrl = dBaseApiService.doOrder(configuration.getProperty(ApiConstants.DA_APPID), accessToken, payRequest);
+		
+		History history = new History();
+		history.setTradeNo(tradeNo);
+		history.setGoodsId(gId);
+		history.setUserId(userId);
+		history.setBidPrice(price);
+		history.setBidTime(new Date().getTime());
+		//判断此次竞拍是否支付 0：表示未支付 1：表示支付成功
+		history.setTemp("0");
+		Integer hFlag = hRepository.insertHistory(history);
+		//用于数据库回滚
+		if(0 == hFlag) throw new ApiException("History Insert Failed");
+		
+			
 		obj.put("flag", true);
 		obj.put("pay_url", payUrl);
 		return obj;
 	}
+	
+	
 	@Transactional(rollbackFor = Exception.class)
-	public void doPaySuccessed(String gId,String userId,Double price,String time,String coinTradeNo,String tradeNo) throws ApiException, ParseException {
+	public void doPaySuccessed(String gId,String userId,Double price,String time,String coinTradeNo) throws ApiException, ParseException {
 		
 		SimpleDateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
 		long date = format.parse(time).getTime();
@@ -165,15 +182,6 @@ public class DappService {
 		//用于数据库回滚
 		if(0 == goodsFlag) throw new ApiException("Goods Update Failed");
 		
-		History history = new History();
-		history.setTradeNo(tradeNo);
-		history.setGoodsId(gId);
-		history.setUserId(userId);
-		history.setBidPrice(price);
-		history.setBidTime(date);
-		Integer hFlag = hRepository.insertHistory(history);
-		//用于数据库回滚
-		if(0 == hFlag) throw new ApiException("History Insert Failed");
 		
 		//只是为了业务查询  没有特殊意义
 		String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);

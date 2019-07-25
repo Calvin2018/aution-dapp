@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.aution.dapp.server.service.DappService;
 
+//使用quartz
 public class MyTimeTask extends TimerTask{
 
 	private static final Log LOG = LogFactory.getLog(MyTimeTask.class);

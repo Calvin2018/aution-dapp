@@ -64,9 +64,7 @@ public class SystemController {
 		String userName = test.get("user_name");
 		String userPhone = test.get("user_phone");
 		goodsService.insertUser(userId, avatar, userName,userPhone);
-		JSONObject obj = dappService.getBalance(userId, "100", null);
-		String balance = (String)obj.get("balance");
-		System.out.println(userId);
+		
 		return access_token;
 		
 	} 

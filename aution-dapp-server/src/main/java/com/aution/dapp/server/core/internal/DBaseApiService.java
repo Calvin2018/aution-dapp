@@ -47,6 +47,7 @@ public class DBaseApiService extends BaseApiService{
         HttpClientContext context = new HttpClientContext();
         CookieStore cookieStore = new BasicCookieStore();
         context.setCookieStore(cookieStore);
+        
         return doPost(hp, context, typeToken);
 		
 	}
@@ -118,6 +119,8 @@ public class DBaseApiService extends BaseApiService{
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
     		    accessToken = accessToken();
+    		    signParam.put("access_token", accessToken);
+    		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, context, new TypeToken<RestApiResponse<Object>>() {});
@@ -167,6 +170,8 @@ public class DBaseApiService extends BaseApiService{
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
     		    accessToken = accessToken();
+    		    signParam.put("access_token", accessToken);
+    		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
@@ -213,6 +218,8 @@ public class DBaseApiService extends BaseApiService{
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
     		    accessToken = accessToken();
+    		    signParam.put("access_token", accessToken);
+    		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);

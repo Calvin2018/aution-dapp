@@ -34,6 +34,12 @@ public class HistoryService {
 	public List<History> findAllHistory(){
 		return historyRepository.findAllHistory();
 	}
+	
+	public boolean updateHistory(History record) {
+		if(null == record) throw new IllegalArgumentException("Arguments record are required");
+		return historyRepository.updateByPrimaryKeySelective(record)==0?false:true;
+	}
+	
 	/**
 	 * 通过竞拍用户id和商品id查询竞拍历史记录
 	 * @param user_id 竞拍者id
@@ -67,9 +73,9 @@ public class HistoryService {
 	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
 		if(!Strings.isNullOrEmpty(gId)) {
 			if(sort.toUpperCase().equals("ASC")) {
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("end_time").ascending()));
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_time").ascending()));
 			}else if(sort.toUpperCase().equals("DESC")){
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("end_time").descending()));
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_time").descending()));
 			}else {
 				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId,PageRequest.of(page, size));
 			}
@@ -109,5 +115,10 @@ public class HistoryService {
 			
 		throw new IllegalArgumentException("Arguments tradeNo are required");
 		
+	}
+	
+	public History findHistoryByPrimaryKey(String tradeNo) {
+		if(Strings.isNullOrEmpty(tradeNo))  throw new IllegalArgumentException("Arguments tradeNo are required");
+		return historyRepository.selectByPrimaryKey(tradeNo);
 	}
 }
