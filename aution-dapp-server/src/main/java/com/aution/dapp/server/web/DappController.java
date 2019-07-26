@@ -61,11 +61,12 @@ public class DappController {
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		
-		History history = new History();
-		history.setTradeNo(notifyBean.getTradeNo());
-		history.setTemp("0");
+		String temp = "0";
+		Long time = null;
+		
 		if(null == notifyBean||notifyBean.getOrderStatus().equals(ApiConstants.DA_SUCCESS)) {
-			historyService.updateHistory(history);
+			time = System.currentTimeMillis();
+			historyService.updateHistory(time,temp,notifyBean.getTradeNo());
 			return "FAILED";
 		}
 		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
@@ -76,7 +77,7 @@ public class DappController {
         if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
         	LOGGER.info("Signature verification passed for sign: %s",sign);
         } else {
-        	historyService.updateHistory(history);
+        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
         	LOGGER.error("Signature verification failed for sign: %s",sign);
         	throw new ApiException("Signature verification failed for sign:"+sign);
         }
@@ -84,7 +85,7 @@ public class DappController {
         List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
         Double price = 0d;
         if(list.size() == 0) {
-        	historyService.updateHistory(history);
+        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
         	throw new ApiException("Amount verification failed for price:" + price);
         }else if(list.size() == 1) {
 			price = list.get(0).getBidPrice();
@@ -95,10 +96,10 @@ public class DappController {
         	LOGGER.info("Amount verification passed");
         } else {
         	LOGGER.error("Amount verification failed, may be illegal notification for price: %s",price);
-        	historyService.updateHistory(history);
+        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
         	throw new ApiException("Amount verification failed, may be illegal notification for price:"+price);
         }
-
+        historyService.updateHistory(time,"1",notifyBean.getTradeNo());
         dappService.doPaySuccessed(list.get(0).getGoodsId(), list.get(0).getUserId(), price, notifyBean.getPayTime(), notifyBean.getCoinTradeNo());
         
         return "SUCCESS";

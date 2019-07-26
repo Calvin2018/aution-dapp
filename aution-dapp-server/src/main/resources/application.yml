@@ -25,18 +25,18 @@ spring:
          enabled: true
          max-file-size: 20MB
          max-request-size: 200MB
-## Redis配置
-  redis:
-    host: localhost
-    port: 6379
-    password: 123456
-    jedis:
-      pool:
-        max-active: 8
-        max-wait: 0
-        max-idle: 400
-        min-idle: 0
-    timeout: 30s
+### Redis配置
+#  redis:
+#    host: localhost
+#    port: 6379
+#    password: 123456
+#    jedis:
+#      pool:
+#        max-active: 8
+#        max-wait: 0
+#        max-idle: 400
+#        min-idle: 0
+#    timeout: 30s
 # 数据库配置
   datasource:
     druid:
@@ -57,7 +57,7 @@ spring:
 #    #req访问request
 #    request-context-attribute: req
     #后缀名，默认为.ftl
-    suffix: .ftl
+    suffix: .html
 #    #Content-Type默认为text/html
 #    content-type: text/html
 #    #缓存配置
@@ -69,16 +69,16 @@ spring:
 #    settings:
 #      #数字格式化，无小数点
 #      number_format: '0.##'
-# Thymeleaf配置
-  thymeleaf: 
-    #模板加载路径，默认classpath:/templates/ 
-    prefix: classpath:/resources/ 
-    #后缀名，默认为.html
-    suffix: .xhtml
-#    #缓存配置
-#    cache: false 
-#    #编码格式
-#    encoding: UTF-8 
-#    servlet:
-#      #Content-Type默认为text/html
-#      content-type: text/html
+## Thymeleaf配置
+#  thymeleaf: 
+#    #模板加载路径，默认classpath:/templates/ 
+#    prefix: classpath:/resources/ 
+#    #后缀名，默认为.html
+#    suffix: .xhtml
+##    #缓存配置
+##    cache: false 
+##    #编码格式
+##    encoding: UTF-8 
+##    servlet:
+##      #Content-Type默认为text/html
+##      content-type: text/html

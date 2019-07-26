@@ -35,9 +35,9 @@ public class HistoryService {
 		return historyRepository.findAllHistory();
 	}
 	
-	public boolean updateHistory(History record) {
-		if(null == record) throw new IllegalArgumentException("Arguments record are required");
-		return historyRepository.updateByPrimaryKeySelective(record)==0?false:true;
+	public boolean updateHistory(Long bidTime,String temp,String tradeNo) {
+		if(Strings.isNullOrEmpty(temp)||Strings.isNullOrEmpty(tradeNo)) throw new IllegalArgumentException("Arguments tradeNo and temp  are required");
+		return historyRepository.updateHistory(bidTime, temp, tradeNo)==0?false:true;
 	}
 	
 	/**
@@ -117,8 +117,8 @@ public class HistoryService {
 		
 	}
 	
-	public History findHistoryByPrimaryKey(String tradeNo) {
+	public History findHistoryByTradeNo(String tradeNo) {
 		if(Strings.isNullOrEmpty(tradeNo))  throw new IllegalArgumentException("Arguments tradeNo are required");
-		return historyRepository.selectByPrimaryKey(tradeNo);
+		return historyRepository.findHistoryByTradeNo(tradeNo);
 	}
 }

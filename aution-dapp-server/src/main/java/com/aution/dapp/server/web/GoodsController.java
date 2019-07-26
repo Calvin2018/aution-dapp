@@ -3,9 +3,12 @@ package com.aution.dapp.server.web;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -80,7 +83,8 @@ public class GoodsController {
 		return goodsService.findGoodsByGid(gId);
 	}
 	@RequestMapping(value="/create",method=RequestMethod.POST)
-	public boolean insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files) throws IOException {
+	public boolean insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files,HttpServletRequest request) throws IOException {
+		
 		return goodsService.createGoods(goods,dappService,files);
 	}
 	

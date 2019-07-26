@@ -25,7 +25,6 @@ import com.aution.dapp.server.core.internal.DBaseApiService;
 import com.aution.dapp.server.model.BusinessRecord;
 import com.aution.dapp.server.model.Goods;
 import com.aution.dapp.server.model.History;
-import com.aution.dapp.server.model.Message;
 import com.aution.dapp.server.model.PayRequest;
 import com.aution.dapp.server.model.Transaction;
 import com.aution.dapp.server.repository.GoodsRepository;
@@ -219,19 +218,13 @@ public class DappService {
 		//查询所有参与竞拍者,第一个为最终买家
 		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE,Sort.by("bid_price").descending()));
 		//没人竞拍
-		Message record = new Message();
-		record.setFlag('0');
-		record.setGoodsId(gId);
-		
 		Goods goods = new Goods();
 		goods.setGoodsId(gId);
 		if(historyList.size()<=0) {
 			goods.setStatus(3);
 			goodsRepository.updateGoods(goods);
 			
-			record.setUserId(sellerId);
-			record.setType('2');
-			msgRepository.insertSelective(record);
+			msgRepository.insertMessage(sellerId, gId, '2', '0');
 			return ;
 		} 
 		appClient = AppClient.getInstance();
@@ -248,21 +241,15 @@ public class DappService {
 			businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
 			if(i == 0) {
 				//拍卖成功
-				record.setUserId(sellerId);
-				record.setType('1');
-				msgRepository.insertSelective(record);
+				msgRepository.insertMessage(sellerId, gId, '1', '0');
 				//竞拍成功
-				record.setUserId(history.getUserId());
-				record.setType('3');
-				msgRepository.insertSelective(record);
+				msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
 				
 				businessRecord.setUserId(sellerId);
 			}  
 			
 			//竞拍失败
-			record.setUserId(history.getUserId());
-			record.setType('4');
-			msgRepository.insertSelective(record);
+			msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
 			
 			Map<String, String> data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken).getData();
 			

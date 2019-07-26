@@ -8,12 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.aution.dapp.server.model.History;
+import com.aution.dapp.server.service.DappService;
+import com.aution.dapp.server.service.GoodsService;
 import com.aution.dapp.server.service.HistoryService;
 
-import java.util.Date;
+import java.io.IOException;
+import java.util.Map;
 
 
 @Controller
@@ -22,21 +26,36 @@ public class HtmlController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HtmlController.class);
 	@Autowired
 	private HistoryService historyService;
+	@Autowired
+	private DappService dappService;
+	@Autowired
+	private GoodsService goodsService;
 	
 	@RequestMapping(value="/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo,HttpServletRequest request) {
 		LOGGER.debug("start update table t_history,tradeNo: %s",tradeNo);
-		History history = new History();
-		history.setTradeNo(tradeNo);
-		history.setTemp("1");
-		history.setBidTime(new Date().getTime());
-		historyService.updateHistory(history);
+		String temp = "1";
+		Long time = System.currentTimeMillis();
+		historyService.updateHistory(time,temp,tradeNo);
 		LOGGER.debug("finnish update table t_history,tradeNo: %s",tradeNo);
 		
-		history = historyService.findHistoryByPrimaryKey(tradeNo);
+		History history = historyService.findHistoryByTradeNo(tradeNo);
 		request.setAttribute("goods_id", history.getGoodsId());
-		return "index";
+		return "forward:index.html";
 	}
 	
+	@RequestMapping(value="",method=RequestMethod.GET)
+	public  String echo(@RequestParam("access_token")String accessToken) throws IOException {
+		LOGGER.info("access_token: {}",accessToken);
+		Map<String,String> test = dappService.getUserInfo(accessToken);
+		String userId = test.get("job_number");
+		String avatar = test.get("avatar");
+		String userName = test.get("user_name");
+		String userPhone = test.get("user_phone");
+		goodsService.insertUser(userId, avatar, userName,userPhone);
+		
+		return "redirect:index.html?accessToken="+accessToken;
+		
+	} 
 	
 }

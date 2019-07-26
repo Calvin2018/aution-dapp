@@ -33,7 +33,7 @@ import com.google.gson.reflect.TypeToken;
 
 import net.sf.json.JSONObject;
 
-@Controller
+@RestController
 public class SystemController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SystemController.class);
@@ -43,8 +43,6 @@ public class SystemController {
 	private HistoryService historyService;
 	@Autowired
 	private DappService dappService;
-	@Autowired
-	private GoodsService goodsService;
 	
 	@RequestMapping(value="/api/system/transaction/echo",method=RequestMethod.GET)
 	@ResponseBody
@@ -57,22 +55,7 @@ public class SystemController {
 		return historyService.findAllHistory();
 	}
 	
-	@RequestMapping(value="")
-	public  String echo(@RequestParam("access_token")String accessToken) throws IOException {
-		
-		Map<String,String> test = dappService.getUserInfo(accessToken);
-		String userId = test.get("job_number");
-		String avatar = test.get("avatar");
-		String userName = test.get("user_name");
-		String userPhone = test.get("user_phone");
-		goodsService.insertUser(userId, avatar, userName,userPhone);
-		//Map<String,String> map = new HashMap<String,String>();
-		//map.put("access_token", accessToken);
-		//ModelAndView model = new ModelAndView("index.html",map);
-		
-		return "redirect:index.html?accessToken="+accessToken;
-		
-	} 
+	
 	@RequestMapping(value="/test",method=RequestMethod.GET)
 	@ResponseBody
 	public String test() throws IOException {

@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -34,7 +35,7 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   List<History> findHistoryByGoodsIdAndTimeSort(@Param("gId")String gId,Pageable pageable);
   
   
-  @Select("SELECT trade_no,goods_id,h.user_id,tt.bid_price,bid_time,temp,avatar,user_name,user_phone FROM t_history h LEFT JOIN t_user t ON h.user_id = t.user_id LEFT JOIN (SELECT user_id,max(bid_price) bid_price FROM t_history WHERE temp = '1' and goods_id = #{gId} GROUP BY user_id) tt ON tt.user_id=t.user_id")
+  @Select("SELECT trade_no,goods_id,h.user_id,tt.bid_price,bid_time,temp,avatar,user_name,user_phone FROM t_history h LEFT JOIN t_user t ON h.user_id = t.user_id RIGHT JOIN (SELECT user_id,max(bid_price) bid_price FROM t_history WHERE temp = '1' and goods_id = #{gId} GROUP BY user_id) tt ON tt.user_id=t.user_id")
   List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(@Param("gId")String gId,Pageable pageable);
   
   @Select("select MAX(bid_price)MaxPrice from t_history where temp = '1' and  goods_id = #{gId}")
@@ -47,4 +48,8 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   @Insert("insert into t_history (trade_no,goods_id,user_id,bid_price,bid_time,temp) values (#{tradeNo},#{goodsId},#{userId},#{bidPrice},#{bidTime},#{temp})")
   Integer insertHistory(@RequestBody History History);
   
+  @Update("update t_history set temp = #{temp} , bid_time = #{bidTime} where trade_no = #{tradeNo}")
+  Integer updateHistory(@Param("bidTime")Long bidTime,@Param("temp")String temp,@Param("tradeNo")String tradeNo);
+  @Select("select trade_no,goods_id,user_id,bid_price,bid_time,temp FROM t_history WHERE trade_no = #{tradeNo}")
+  History findHistoryByTradeNo(@Param("tradeNo")String tradeNo);
 }
