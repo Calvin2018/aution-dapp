@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.aution.dapp.server.model.Goods;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
@@ -41,7 +42,13 @@ public class HtmlController {
 		
 		History history = historyService.findHistoryByTradeNo(tradeNo);
 		request.setAttribute("goods_id", history.getGoodsId());
-		return "redirect:/index.html?goods_id="+history.getGoodsId();
+		
+		Goods goods = new Goods();
+		goods.setGoodsId(history.getGoodsId());
+		goods.setCurrentPrice(history.getBidPrice());
+		goodsService.updateGoods(goods);
+		
+		return "redirect:/index.html?goodsId="+history.getGoodsId();
 	}
 	
 	@RequestMapping(value="",method=RequestMethod.GET)
@@ -54,7 +61,7 @@ public class HtmlController {
 		String userPhone = test.get("user_phone");
 		goodsService.insertUser(userId, avatar, userName,userPhone);
 		
-		return "redirect:index.html?access_token="+accessToken;
+		return "redirect:index.html?accessToken="+accessToken;
 		
 	} 
 	
