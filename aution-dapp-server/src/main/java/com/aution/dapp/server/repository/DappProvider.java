@@ -3,7 +3,6 @@ package com.aution.dapp.server.repository;
 
 
 import com.aution.dapp.server.model.Goods;
-import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.model.Transaction;
 import com.google.common.base.Strings;
 

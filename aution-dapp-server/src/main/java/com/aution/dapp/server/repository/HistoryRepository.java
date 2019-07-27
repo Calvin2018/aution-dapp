@@ -35,7 +35,7 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   List<History> findHistoryByGoodsIdAndTimeSort(@Param("gId")String gId,Pageable pageable);
   
   
-  @Select("SELECT trade_no,goods_id,h.user_id,tt.bid_price,bid_time,temp,avatar,user_name,user_phone FROM t_history h LEFT JOIN t_user t ON h.user_id = t.user_id RIGHT JOIN (SELECT user_id,max(bid_price) bid_price FROM t_history WHERE temp = '1' and goods_id = #{gId} GROUP BY user_id) tt ON tt.user_id=t.user_id")
+  @Select("select trade_no,goods_id,user_id,max(bid_price)bid_price,bid_time,temp from t_history where temp = '1' and  goods_id = #{gId} group by user_id ")	
   List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(@Param("gId")String gId,Pageable pageable);
   
   @Select("select MAX(bid_price)MaxPrice from t_history where temp = '1' and  goods_id = #{gId}")

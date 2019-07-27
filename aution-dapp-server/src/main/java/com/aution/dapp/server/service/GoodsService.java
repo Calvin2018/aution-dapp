@@ -279,9 +279,13 @@ public class  GoodsService{
 			File tempFile = new File(path,fileName);
 			String[] temp = fileName.split("\\.");
 			
-			boolean flag = tempFile.renameTo(new File(path,(gId+i)+"." + temp[1]));
+			boolean flag = tempFile.renameTo(new File(path,(gId+i)+"." + temp[temp.length-1]));
 			LOGGER.debug("rename img name :{},newName : {}",flag,(gId+i));
-			imgUrl +=  (gId+i)+"." + temp[1] + ";";
+			if(!flag) {
+				imgUrl += tempFile.getName();
+			}else {
+				imgUrl +=  (gId+i)+"." + temp[1] + ";";
+			}
 			
 			OutputStream out = new FileOutputStream(tempFile); 
 			bufferedOutputStream = new BufferedOutputStream(out);

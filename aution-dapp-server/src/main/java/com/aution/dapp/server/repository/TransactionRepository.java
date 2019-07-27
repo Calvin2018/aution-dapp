@@ -36,7 +36,7 @@ public interface TransactionRepository extends PlatformMybatisRepository<Transac
   @SelectProvider(type=DappProvider.class,method="findTransactionByParms")
   List<Transaction> findTransactionByParms(@RequestBody Transaction transaction);
   
-  @Insert("insert into t_transaction (tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp) values (#{txId},#{fromUserId},#{toUserId},#{price},#{gId},#{txTime},#{temp})")
+  @Insert("insert into t_transaction (tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp) values (#{txId},#{fromUserId},#{toUserId},#{price},#{goodsId},#{txTime},#{temp})")
   Integer insertTransaction(@RequestBody Transaction transaction);
   
 }

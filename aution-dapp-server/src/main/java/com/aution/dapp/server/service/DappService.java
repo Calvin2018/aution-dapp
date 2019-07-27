@@ -117,14 +117,14 @@ public class DappService {
 		//检查竞拍价格比当前价格高
 		Double maxPrice = hRepository.findMaxPriceByGid(gId);
 		if(null != maxPrice) 
-			if(price <= maxPrice) throw new ApiException("Current price is higher than  bid price");
+			if(price <= maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
 		
 		Pageable pageable = PageRequest.of(0, 1, Sort.by(Order.desc("bid_price")));
 		List<History> temp = hRepository.findHistoryByUserIdAndGoodsId(userId, gId, pageable);
 		if(temp.size() >0)
 			price = price - temp.get(0).getBidPrice();
 		if(price <= 0 )
-			throw new ApiException("Current price is higher than  bid price");
+			throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
 		
 		obj = getBalance(userId,String.valueOf(price),null);
 		boolean flag = (boolean)obj.get("flag");
@@ -220,13 +220,7 @@ public class DappService {
 		//没人竞拍
 		Goods goods = new Goods();
 		goods.setGoodsId(gId);
-		if(historyList.size()<=0) {
-			goods.setStatus(3);
-			goodsRepository.updateGoods(goods);
-			
-			msgRepository.insertMessage(sellerId, gId, '2', '0');
-			return ;
-		} 
+		
 		appClient = AppClient.getInstance();
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
 		BusinessRecord businessRecord= new BusinessRecord();
@@ -262,9 +256,21 @@ public class DappService {
 			transaction.setToUserId(businessRecord.getUserId());
 			transaction.setTxId(data.get(ApiConstants.X_TRADE_NO));
 			transaction.setTxTime(time);
+			transaction.setTemp("");
 			Integer tFlag = tRepository.insertTransaction(transaction);
 			//用于数据库回滚
 			if(0 == tFlag) throw new ApiException("Transaction Insert Failed");
+		}
+		
+		if(historyList.size()<=0) {
+			goods.setStatus(3);
+			goodsRepository.updateGoods(goods);
+			
+			msgRepository.insertMessage(sellerId, gId, '2', '0');
+			return ;
+		}else {
+			goods.setStatus(2);
+			goodsRepository.updateGoods(goods);
 		}
 		
 		return ;

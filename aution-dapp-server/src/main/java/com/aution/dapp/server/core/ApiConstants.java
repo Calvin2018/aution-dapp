@@ -17,6 +17,7 @@ public interface ApiConstants {
   String CODE_REQUEST_EROR = "-1";
   String CODE_EMPTY_RESULT = "1002";
   String CODE_PARAM_INVALID = "1001";
+  String CODE_PRICE_ERROR = "1003";
   String CODE_PARAM_EROR = "40001";
   String CODE_TIMESTAMP_EXPIRED = "40002";
   String CODE_TOKEN_ERROR = "40003";

@@ -36,11 +36,6 @@ public class HisttoryController {
 		
 		return historyService.findHistoryByGoodsIdAndTimeSort(gId,sort,page,size);
 	}
-	/*@RequestMapping(name="/findHistoryByGoodsIdAndPriceSort",method=RequestMethod.POST)
-	@ResponseBody
-	public List<History> findHistoryByGoodsIdAndPriceSort(String gId,String sort,Pageable pageable){
-		return historyService.findHistoryByGoodsIdAndPriceSort(gId,sort, pageable);
-	}*/
 	@RequestMapping(value="/findHistoryByGoodsIdAndPriceSortAndGroupByUserId",method=RequestMethod.GET)
 	@ResponseBody
 	public List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(String gId,String sort,Integer page,Integer size){

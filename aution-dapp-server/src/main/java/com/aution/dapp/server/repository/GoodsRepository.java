@@ -40,7 +40,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   List<Goods> findGoodsBySellerIdAndStatus(@Param("sellerId")String sellerId,@Param("status")Integer status,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByBuyerIdAndStatus")
-  List<Goods> findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status,Pageable pageable);
+  List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByEtimeAndSort")	
   List<Goods> findGoodsByEtimeAndSort(Long eTime,String sort,Pageable pageable);

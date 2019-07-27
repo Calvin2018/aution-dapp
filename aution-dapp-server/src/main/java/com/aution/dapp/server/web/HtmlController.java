@@ -33,15 +33,15 @@ public class HtmlController {
 	
 	@RequestMapping(value="/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo,HttpServletRequest request) {
-		LOGGER.debug("start update table t_history,tradeNo: %s",tradeNo);
+		LOGGER.debug("start update table t_history,tradeNo: {}",tradeNo);
 		String temp = "1";
 		Long time = System.currentTimeMillis();
 		historyService.updateHistory(time,temp,tradeNo);
-		LOGGER.debug("finnish update table t_history,tradeNo: %s",tradeNo);
+		LOGGER.debug("finnish update table t_history,tradeNo: {}",tradeNo);
 		
 		History history = historyService.findHistoryByTradeNo(tradeNo);
 		request.setAttribute("goods_id", history.getGoodsId());
-		return "forward:index.html";
+		return "redirect:/index.html?goods_id="+history.getGoodsId();
 	}
 	
 	@RequestMapping(value="",method=RequestMethod.GET)
@@ -54,7 +54,7 @@ public class HtmlController {
 		String userPhone = test.get("user_phone");
 		goodsService.insertUser(userId, avatar, userName,userPhone);
 		
-		return "redirect:index.html?accessToken="+accessToken;
+		return "redirect:index.html?access_token="+accessToken;
 		
 	} 
 	

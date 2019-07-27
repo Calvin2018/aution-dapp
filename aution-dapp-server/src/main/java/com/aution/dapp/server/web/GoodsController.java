@@ -8,7 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.ResourceUtils;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,7 +55,7 @@ public class GoodsController {
 	@RequestMapping(value="/findGoodsByBuyerIdAndStatus",method=RequestMethod.GET)
 	@ResponseBody
 	public List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Integer page,Integer size){
-		return goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size));
+		return goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
 	}
 	@RequestMapping(value="/findGoodsByEtimeAndSort",method=RequestMethod.GET)
 	@ResponseBody
