@@ -259,7 +259,7 @@ public class  GoodsService{
 	  return result;
   }
   public  String  imgStore(MultipartFile[] files,String gId) throws IOException{
-		String imgUrl = "";
+		StringBuffer imgUrl = new StringBuffer();
 	    InputStream inputStream = null;
 		BufferedOutputStream bufferedOutputStream = null;
 		for(int i=0;i<files.length;i++){
@@ -282,11 +282,13 @@ public class  GoodsService{
 			boolean flag = tempFile.renameTo(new File(path,(gId+i)+"." + temp[temp.length-1]));
 			LOGGER.debug("rename img name :{},newName : {}",flag,(gId+i));
 			if(!flag) {
-				imgUrl += tempFile.getName();
+				fileName = tempFile.getName();
 			}else {
-				imgUrl +=  (gId+i)+"." + temp[1] + ";";
+				fileName = (gId+i)+"." + temp[temp.length-1];
 			}
+			imgUrl = imgUrl.append(fileName);
 			
+			tempFile = new File(path,fileName);
 			OutputStream out = new FileOutputStream(tempFile); 
 			bufferedOutputStream = new BufferedOutputStream(out);
 			byte[] buff = new byte[1024];
@@ -295,6 +297,7 @@ public class  GoodsService{
 				bufferedOutputStream.write(buff,0,length);
 			}
 			bufferedOutputStream.flush();
+			imgUrl = imgUrl.append(";");
 			
 		}
 		if(inputStream != null){
@@ -304,7 +307,7 @@ public class  GoodsService{
 			bufferedOutputStream.close();
 		}
 		
-		return imgUrl;
+		return imgUrl.toString();
 	}
   
   public boolean  insertUser(String userId,String avatar,String userName,String userPhone) {

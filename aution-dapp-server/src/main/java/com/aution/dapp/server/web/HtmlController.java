@@ -33,7 +33,7 @@ public class HtmlController {
 	private GoodsService goodsService;
 	
 	@RequestMapping(value="/order/pay/successed")
-	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo,HttpServletRequest request) {
+	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
 		LOGGER.debug("start update table t_history,tradeNo: {}",tradeNo);
 		String temp = "1";
 		Long time = System.currentTimeMillis();
@@ -41,7 +41,6 @@ public class HtmlController {
 		LOGGER.debug("finnish update table t_history,tradeNo: {}",tradeNo);
 		
 		History history = historyService.findHistoryByTradeNo(tradeNo);
-		request.setAttribute("goods_id", history.getGoodsId());
 		
 		Goods goods = new Goods();
 		goods.setGoodsId(history.getGoodsId());

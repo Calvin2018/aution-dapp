@@ -116,6 +116,7 @@ public class DappService {
 		JSONObject obj = new JSONObject();
 		//检查竞拍价格比当前价格高
 		Double maxPrice = hRepository.findMaxPriceByGid(gId);
+		Double bidPrice = price;
 		if(null != maxPrice) 
 			if(price <= maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
 		
@@ -154,7 +155,7 @@ public class DappService {
 		history.setTradeNo(tradeNo);
 		history.setGoodsId(gId);
 		history.setUserId(userId);
-		history.setBidPrice(price);
+		history.setBidPrice(bidPrice);
 		history.setBidTime(new Date().getTime());
 		//判断此次竞拍是否支付 0：表示未支付 1：表示支付成功
 		history.setTemp("0");
