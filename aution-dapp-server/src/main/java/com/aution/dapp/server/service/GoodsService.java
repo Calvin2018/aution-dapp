@@ -26,7 +26,9 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -70,7 +72,7 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(String priceSort,String timeSort,Integer type,Pageable pageable){
-	  
+	  if(Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)) pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_time").descending());
 	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort,timeSort,type,pageable);
   }
 	
@@ -114,7 +116,21 @@ public class  GoodsService{
 		  if(status == 2) msgRepository.updateMessage(buyerId,'3');
 		  else if(status == 3) msgRepository.updateMessage(buyerId,'4');
 		  else if(status == 1) msgRepository.updateMessage(buyerId,'0');
-		  return goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,status, pageable);
+		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,status, pageable);
+		  if(status == 3) {
+			  for(Goods temp:list) {
+				  temp.setStatus(6);
+			  }
+		  }else if(status == 2) {
+			  for(Goods temp:list) {
+				  temp.setStatus(5);
+			  }
+		  }else if(status == 1) {
+			  for(Goods temp:list) {
+				  temp.setStatus(4);
+			  }
+		  }
+		  return list;
 	  }
 	  throw new IllegalArgumentException("Arguments buyerId and status are required");
   }
@@ -174,8 +190,17 @@ public class  GoodsService{
    */
   public Goods findGoodsByGid(String gId) {
 	  
-	  if(!Strings.isNullOrEmpty(gId))
-		  return goodsRepository.findGoodsByGid(gId);
+	  if(!Strings.isNullOrEmpty(gId)) {
+		  Goods goods =  goodsRepository.findGoodsByGid(gId);
+		  if(!Strings.isNullOrEmpty(goods.getBuyerId())) {
+			  Goods temp = userRepository.findUserByUserId(goods.getBuyerId());
+			  if(null != temp) {
+				  goods.setBuyName(temp.getUserName());
+				  goods.setBuyName(temp.getUserPhone());
+			  }
+		  }
+		  return goods;
+	  }
 	  throw new IllegalArgumentException("Arguments gId are required");
   }
 
@@ -194,7 +219,8 @@ public class  GoodsService{
 	  Integer flag = goodsRepository.insertGoods(goods);
 	  if(flag != 0) {
 		//任务名称
-	    String name = goods.getGoodsId();
+		Long time = System.currentTimeMillis();
+	    String name = time + goods.getGoodsId();
 	    //任务所属分组
 	    String group = this.getClass().getName();
 
@@ -224,7 +250,6 @@ public class  GoodsService{
 		} catch (SchedulerException e) {
 			  LOGGER.info("SchedulerException:{}",e.getMessage());
 		}
-		  //new Timer().schedule(new MyTimeTask(dappService,goods.getSellerId(),goods.getGoodsId()), new Date(goods.getEndTime()));
 	  } 
 	  return (0 == flag)?false:true;
   }
@@ -259,9 +284,13 @@ public class  GoodsService{
 	  return result;
   }
   public  String  imgStore(MultipartFile[] files,String gId) throws IOException{
-		StringBuffer imgUrl = new StringBuffer();
-	    InputStream inputStream = null;
-		BufferedOutputStream bufferedOutputStream = null;
+	  StringBuffer imgUrl = new StringBuffer();
+	  OutputStream out = null;
+	  InputStream inputStream = null;
+	  BufferedInputStream bufferedInputStream = null;
+	  BufferedOutputStream bufferedOutputStream = null;
+	  try {
+		
 		for(int i=0;i<files.length;i++){
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
@@ -275,21 +304,14 @@ public class  GoodsService{
 			String fileName = file.getOriginalFilename();
 			
 			inputStream = file.getInputStream();
-			BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+			bufferedInputStream = new BufferedInputStream(inputStream);
 			File tempFile = new File(path,fileName);
 			String[] temp = fileName.split("\\.");
 			
-			boolean flag = tempFile.renameTo(new File(path,(gId+i)+"." + temp[temp.length-1]));
-			LOGGER.debug("rename img name :{},newName : {}",flag,(gId+i));
-			if(!flag) {
-				fileName = tempFile.getName();
-			}else {
-				fileName = (gId+i)+"." + temp[temp.length-1];
-			}
-			imgUrl = imgUrl.append(fileName);
+			fileName = (gId+i)+"." + temp[temp.length-1];
 			
 			tempFile = new File(path,fileName);
-			OutputStream out = new FileOutputStream(tempFile); 
+			out = new FileOutputStream(tempFile); 
 			bufferedOutputStream = new BufferedOutputStream(out);
 			byte[] buff = new byte[1024];
 			int length = 0;
@@ -297,15 +319,45 @@ public class  GoodsService{
 				bufferedOutputStream.write(buff,0,length);
 			}
 			bufferedOutputStream.flush();
+			out.flush();
+			
+			
+			imgUrl = imgUrl.append(fileName);
 			imgUrl = imgUrl.append(";");
 			
+			if(bufferedOutputStream != null){
+				bufferedOutputStream.close();
+			}
+			if(bufferedInputStream != null) {
+				bufferedInputStream.close();
+			}
+			if(out != null){
+				out.close();
+			}
+			if(inputStream != null){
+				inputStream.close();
+			}
+			
+		}
+	  }catch(IOException e) {
+		  throw new  IOException();
+	  }finally {
+		  
+		if(bufferedOutputStream != null){
+			bufferedOutputStream.close();
+		}
+		if(bufferedInputStream != null) {
+			bufferedInputStream.close();
+		}
+		if(out != null){
+			out.close();
 		}
 		if(inputStream != null){
 			inputStream.close();
 		}
-		if(bufferedOutputStream != null){
-			bufferedOutputStream.close();
-		}
+		
+		
+	  }
 		
 		return imgUrl.toString();
 	}
@@ -313,6 +365,11 @@ public class  GoodsService{
   public boolean  insertUser(String userId,String avatar,String userName,String userPhone) {
 	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone))throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
 	  Integer flag = userRepository.insertUser(userId, avatar, userName,userPhone);
+	  return flag ==0?false:true;
+  }
+  public boolean updateUser(String userId,String avatar,String userName,String userPhone) {
+	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone))throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
+	  Integer flag = userRepository.updateUser(userId, avatar, userName,userPhone);
 	  return flag ==0?false:true;
   }
 }

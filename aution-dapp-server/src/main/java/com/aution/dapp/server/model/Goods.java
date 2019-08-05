@@ -8,6 +8,7 @@ import javax.persistence.Table;
 /**
  * 商品实体类
  * @author hws
+ * 注：前期设计不完善，缺少user model  因此直接把字段加入到goods当中
  * 
  */
 @Entity
@@ -56,6 +57,22 @@ public class Goods {
 	@Column(name = "user_phone")
 	private String userPhone;
 	
+	private String buyName;
+	private String buyPhone;
+	
+	
+	public String getBuyName() {
+		return buyName;
+	}
+	public void setBuyName(String buyName) {
+		this.buyName = buyName;
+	}
+	public String getBuyPhone() {
+		return buyPhone;
+	}
+	public void setBuyPhone(String buyPhone) {
+		this.buyPhone = buyPhone;
+	}
 	public String getAvatar() {
 		return avatar;
 	}
@@ -174,6 +191,6 @@ public class Goods {
 				+ ", type=" + type + ", startPrice=" + startPrice + ", startTime=" + startTime + ", endTime=" + endTime
 				+ ", details=" + details + ", imgs=" + imgs + ", currentPrice=" + currentPrice + ", content=" + content
 				+ ", status=" + status + ", avatar=" + avatar + ", userName=" + userName + ", userPhone=" + userPhone
-				+ ", temp=" + temp + "]";
+				+ ", buyName=" + buyName + ", buyPhone=" + buyPhone + ", temp=" + temp + "]";
 	}
 }

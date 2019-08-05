@@ -39,7 +39,6 @@ public class AppClient {
       // load the configuration files.
       configuration = ConfigUtils.fromResourcePath(getClass(), "/dapp.properties");
       dBaseApiService = new DBaseApiService(appContext, configuration);
-      accessToken = dBaseApiService.accessToken();
     } catch (IOException ioe) {
       LOGGER.error("Failed to load the configuration file.", ioe);
       throw new RuntimeException("Failed to load the configuration file.", ioe);
@@ -86,5 +85,9 @@ public class AppClient {
 	return accessToken;
   }
 
+public void setAccessToken(String accessToken) {
+	this.accessToken = accessToken;
+}
+  
   
 }

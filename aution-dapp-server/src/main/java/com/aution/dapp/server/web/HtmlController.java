@@ -1,7 +1,6 @@
 package com.aution.dapp.server.web;
 
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,9 @@ import com.aution.dapp.server.service.HistoryService;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+
 
 @Controller
 public class HtmlController {
@@ -32,36 +34,46 @@ public class HtmlController {
 	@Autowired
 	private GoodsService goodsService;
 	
-	@RequestMapping(value="/order/pay/successed")
+	@RequestMapping(value="/api/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
 		LOGGER.debug("start update table t_history,tradeNo: {}",tradeNo);
 		String temp = "1";
-		Long time = System.currentTimeMillis();
-		historyService.updateHistory(time,temp,tradeNo);
+		historyService.updateHistory(temp,tradeNo);
 		LOGGER.debug("finnish update table t_history,tradeNo: {}",tradeNo);
 		
 		History history = historyService.findHistoryByTradeNo(tradeNo);
+		Double maxPrice = historyService.findMaxPriceByGid(history.getGoodsId());
+		if(history.getBidPrice() >= maxPrice) {
+			Goods goods = new Goods();
+			goods.setGoodsId(history.getGoodsId());
+			goods.setCurrentPrice(history.getBidPrice());
 		
-		Goods goods = new Goods();
-		goods.setGoodsId(history.getGoodsId());
-		goods.setCurrentPrice(history.getBidPrice());
-		goodsService.updateGoods(goods);
-		
-		return "redirect:/index.html?goodsId="+history.getGoodsId();
+			goodsService.updateGoods(goods);
+		}
+		return "redirect:/index.html";
 	}
 	
 	@RequestMapping(value="",method=RequestMethod.GET)
-	public  String echo(@RequestParam("access_token")String accessToken) throws IOException {
+	public  String echo(@RequestParam("access_token")String accessToken,HttpServletRequest request) throws IOException {
 		LOGGER.info("access_token: {}",accessToken);
-		Map<String,String> test = dappService.getUserInfo(accessToken);
-		String userId = test.get("job_number");
-		String avatar = test.get("avatar");
-		String userName = test.get("user_name");
-		String userPhone = test.get("user_phone");
-		goodsService.insertUser(userId, avatar, userName,userPhone);
+		Map<String,String> temp = dappService.getUserInfo(accessToken);
+		String userId = temp.get("job_number");
+		String avatar = temp.get("avatar");
+		String userName = temp.get("user_name");
+		String userPhone = temp.get("user_phone");
+		boolean flag = goodsService.insertUser(userId, avatar, userName,userPhone);
+		if(!flag)goodsService .updateUser(userId, avatar, userName, userPhone);
 		
-		return "redirect:index.html?accessToken="+accessToken;
+		request.getSession().setAttribute("job_number", userId);
+		/*request.getSession().setAttribute("avatar", avatar);
+		request.getSession().setAttribute("user_name", userName);
+		request.getSession().setAttribute("user_phone", userPhone);*/
+		
+		return "redirect:index.html";
 		
 	} 
+	
+	
+	
 	
 }

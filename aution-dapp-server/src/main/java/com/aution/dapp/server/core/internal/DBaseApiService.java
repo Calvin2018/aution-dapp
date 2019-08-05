@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.core.ApiException;
+import com.aution.dapp.server.core.AppClient;
 import com.aution.dapp.server.core.AppContext;
 import com.aution.dapp.server.core.BaseApiService;
 import com.aution.dapp.server.core.RestApiResponse;
@@ -28,7 +29,6 @@ import com.google.gson.reflect.TypeToken;
 public class DBaseApiService extends BaseApiService{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DBaseApiService.class);
-	
 	public DBaseApiService(AppContext appContext) {
 		super(appContext);
 	}
@@ -53,7 +53,7 @@ public class DBaseApiService extends BaseApiService{
 	}
 	
 	
-	public  String accessToken() throws IOException{
+	public  String accessToken(AppClient appClient) throws IOException{
 		
 		
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -79,6 +79,7 @@ public class DBaseApiService extends BaseApiService{
         String token = null;
         if(null != map) {
         	token = map.get("access_token");
+        	appClient.setAccessToken(token);
         	if (Strings.isNullOrEmpty(token)) 
                 throw new ApiException(Integer.parseInt(ApiConstants.CODE_EMPTY_RESULT), "Return an empty token");
         	// Store HttpContext.
@@ -87,10 +88,16 @@ public class DBaseApiService extends BaseApiService{
         return token;
 	}
 	
-	public String doOrder(String appid,String accessToken,PayRequest payRequest) throws IOException{
+	
+	public String doOrder(String appid,String accessToken,PayRequest payRequest,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid)||Strings.isNullOrEmpty(accessToken)||null == payRequest)
-			throw new IllegalArgumentException("Arguments appid accessToken payRequest and typeToken are required");
+		if(Strings.isNullOrEmpty(appid)||null == payRequest)
+			throw new IllegalArgumentException("Arguments appid  payRequest and typeToken are required");
+		
+		if(Strings.isNullOrEmpty(accessToken)) {
+			accessToken = accessToken(appClient);
+			appClient.setAccessToken(accessToken);
+		}
 		
 		String jsonParam = JsonUtil.toSnakeJson(payRequest);
 		
@@ -118,12 +125,15 @@ public class DBaseApiService extends BaseApiService{
         	result = doPost(hp, context, new TypeToken<RestApiResponse<Object>>() {});
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
-    		    accessToken = accessToken();
+    		    accessToken = accessToken(appClient);
+    		    appClient.setAccessToken(accessToken);
     		    signParam.put("access_token", accessToken);
     		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, context, new TypeToken<RestApiResponse<Object>>() {});
+        	}else {
+        		throw e;
         	}
         }
         String payUrl = null;
@@ -142,10 +152,16 @@ public class DBaseApiService extends BaseApiService{
         return payUrl;
 	}
 	
-	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,BusinessRecord businessRecord,TypeToken<RestApiResponse<T>> typeToken) throws IOException{
+	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,BusinessRecord businessRecord,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid)||Strings.isNullOrEmpty(accessToken)||null == businessRecord)
-			throw new IllegalArgumentException("Arguments appid accessToken businessRecord and typeToken are required");
+		if(Strings.isNullOrEmpty(appid)||null == businessRecord)
+			throw new IllegalArgumentException("Arguments appid  businessRecord and typeToken are required");
+		
+		if(Strings.isNullOrEmpty(accessToken)) {
+			accessToken = accessToken(appClient);
+			appClient.setAccessToken(accessToken);
+		}
+		
 		String jsonParam = JsonUtil.toSnakeJson(businessRecord);
 		
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -169,22 +185,30 @@ public class DBaseApiService extends BaseApiService{
         	result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
-    		    accessToken = accessToken();
+    		    accessToken = accessToken(appClient);
+    		    appClient.setAccessToken(accessToken);
     		    signParam.put("access_token", accessToken);
     		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
+        	}else {
+        		throw e;
         	}
         }
 		return result;
 		
 	}
 	
-	public <T> RestApiResponse<T> doQuery(String appid,String accessToken,String userId,String amount,String feeAmount,TypeToken<RestApiResponse<T>> typeToken) throws IOException{
+	public <T> RestApiResponse<T> doQuery(String appid,String accessToken,String userId,String amount,String feeAmount,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid)||Strings.isNullOrEmpty(accessToken))
-			throw new IllegalArgumentException("Arguments appid accessToken and typeToken are required");
+		if(Strings.isNullOrEmpty(appid))
+			throw new IllegalArgumentException("Arguments appid  typeToken are required");
+		if(Strings.isNullOrEmpty(accessToken)) {
+			accessToken = accessToken(appClient);
+			appClient.setAccessToken(accessToken);
+		}
+			
 		if(Strings.isNullOrEmpty(amount))feeAmount = null;
 		if(!Strings.isNullOrEmpty(amount)&&Strings.isNullOrEmpty(feeAmount))feeAmount = "0";
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -217,12 +241,15 @@ public class DBaseApiService extends BaseApiService{
         	result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
-    		    accessToken = accessToken();
+    		    accessToken = accessToken(appClient);
+    		    appClient.setAccessToken(accessToken);
     		    signParam.put("access_token", accessToken);
     		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
+        	}else {
+        		throw e;
         	}
         }
 		return result;

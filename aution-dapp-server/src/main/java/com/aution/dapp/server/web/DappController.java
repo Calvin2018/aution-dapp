@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.core.ApiException;
+import com.aution.dapp.server.core.ApiResult;
 import com.aution.dapp.server.core.AppClient;
 import com.aution.dapp.server.core.message.MsgInMemoryDuplicateChecker;
 import com.aution.dapp.server.model.History;
@@ -39,24 +39,48 @@ public class DappController {
 	
 	private  AppClient appClient ;
 	
-	@RequestMapping(value="/getUserInfo",method=RequestMethod.POST)
-	public Map<String,String> getUserInfo(String token) throws ApiException, IOException  {
-		return dappService.getUserInfo(token);
-	}
+	
 	
 	@RequestMapping(value="/getBalance",method=RequestMethod.POST)
-	public JSONObject getBalance(String userId,String amount,String feeAmount) throws ApiException, IOException  {
-		return dappService.getBalance(userId,amount,feeAmount);
+	public ApiResult<JSONObject> getBalance(String userId,String amount,String feeAmount) throws ApiException, IOException  {
+		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
+		try {
+			JSONObject data  = dappService.getBalance(userId,amount,feeAmount);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(data);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e) {
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		
+		return result;
 	}
 	
 	@RequestMapping(value="/bid",method=RequestMethod.POST)
-	public JSONObject bid(String gId,String userId,Double price) throws Exception {
+	public ApiResult<JSONObject> bid(String gId,String userId,Double price) throws Exception {
+		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
-			return  dappService.createOrder(gId, userId, price);
-		} catch (Exception e) {
-			LOGGER.debug("create order failed for gId: %s,userId: %s",gId,userId);
-			throw new ApiException(e.getMessage());
+			JSONObject data =  dappService.createOrder(gId, userId, price);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(data);
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e) {
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
 		}
+		return result;
 	}
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
@@ -66,7 +90,7 @@ public class DappController {
 		
 		if(null == notifyBean||notifyBean.getOrderStatus().equals(ApiConstants.DA_SUCCESS)) {
 			time = System.currentTimeMillis();
-			historyService.updateHistory(time,temp,notifyBean.getTradeNo());
+			historyService.updateHistory(temp,notifyBean.getTradeNo());
 			return "FAILED";
 		}
 		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
@@ -77,7 +101,7 @@ public class DappController {
         if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
         	LOGGER.info("Signature verification passed for sign: %s",sign);
         } else {
-        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
+        	historyService.updateHistory(temp,notifyBean.getTradeNo());
         	LOGGER.error("Signature verification failed for sign: %s",sign);
         	throw new ApiException("Signature verification failed for sign:"+sign);
         }
@@ -85,7 +109,7 @@ public class DappController {
         List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
         Double price = 0d;
         if(list.size() == 0) {
-        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
+        	historyService.updateHistory(temp,notifyBean.getTradeNo());
         	throw new ApiException("Amount verification failed for price:" + price);
         }else if(list.size() == 1) {
 			price = list.get(0).getBidPrice();
@@ -96,10 +120,10 @@ public class DappController {
         	LOGGER.info("Amount verification passed");
         } else {
         	LOGGER.error("Amount verification failed, may be illegal notification for price: %s",price);
-        	historyService.updateHistory(time,temp,notifyBean.getTradeNo());
+        	historyService.updateHistory(temp,notifyBean.getTradeNo());
         	throw new ApiException("Amount verification failed, may be illegal notification for price:"+price);
         }
-        historyService.updateHistory(time,"1",notifyBean.getTradeNo());
+        historyService.updateHistory("1",notifyBean.getTradeNo());
         dappService.doPaySuccessed(list.get(0).getGoodsId(), list.get(0).getUserId(), price, notifyBean.getPayTime(), notifyBean.getCoinTradeNo());
         
         return "SUCCESS";

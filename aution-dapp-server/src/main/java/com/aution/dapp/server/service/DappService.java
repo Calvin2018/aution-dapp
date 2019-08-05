@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,6 +32,7 @@ import com.aution.dapp.server.repository.GoodsRepository;
 import com.aution.dapp.server.repository.HistoryRepository;
 import com.aution.dapp.server.repository.MessageRepository;
 import com.aution.dapp.server.repository.TransactionRepository;
+import com.aution.dapp.server.repository.UserInfoRepository;
 import com.aution.dapp.server.utils.GenerateNoUtil;
 import com.google.common.base.Strings;
 import com.google.gson.reflect.TypeToken;
@@ -60,8 +62,11 @@ public class DappService {
 	@Autowired
 	private MessageRepository msgRepository;
 	
+	@Autowired
+	private UserInfoRepository userRepository;
 	
-	private AppClient appClient = AppClient.getInstance();
+	
+	private static AppClient appClient = AppClient.getInstance();
 	
 	
 	public JSONObject getBalance(String userId,String amount,String feeAmount) throws IOException {
@@ -74,7 +79,7 @@ public class DappService {
 		String accessToken = appClient.getAccessToken();
 		TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
 		
-		RestApiResponse<Map<String,String>> temp = dBaseApiService.doQuery(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, userId, amount, feeAmount, typeToken);
+		RestApiResponse<Map<String,String>> temp = dBaseApiService.doQuery(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, userId, amount, feeAmount, typeToken,appClient);
 		if(!Strings.isNullOrEmpty(amount)) {
 			if(!temp.getCode().equals(ApiConstants.CODE_SUCCESS)) 
 				obj.put("flag", false);
@@ -87,16 +92,26 @@ public class DappService {
 	}
 	
 	
-	public Map<String,String> getUserInfo(String token) throws IOException {
-		if(Strings.isNullOrEmpty(token))throw new IllegalArgumentException("Arguments token are required");
+	public Map<String,String> getUserInfo(String authToken) throws IOException {
 		
-		appClient = AppClient.getInstance();
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
 		TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
-		Map<String,String> map = dBaseApiService.getUserInfo(token, typeToken).getData();
+		Map<String,String> map = dBaseApiService.getUserInfo(authToken, typeToken).getData();
 		return map;
 	}
 	
+	public Map<String,String> getUserInfoUserId(String userId) throws IOException {
+		if(Strings.isNullOrEmpty(userId))throw new IllegalArgumentException("Arguments userId are required");
+		
+		Goods goods = userRepository.findUserByUserId(userId);
+		Map<String,String> map = new HashMap<String,String>();
+		if(null == goods||Strings.isNullOrEmpty(goods.getUserName())) throw new IllegalArgumentException("userId is not exist!");
+		map.put("job_number", userId);
+		map.put("avatar", goods.getAvatar());
+		map.put("user_name",goods.getUserName());
+		map.put("user_phone", goods.getUserPhone());
+		return map;
+	}
 	/**
 	 * 调用灵光币接口创建交易 
 	 * @param gId 商品id
@@ -115,10 +130,17 @@ public class DappService {
 		
 		JSONObject obj = new JSONObject();
 		//检查竞拍价格比当前价格高
-		Double maxPrice = hRepository.findMaxPriceByGid(gId);
-		Double bidPrice = price;
-		if(null != maxPrice) 
+		Goods goods = goodsRepository.findGoodsByGid(gId);
+		Double maxPrice = null;
+		if(null==goods.getCurrentPrice()) {
+			maxPrice = goods.getStartPrice();
+			if(price < maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+		}else {
+			maxPrice = goods.getCurrentPrice();
 			if(price <= maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+		}
+		Double bidPrice = price;
+		
 		
 		Pageable pageable = PageRequest.of(0, 1, Sort.by(Order.desc("bid_price")));
 		List<History> temp = hRepository.findHistoryByUserIdAndGoodsId(userId, gId, pageable);
@@ -149,7 +171,7 @@ public class DappService {
 		payRequest.setTitle("竞拍");
 		payRequest.setTradeNo(tradeNo);
 		
-		String payUrl = dBaseApiService.doOrder(configuration.getProperty(ApiConstants.DA_APPID), accessToken, payRequest);
+		String payUrl = dBaseApiService.doOrder(configuration.getProperty(ApiConstants.DA_APPID), accessToken, payRequest,appClient);
 		
 		History history = new History();
 		history.setTradeNo(tradeNo);
@@ -198,26 +220,11 @@ public class DappService {
 		if(0 == tFlag) throw new ApiException("Transaction Insert Failed");
 	}
 	
-	public String issueTest() throws IOException {
-		BusinessRecord businessRecord= new BusinessRecord();
-
-		TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
-		String accessToken = appClient.getAccessToken();
-		
-		businessRecord.setUserId("9d801be73fbd4dd9");
-		businessRecord.setAmount(new BigDecimal(300));
-		businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
-			
-			
-		DBaseApiService dBaseApiService = appClient.getdBaseApiService();	
-		Map<String, String> data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken).getData();
-		return data.get(ApiConstants.X_TRADE_NO);
-	}
 	
 	public void bidCompleted(String gId,String sellerId) throws IOException{
 		
 		//查询所有参与竞拍者,第一个为最终买家
-		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE,Sort.by("bid_price").descending()));
+		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE));
 		//没人竞拍
 		Goods goods = new Goods();
 		goods.setGoodsId(gId);
@@ -230,6 +237,7 @@ public class DappService {
 		String accessToken = appClient.getAccessToken();
 		
 		for(int i=0;i<historyList.size();i++) {
+			
 			History history = historyList.get(i);
 			businessRecord.setUserId(history.getUserId());
 			businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
@@ -240,13 +248,16 @@ public class DappService {
 				//竞拍成功
 				msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
 				
+				goods.setBuyerId(history.getUserId());
 				businessRecord.setUserId(sellerId);
-			}  
+			} else {
+
+				//竞拍失败
+				msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
+			} 
 			
-			//竞拍失败
-			msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
 			
-			Map<String, String> data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken).getData();
+			Map<String, String> data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken,appClient).getData();
 			
 			if(null == data) throw new ApiException("Transaction failed");
 			long time = System.currentTimeMillis();
@@ -266,15 +277,11 @@ public class DappService {
 		if(historyList.size()<=0) {
 			goods.setStatus(3);
 			goodsRepository.updateGoods(goods);
-			
 			msgRepository.insertMessage(sellerId, gId, '2', '0');
-			return ;
 		}else {
 			goods.setStatus(2);
 			goodsRepository.updateGoods(goods);
 		}
-		
-		return ;
 	}
 
 }

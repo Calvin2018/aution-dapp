@@ -6,6 +6,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -87,4 +91,18 @@ public class SignUtil {
         return SignUtil.createCommonSign(params);
     }
 
+    
+    public static String authSign(Map<String, Object> paramMap) {
+    	Collection<String> keyset = paramMap.keySet();
+    	List<String> list = new ArrayList<String>(keyset);
+    	//对key键值按字典升序排序
+		Collections.sort(list);
+		String paramStr = "";
+		for(String key : list){
+			paramStr += "&" + key + "=" + paramMap.get(key);
+		}
+		paramStr = paramStr.substring(1);
+        String sign = DigestUtils.sha1Hex(paramStr);
+        return sign;
+    }
 }

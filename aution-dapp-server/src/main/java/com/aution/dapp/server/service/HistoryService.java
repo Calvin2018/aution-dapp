@@ -35,9 +35,9 @@ public class HistoryService {
 		return historyRepository.findAllHistory();
 	}
 	
-	public boolean updateHistory(Long bidTime,String temp,String tradeNo) {
+	public boolean updateHistory(String temp,String tradeNo) {
 		if(Strings.isNullOrEmpty(temp)||Strings.isNullOrEmpty(tradeNo)) throw new IllegalArgumentException("Arguments tradeNo and temp  are required");
-		return historyRepository.updateHistory(bidTime, temp, tradeNo)==0?false:true;
+		return historyRepository.updateHistory(temp, tradeNo)==0?false:true;
 	}
 	
 	/**
@@ -73,9 +73,9 @@ public class HistoryService {
 	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
 		if(!Strings.isNullOrEmpty(gId)) {
 			if(sort.toUpperCase().equals("ASC")) {
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_time").ascending()));
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_price").ascending()));
 			}else if(sort.toUpperCase().equals("DESC")){
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_time").descending()));
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_price").descending()));
 			}else {
 				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId,PageRequest.of(page, size));
 			}
@@ -120,5 +120,9 @@ public class HistoryService {
 	public History findHistoryByTradeNo(String tradeNo) {
 		if(Strings.isNullOrEmpty(tradeNo))  throw new IllegalArgumentException("Arguments tradeNo are required");
 		return historyRepository.findHistoryByTradeNo(tradeNo);
+	}
+	public Double findMaxPriceByGid(String gId) {
+		if(Strings.isNullOrEmpty(gId))  throw new IllegalArgumentException("Arguments gId is required");
+		return historyRepository.findMaxPriceByGid(gId);
 	}
 }

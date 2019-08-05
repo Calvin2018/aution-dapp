@@ -1,8 +1,8 @@
 package com.aution.dapp.server.web;
 
+
+
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,27 +11,21 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
+import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.core.ApiException;
-import com.aution.dapp.server.core.RestApiResponse;
-import com.aution.dapp.server.core.internal.DBaseApiService;
+import com.aution.dapp.server.core.ApiResult;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.model.Transaction;
 import com.aution.dapp.server.service.DappService;
-import com.aution.dapp.server.service.GoodsService;
 import com.aution.dapp.server.service.HistoryService;
 import com.aution.dapp.server.service.TransactionService;
 import com.google.common.base.Strings;
-import com.google.gson.reflect.TypeToken;
 
-import net.sf.json.JSONObject;
 
 @RestController
 public class SystemController {
@@ -55,18 +49,32 @@ public class SystemController {
 		return historyService.findAllHistory();
 	}
 	
-	
-	@RequestMapping(value="/test",method=RequestMethod.GET)
-	@ResponseBody
-	public String test() throws IOException {
-		return dappService.issueTest();
-	}
-	@RequestMapping(value="/getUserInfo",method=RequestMethod.POST)
-	@ResponseBody
-	public Map<String,String> getUserInfo(String accessToken) throws IOException{
+	@RequestMapping(value="/api/getUserInfo",method=RequestMethod.POST)
+	public ApiResult<Map<String,String>> getToken(HttpServletRequest request) throws ApiException, IOException  {
+		String userId = (String)request.getSession().getAttribute("job_number");
 		
-		return dappService.getUserInfo(accessToken);
+		ApiResult<Map<String,String>> result = new ApiResult<Map<String,String>>();
+		Map<String,String> map = null;
+		try {
+			
+			if(!Strings.isNullOrEmpty(userId)) 
+				map =  dappService.getUserInfoUserId(userId);
+			
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(map);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e) {
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
-	
 	
 }

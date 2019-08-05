@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.aution.dapp.server.core.ApiConstants;
+import com.aution.dapp.server.core.ApiException;
+import com.aution.dapp.server.core.ApiResult;
 import com.aution.dapp.server.model.Goods;
 import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
@@ -35,71 +38,222 @@ public class GoodsController {
 	
 	@RequestMapping(value="/findGoodsByParam",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsByParam(String priceSort,String timeSort,Integer type,Integer page,Integer size) {
-		 
-		return goodsService.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort, timeSort, type, PageRequest.of(page, size));
+	public ApiResult<List<Goods>>  findGoodsByParam(String priceSort,String timeSort,Integer type,Integer page,Integer size) {
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort, timeSort, type, PageRequest.of(page, size));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
 	}
 	@RequestMapping(name="/findGoodsBySellerId",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsBySellerId(String sellerId,Integer page,Integer size){
-		 
-		return goodsService.findGoodsBySellerId(sellerId, PageRequest.of(page, size));
+	public ApiResult<List<Goods>>  findGoodsBySellerId(String sellerId,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsBySellerId(sellerId, PageRequest.of(page, size));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
 	}
 	@RequestMapping(value="/findGoodsBySellerIdAndStatus",method=RequestMethod.GET) 
 	@ResponseBody
-	public List<Goods> findGoodsBySellerIdAndStatus(String sellerId,Integer status,Integer page,Integer size){
-		return goodsService.findGoodsBySellerIdAndStatus(sellerId,status, PageRequest.of(page, size));
+	public ApiResult<List<Goods>> findGoodsBySellerIdAndStatus(String sellerId,Integer status,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsBySellerIdAndStatus(sellerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
 
 	
 	@RequestMapping(value="/findGoodsByBuyerIdAndStatus",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Integer page,Integer size){
-		return goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
+	public ApiResult<List<Goods>> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
 	@RequestMapping(value="/findGoodsByEtimeAndSort",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsByEtimeAndSort(Long eTime,String sort,Integer page,Integer size){
-		return goodsService.findGoodsByEtimeAndSort(eTime,sort, PageRequest.of(page, size));
+	public ApiResult<List<Goods>> findGoodsByEtimeAndSort(Long eTime,String sort,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsByEtimeAndSort(eTime,sort, PageRequest.of(page, size));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
 	@RequestMapping(value="/findGoodsByType",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsByType(Integer type,Integer page,Integer size){
-		return goodsService.findGoodsByType(type, PageRequest.of(page, size));
+	public ApiResult<List<Goods>> findGoodsByType(Integer type,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsByType(type, PageRequest.of(page, size));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
 	@RequestMapping(value="/findGoodsBySpriceAndSort",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Goods> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Integer page,Integer size){
-		return goodsService.findGoodsBySpriceAndSort(sPrice,sort,relation,PageRequest.of(page, size));
+	public ApiResult<List<Goods>> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Integer page,Integer size){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsBySpriceAndSort(sPrice,sort,relation,PageRequest.of(page, size));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
+		
 	}
 	@RequestMapping(value="/findGoodsByTitle",method=RequestMethod.GET) 
 	@ResponseBody
-	public List<Goods> findGoodsByTitle(String title,Pageable pageable){
-		return goodsService.findGoodsByTitle(title,pageable);
+	public ApiResult<List<Goods>> findGoodsByTitle(String title,Pageable pageable){
+		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
+		try {
+			List<Goods> list =  goodsService.findGoodsByTitle(title,pageable);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(list);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
 	}
 	@RequestMapping(value="/findGoodsByGid",method=RequestMethod.GET) 
 	@ResponseBody
-	public Goods findGoodsByGid(String gId) {
-		  
-		return goodsService.findGoodsByGid(gId);
+	public ApiResult<Goods> findGoodsByGid(String gId,String status) {
+		ApiResult<Goods> result = new ApiResult<Goods>();
+		try {
+			Goods goods = goodsService.findGoodsByGid(gId);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(goods);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;  
 	}
 	@RequestMapping(value="/create",method=RequestMethod.POST)
-	public boolean insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files,HttpServletRequest request) throws IOException {
+	public ApiResult<Boolean> insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files,HttpServletRequest request) throws IOException {
 		
-		return goodsService.createGoods(goods,dappService,files);
+		ApiResult<Boolean> result = new ApiResult<Boolean>();
+		try {
+			boolean flag = goodsService.createGoods(goods,dappService,files);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(flag);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+		
 	}
 	
 	@RequestMapping(value="/updateGoods",method=RequestMethod.POST)
-	public boolean updateGoods(Goods goods) {
-		  return goodsService.updateGoods(goods);
+	public ApiResult<Boolean> updateGoods(Goods goods) {
+		
+		ApiResult<Boolean> result = new ApiResult<Boolean>();
+		try {
+			boolean flag = goodsService.updateGoods(goods);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(flag);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
 	}
 	@RequestMapping(value="/getNewMessage",method=RequestMethod.GET)
 	@ResponseBody
-	public JSONObject getNewMessage(String userId) throws IOException{
+	public ApiResult<JSONObject> getNewMessage(String userId) throws IOException{
+		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
+		try {
+			JSONObject obj = dappService.getBalance(userId, null, null);
+			obj.put("msg", goodsService.getNewMessage(userId));
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(obj);
+			
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e) {
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
 		
-		JSONObject obj = dappService.getBalance(userId, null, null);
-		obj.put("msg", goodsService.getNewMessage(userId));
-		
-		return obj;
 	}
 }

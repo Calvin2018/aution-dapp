@@ -18,6 +18,7 @@ public interface ApiConstants {
   String CODE_EMPTY_RESULT = "1002";
   String CODE_PARAM_INVALID = "1001";
   String CODE_PRICE_ERROR = "1003";
+  String CODE_ARGS_ERROR = "1004";
   String CODE_PARAM_EROR = "40001";
   String CODE_TIMESTAMP_EXPIRED = "40002";
   String CODE_TOKEN_ERROR = "40003";
@@ -36,11 +37,12 @@ public interface ApiConstants {
   String CODE_TRY_AGAIN_LATER = "50009";
   String CODE_ORDER_COMPLETED = "500010";  
   
+  String PROP_COIN_AUTH_URL= "dapp.auth.token.url";
   String PROP_COIN_LOGIN_URL = "dapp.access.login.url";
   String PROP_COIN_INFO_URL = "dapp.coin.info.url";
   String PROP_COIN_PAY_URL = "dapp.coin.pay.url";
   String PROP_COIN_ISSUE_URL = "dapp.coin.issue.url";
-  String PROP_COIN_QUERY_URL = "dapp.coin.query.url";
+  String PROP_COIN_QUERY_URL = "dapp.coin.balance.url";
   String FORM_TOKEN = "token";
   String ACCESS_TOKEN_URL="dapp.access.token.url";
   String DA_APPID = "dapp.appId";

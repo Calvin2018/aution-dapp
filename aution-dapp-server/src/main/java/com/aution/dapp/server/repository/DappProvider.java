@@ -38,11 +38,11 @@ public class DappProvider {
 		}
 		
 		StringBuffer sb = new StringBuffer("select g.goods_id,seller_id,title,imgs,current_price,end_time,temp,avatar,user_name,user_phone " + 
-				"from t_goods g left join t_user u on g.seller_id = u.user_id left join (select goods_id from t_history where temp = '1' and user_id = '"+ buyerId +"' group by goods_id,user_id)ids " + 
+				"from t_goods g left join t_user u on g.seller_id = u.user_id right join (select goods_id from t_history where temp = '1' and user_id = '"+ buyerId +"' group by goods_id,user_id)ids " + 
 				" on g.goods_id = ids.goods_id where status = '"+ bidStatus +"'");
 		
 		if(status == 2) sb.append(" and buyer_id = '" + buyerId + "'");
-		if(status == 3) sb.append(" and buyer_id = '0'");
+		if(status == 3) sb.append(" and buyer_id != '" + buyerId + "'");
 		return sb.toString();
 	}
 	
