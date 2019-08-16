@@ -201,7 +201,7 @@ public class GoodsController {
 		
 		ApiResult<Boolean> result = new ApiResult<Boolean>();
 		try {
-			boolean flag = goodsService.createGoods(goods,dappService,files);
+			boolean flag = goodsService.createGoods(goods,files);
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(flag);

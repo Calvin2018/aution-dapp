@@ -209,7 +209,7 @@ public class  GoodsService{
    * @return
  * @throws IOException 
    */
-  public boolean createGoods(Goods goods,DappService dappService,MultipartFile[] files) throws IOException {
+  public boolean createGoods(Goods goods,MultipartFile[] files) throws IOException {
 	  if(null == goods||null == files)  throw new IllegalArgumentException("Arguments goods and files are required");
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
