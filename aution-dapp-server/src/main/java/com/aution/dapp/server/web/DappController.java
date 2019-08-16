@@ -37,7 +37,7 @@ public class DappController {
 	@Autowired
 	private DappService dappService;
 	
-	private  AppClient appClient ;
+	private static AppClient appClient = AppClient.getInstance();
 	
 	
 	
@@ -68,8 +68,12 @@ public class DappController {
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
 			JSONObject data =  dappService.createOrder(gId, userId, price);
-			result.setCode(ApiConstants.CODE_SUCCESS);
-			result.setMsg("");
+			Boolean flag = (Boolean)data.get("flag");
+			if(flag) {
+				result.setCode(ApiConstants.CODE_SUCCESS);
+			}else {
+				result.setCode(ApiConstants.CODE_TIMT_OUT);
+			}
 			result.setData(data);
 		}catch(IllegalArgumentException e) {
 			result.setCode(ApiConstants.CODE_ARGS_ERROR);
@@ -85,32 +89,33 @@ public class DappController {
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		
-		String temp = "0";
-		Long time = null;
+		//String temp = "0";
 		
 		if(null == notifyBean||notifyBean.getOrderStatus().equals(ApiConstants.DA_SUCCESS)) {
-			time = System.currentTimeMillis();
-			historyService.updateHistory(temp,notifyBean.getTradeNo());
+			//historyService.updateHistory(temp,notifyBean.getTradeNo());
 			return "FAILED";
 		}
 		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
         MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
+        LOGGER.info("开始验证签名");
         // 2.验证签名
         Properties configuration = appClient.getConfiguration();
         
         if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
-        	LOGGER.info("Signature verification passed for sign: %s",sign);
+        	LOGGER.info("Signature verification passed for sign:{}",sign);
         } else {
-        	historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	LOGGER.error("Signature verification failed for sign: %s",sign);
-        	throw new ApiException("Signature verification failed for sign:"+sign);
+        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
+        	LOGGER.error("Signature verification failed for sign:{}",sign);
+        	return "Signature verification failed for sign:"+sign;
         }
+        LOGGER.info("结束验证签名");
         // 3.验证订单金额
+        LOGGER.info("开始订单金额");
         List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
         Double price = 0d;
-        if(list.size() == 0) {
-        	historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	throw new ApiException("Amount verification failed for price:" + price);
+        if(null == list || list.size() == 0) {
+        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
+        	return "Amount verification failed for price:" + price;
         }else if(list.size() == 1) {
 			price = list.get(0).getBidPrice();
         }else if(list.size() == 2) {
@@ -119,12 +124,16 @@ public class DappController {
         if (new BigDecimal(price).equals(notifyBean.getAmount())) {
         	LOGGER.info("Amount verification passed");
         } else {
-        	LOGGER.error("Amount verification failed, may be illegal notification for price: %s",price);
-        	historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	throw new ApiException("Amount verification failed, may be illegal notification for price:"+price);
+        	LOGGER.error("Amount verification failed, may be illegal notification for price:{}",price);
+        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
+        	return "Amount verification failed, may be illegal notification for price:"+price;
         }
-        historyService.updateHistory("1",notifyBean.getTradeNo());
-        dappService.doPaySuccessed(list.get(0).getGoodsId(), list.get(0).getUserId(), price, notifyBean.getPayTime(), notifyBean.getCoinTradeNo());
+        LOGGER.info("校验成功");
+        
+        History history = list.get(0);
+        
+       
+        dappService.doPaySuccessed(history, price, notifyBean);
         
         return "SUCCESS";
 	}

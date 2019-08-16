@@ -47,9 +47,9 @@ public class HistoryService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<History> findHistoryByUserIdAndGoodsId(String userId,String gId,Pageable pageable){
+	public List<History> findHistorysByUserIdAndGoodsId(String userId,String gId,Pageable pageable){
 		 if(!Strings.isNullOrEmpty(userId)&&!Strings.isNullOrEmpty(gId))
-			 return historyRepository.findHistoryByUserIdAndGoodsId(userId, gId, pageable);
+			 return historyRepository.findHistorysByUserIdAndGoodsId(userId, gId, pageable);
 		 throw new IllegalArgumentException("Arguments user_id and gId are required");
 	}
 	/**

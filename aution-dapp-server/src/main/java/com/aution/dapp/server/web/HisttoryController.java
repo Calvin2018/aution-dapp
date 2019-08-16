@@ -28,7 +28,7 @@ public class HisttoryController {
 		
 		ApiResult<List<History>> result = new ApiResult<List<History>>();
 		try {
-			List<History> list = historyService.findHistoryByUserIdAndGoodsId(userId, gId, PageRequest.of(page, size));
+			List<History> list = historyService.findHistorysByUserIdAndGoodsId(userId, gId, PageRequest.of(page, size));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(list);

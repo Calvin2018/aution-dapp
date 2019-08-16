@@ -19,6 +19,7 @@ public interface ApiConstants {
   String CODE_PARAM_INVALID = "1001";
   String CODE_PRICE_ERROR = "1003";
   String CODE_ARGS_ERROR = "1004";
+  String CODE_TIMT_OUT = "1005";
   String CODE_PARAM_EROR = "40001";
   String CODE_TIMESTAMP_EXPIRED = "40002";
   String CODE_TOKEN_ERROR = "40003";

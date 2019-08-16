@@ -10,7 +10,7 @@
   </parent>
   <artifactId>aution-dapp-server</artifactId>
   <name>aution-dapp-server</name>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
   
   <properties>
     <!-- 框架基础组件版本 -->
@@ -38,6 +38,30 @@
     <spring.boot.version>1.5.15.RELEASE</spring.boot.version>
     <commons.httpclient.version>3.1</commons.httpclient.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    
+     <maven.jar.version>3.1.0</maven.jar.version>
+    <maven.dependency.version>3.1.1</maven.dependency.version>
+    <maven.surefire.version>2.22.0</maven.surefire.version>
+    <maven.deploy.version>2.8.2</maven.deploy.version>
+    <nexus.staging.version>1.6.7</nexus.staging.version>
+    <maven.release.version>2.5.3</maven.release.version>
+    <maven.compiler.version>3.7.0</maven.compiler.version>
+    <maven.source.version>3.0.1</maven.source.version>
+    <maven.resources.version>2.7</maven.resources.version>
+    <maven.javadoc.version>3.0.1</maven.javadoc.version>
+    <maven.gpg.version>1.6</maven.gpg.version>
+    <maven.protobuf.plugin.version>0.5.1</maven.protobuf.plugin.version>
+    <maven.jetty.version>9.4.9.v20180320</maven.jetty.version>
+    <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+    <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
+    <maven.cobertura.plugin.version>2.7</maven.cobertura.plugin.version>
+    <maven.jxr.pulgin.version>3.0.0</maven.jxr.pulgin.version>
+    <maven.jib.plugin.version>0.9.10</maven.jib.plugin.version>
+    <maven.failsafe.plugin.version>2.22.0</maven.failsafe.plugin.version>
+    <maven.fizzed.watcher.plugin.version>1.0.6</maven.fizzed.watcher.plugin.version>
+    <maven.filtering.version>1.3</maven.filtering.version>
+    <maven.docker.pulgin.version>1.2.0</maven.docker.pulgin.version>
   </properties>
   
   
@@ -105,7 +129,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <!-- <version>${slf4j.version}</version> -->
+    <!--   <version>${slf4j.version}</version>  -->
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -182,52 +206,199 @@
       <artifactId>commons-httpclient</artifactId>
       <version>${commons.httpclient.version}</version>
     </dependency>
-    <dependency>
+   <!--  <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
-    </dependency>
-    
+    </dependency> -->
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- 文件变动监听插件 -->
-      <plugin>
-        <groupId>com.fizzed</groupId>
-        <artifactId>fizzed-watcher-maven-plugin</artifactId>
-        <version>${maven.fizzed.watcher.plugin.version}</version>
-        <configuration>
-          <watches>
-            <watch>src/main/webapp</watch>
-          </watches>
-          <goals>
-            <param>war:exploded</param>
-          </goals>
-        </configuration>
-      </plugin>
-      <!-- tomcat 自动部署插件 -->
-      <plugin>
-        <groupId>org.apache.tomcat.maven</groupId>
-        <artifactId>tomcat7-maven-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <id>tomcat7-redeploy</id>
-            <phase>site</phase>
-            <goals>
-              <goal>redeploy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <server>${target.tomcat.id}</server>
-          <server>${target.tomcat.id}</server>
-          <url>${target.tomcat.deploy}</url>
-          <path>${target.path}</path>
-        </configuration>
-      </plugin>
 
-    </plugins>
-  </build>
+<profiles>
+	    <!-- 本地Debug部署的打包参数profile 默认 -->
+	    <profile>
+	      <id>target.dev</id>
+	    
+	      <properties>
+	        <target.for>For Local Debug</target.for>
+	        <target.label>dev</target.label>
+	        <target.respath>src/main/resources-dev/</target.respath>
+	        <target.tomcat.id>tomcat.dev</target.tomcat.id>
+	        <target.tomcat.deploy>http://localhost:8080/manager/text</target.tomcat.deploy>
+	      </properties>
+	    </profile>
+	
+	    <!-- 演示部署的打包参数profile -->
+	    <profile>
+	      <id>target.uat</id>
+	      <properties>
+	        <target.for>For Local Debug</target.for>
+	        <target.label>uat</target.label>
+	        <target.respath>src/main/resources-uat/</target.respath>
+	        <target.tomcat.id>tomcat.uat</target.tomcat.id>
+	        <target.tomcat.deploy>http://tomcat.ci.zs.dev:8080/manager/text</target.tomcat.deploy>
+	      </properties>
+	    </profile>
+	
+	    <!-- 产品化的部署和打包参数profile -->
+	    <profile>
+	      <id>target.prd</id>
+	       <activation>
+	        <activeByDefault>true</activeByDefault>
+	        <jdk>1.8</jdk>
+	      </activation>
+	      <properties>
+	        <target.label>prd</target.label>
+	        <target.for>For Produce Server</target.for>
+	        <target.respath>src/main/resources-prd/</target.respath>
+	        <target.tomcat.id>tomcat.prd</target.tomcat.id>
+	        <target.tomcat.deploy>http://tomcat.prd.zs.dev:8080/manager/text</target.tomcat.deploy>
+	      </properties>
+	    </profile>
+	</profiles>
+	
+  <build>
+	    <plugins>
+    	  <plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-compiler-plugin</artifactId>
+	          <version>${maven.compiler.version}</version>
+	          <configuration>
+	            <source>${java.source.version}</source>
+	            <target>${java.target.version}</target>
+	          </configuration>
+	      </plugin>
+	      <plugin>
+	        <artifactId>maven-resources-plugin</artifactId>
+	        <version>${maven.resources.version}</version>
+	        <dependencies>
+	          <dependency>
+	            <groupId>org.apache.maven.shared</groupId>
+	            <artifactId>maven-filtering</artifactId>
+	            <version>${maven.filtering.version}</version>
+	          </dependency>
+	        </dependencies>
+	        <executions>
+	        <execution>
+	            <id>copy-resources</id>
+	            <phase>compile</phase>
+	            <goals>
+	              <goal>copy-resources</goal>
+	            </goals>
+	            <configuration>
+	              <outputDirectory>target/classes</outputDirectory>
+	              <resources>
+	                <resource>
+	                  <directory>${target.respath}</directory>
+	                  <filtering>true</filtering>
+	                  <includes>
+	                    <include>**/*.xml</include>                
+	                    <include>**/*.yml</include>	
+	                  </includes>
+	                </resource>
+	              </resources>
+	            </configuration>
+	          </execution>
+	        </executions>
+	      </plugin>
+	
+	      <!-- 文件变动监听插件 -->
+	      <plugin>
+	        <groupId>com.fizzed</groupId>
+	        <artifactId>fizzed-watcher-maven-plugin</artifactId>
+	        <version>${maven.fizzed.watcher.plugin.version}</version>
+	        <configuration>
+	          <watches>
+	            <watcher>src/main/webapp</watcher>
+	          </watches>
+	          <goals>
+	            <param>war:exploded</param>
+	          </goals>
+	        </configuration>
+	      </plugin>
+	     
+	    </plugins>
+	  </build>
+	 <distributionManagement>
+        <snapshotRepository>
+          <id>ces-nexus</id>
+          <url>http://www.cclcloud.net/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    
+        <repository>
+          <id>ces-nexus</id>
+          <name>releases</name>
+          <url>http://www.cclcloud.net/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+    <repositories>
+	  	 <repository>
+	        <id>third</id>
+	        <url>http://www.cclcloud.net/nexus/content/repositories/third/</url>
+	        <releases>
+	            <enabled>true</enabled>
+	        </releases>
+	        <snapshots>
+	            <enabled>true</enabled>
+	        </snapshots>
+	     </repository>
+	     <repository>
+	        <id>cesgroup</id>
+	        <url>http://nexus.dev.cescloud.com/content/groups/public/</url>
+	        <releases>
+	            <enabled>true</enabled>
+	        </releases>
+	        <snapshots>
+	            <enabled>true</enabled>
+	        </snapshots>
+	    </repository>
+	    <repository>
+	      <id>snapshots</id>
+	      <name>snapshots</name>
+	      <url>http://www.cclcloud.net/nexus/content/repositories/snapshots/</url>
+	      <snapshots>
+	        <enabled>true</enabled>
+	        <updatePolicy>always</updatePolicy>
+	      </snapshots>
+	      <releases>
+	        <enabled>false</enabled>
+	      </releases>
+	    </repository>
+	    <repository>
+	      <id>releases</id>
+	      <name>releases</name>
+	      <url>http://www.cclcloud.net/nexus/content/repositories/releases/</url>
+	      <snapshots>
+	        <enabled>false</enabled>
+	      </snapshots>
+	    </repository>
+	    <repository>
+	      <id>central</id>
+	      <name>Central Repository</name>
+	      <url>http://www.cclcloud.net/nexus/content/repositories/central/</url>
+	      <layout>default</layout>
+	      <snapshots>
+	        <enabled>false</enabled>
+	      </snapshots>
+	    </repository>
+	    <repository>
+	      <id>ces-framework</id>
+	      <url>http://www.cclcloud.net/nexus/content/repositories/ces-framework/</url>
+	      <snapshots>
+	        <enabled>false</enabled>
+	      </snapshots>
+	    </repository>
+	</repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>cesgroup</id>
+            <url>http://nexus.cesgroup.com.cn/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

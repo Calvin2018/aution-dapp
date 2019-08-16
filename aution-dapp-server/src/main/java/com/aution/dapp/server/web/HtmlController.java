@@ -10,11 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.aution.dapp.server.model.Goods;
-import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
-import com.aution.dapp.server.service.HistoryService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,28 +25,13 @@ public class HtmlController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(HtmlController.class);
 	@Autowired
-	private HistoryService historyService;
-	@Autowired
 	private DappService dappService;
 	@Autowired
 	private GoodsService goodsService;
 	
 	@RequestMapping(value="/api/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
-		LOGGER.debug("start update table t_history,tradeNo: {}",tradeNo);
-		String temp = "1";
-		historyService.updateHistory(temp,tradeNo);
-		LOGGER.debug("finnish update table t_history,tradeNo: {}",tradeNo);
 		
-		History history = historyService.findHistoryByTradeNo(tradeNo);
-		Double maxPrice = historyService.findMaxPriceByGid(history.getGoodsId());
-		if(history.getBidPrice() >= maxPrice) {
-			Goods goods = new Goods();
-			goods.setGoodsId(history.getGoodsId());
-			goods.setCurrentPrice(history.getBidPrice());
-		
-			goodsService.updateGoods(goods);
-		}
 		return "redirect:/index.html";
 	}
 	
@@ -65,9 +47,7 @@ public class HtmlController {
 		if(!flag)goodsService .updateUser(userId, avatar, userName, userPhone);
 		
 		request.getSession().setAttribute("job_number", userId);
-		/*request.getSession().setAttribute("avatar", avatar);
-		request.getSession().setAttribute("user_name", userName);
-		request.getSession().setAttribute("user_phone", userPhone);*/
+		request.getSession().setMaxInactiveInterval(60*60*2);
 		
 		return "redirect:index.html";
 		

@@ -3,7 +3,6 @@ package com.aution.dapp.server.web;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -198,7 +197,7 @@ public class GoodsController {
 		return result;  
 	}
 	@RequestMapping(value="/create",method=RequestMethod.POST)
-	public ApiResult<Boolean> insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files,HttpServletRequest request) throws IOException {
+	public ApiResult<Boolean> insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files) throws IOException {
 		
 		ApiResult<Boolean> result = new ApiResult<Boolean>();
 		try {
@@ -256,4 +255,6 @@ public class GoodsController {
 		return result;
 		
 	}
+	
+	
 }

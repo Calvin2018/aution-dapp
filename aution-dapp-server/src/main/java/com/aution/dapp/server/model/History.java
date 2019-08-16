@@ -3,6 +3,8 @@ package com.aution.dapp.server.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 @Entity
 @Table(name="t_history")
@@ -34,6 +36,31 @@ public class History {
 	private String userName;
 	@Column(name = "user_phone")
 	private String userPhone;
+	@Column(name="pay_price")
+	private Double payPrice;
+	
+	
+	@ManyToOne(targetEntity=Goods.class)
+	@JoinColumn(name="goods_id")
+	private Goods goods;
+	
+	
+	
+	public Double getPayPrice() {
+		return payPrice;
+	}
+
+	public void setPayPrice(Double payPrice) {
+		this.payPrice = payPrice;
+	}
+
+	public Goods getGoods() {
+		return goods;
+	}
+
+	public void setGoods(Goods goods) {
+		this.goods = goods;
+	}
 
 	public String getAvatar() {
 		return avatar;
@@ -101,16 +128,10 @@ public class History {
 
 	@Override
 	public String toString() {
-		return "History{" +
-				"tradeNo='" + tradeNo + '\'' +
-				", goodsId='" + goodsId + '\'' +
-				", userId='" + userId + '\'' +
-				", bidPrice=" + bidPrice +
-				", bidTime=" + bidTime +
-				", temp='" + temp + '\'' +
-				", avatar='" + avatar + '\'' +
-				", userName='" + userName + '\'' +
-				", userPhone='" + userPhone + '\'' +
-				'}';
+		return "History [tradeNo=" + tradeNo + ", goodsId=" + goodsId + ", userId=" + userId + ", bidPrice=" + bidPrice
+				+ ", bidTime=" + bidTime + ", temp=" + temp + ", avatar=" + avatar + ", userName=" + userName
+				+ ", userPhone=" + userPhone + ", payPrice=" + payPrice + ", goods=" + goods + "]";
 	}
+
+
 }

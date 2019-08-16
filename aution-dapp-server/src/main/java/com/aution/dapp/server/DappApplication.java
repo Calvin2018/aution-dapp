@@ -1,5 +1,6 @@
 package com.aution.dapp.server;
 
+
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,13 +16,18 @@ import tk.mybatis.spring.annotation.MapperScan;
 @MapperScan(basePackages = "com.aution.dapp.server.repository"
 	,mapperHelperRef = "dynamicMapperHelper",annotationClass = Mapper.class)
 public class DappApplication extends SpringBootServletInitializer {
+	
+	
+	
     public static void main(final String[] args) {
         SpringApplication.run(DappApplication.class);
+	   
     }
     
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-      return builder.sources(DappApplication.class);
+	    
+	    return builder.sources(DappApplication.class);
     }
 
     @Bean

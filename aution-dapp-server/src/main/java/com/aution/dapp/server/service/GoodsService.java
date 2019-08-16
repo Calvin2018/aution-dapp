@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aution.dapp.server.core.ApiConstants;
@@ -295,11 +294,13 @@ public class  GoodsService{
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
 			//File  project= new File(System.getProperty("user.dir"));
-			File project = ResourceUtils.getFile("classpath:static");
+			//File project = ResourceUtils.getFile("classpath:static");
 			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
-			String path = project.getAbsolutePath()+File.separator+imgLocation+File.separator;
-			if(!new File(path).exists()){
-				new File(path).mkdirs();
+			LOGGER.info("图片路径：{}",imgLocation);
+			LOGGER.info(imgLocation);
+			String path = imgLocation+File.separator;
+			if(!new File(imgLocation).exists()){
+				new File(imgLocation).mkdirs();
 			}
 			String fileName = file.getOriginalFilename();
 			
