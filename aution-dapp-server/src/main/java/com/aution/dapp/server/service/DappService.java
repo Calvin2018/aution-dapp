@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -345,15 +346,17 @@ public class DappService {
 	public List<List<History>> findHistoryForNoIssueOrder(){
 		//多加1分钟 是为了避免两个定时任务 同时执行
 		Long endTime = System.currentTimeMillis()+60000l;
-		
+		//没有数据返回的结果为list,第一个元素为Null
 		List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
+		list.removeAll(Collections.singleton(null));
 		List<List<History>> result = null;
-		if(null != list && list.size() >0) {
+		if(null != list && !list.isEmpty()) {
 			result = new ArrayList<List<History>>();
 			Set<String> set = new HashSet<String>();
 			List<History> hList = null;
 			for(int i=0;i<list.size();i++) {
 				History temp = list.get(i);
+				LOGGER.info("History:{}",temp);
 				if( null != temp.getTemp()) {
 					continue;
 				}
@@ -377,7 +380,9 @@ public class DappService {
 	public void findHistoryOfIssueFailed() throws IOException{
 		String temp = "2";
 		List<History> list =  hRepository.findHistoryByTemp(temp);
+		list.removeAll(Collections.singleton(null));
 		for(History history:list) {
+			
 			TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
             String accessToken = appClient.getAccessToken();
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
