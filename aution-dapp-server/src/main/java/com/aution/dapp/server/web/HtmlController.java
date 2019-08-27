@@ -31,7 +31,7 @@ public class HtmlController {
 	
 	@RequestMapping(value="/api/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
-		
+		LOGGER.info("查看详情");
 		return "redirect:/index.html";
 	}
 	

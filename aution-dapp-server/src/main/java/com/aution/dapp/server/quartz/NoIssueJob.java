@@ -1,6 +1,7 @@
 package com.aution.dapp.server.quartz;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -34,13 +35,15 @@ public class NoIssueJob implements Job{
 			//1、job
 			LOG.debug("开始执行退款");
 			List<List<History>> list = dappService.findHistoryForNoIssueOrder();
+			if(null != list)
+				list.removeAll(Collections.singleton(null));
 			if(null == list || list.size() == 0) {
 				LOG.debug("未找到需要退款记录");
 				LOG.debug("定时任务执行完成");
 				return ;
 			}
 			for(List<History> temp:list) {
-				dappService.bidCompletedMethod(temp, temp.get(0).getGoodsId(), temp.get(0).getTemp(),Double.valueOf(temp.get(0).getTradeNo()));
+				dappService.bidCompletedMethod(temp, temp.get(0).getGoodsId(), temp.get(0).getSellerId(),temp.get(0).getCurrentPrice());
 			}
 			//2、job
 			dappService.findHistoryOfIssueFailed();

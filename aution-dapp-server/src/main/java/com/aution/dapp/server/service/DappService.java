@@ -137,26 +137,28 @@ public class DappService {
 		JSONObject obj = new JSONObject();
 		//检查竞拍价格比当前价格高
 		History temp = hRepository.findHistoryByUserIdAndGoodsId(userId, gId);
-		Goods goods = temp.getGoods();
+		
 		
 		Long currentTime = System.currentTimeMillis();
-		if(currentTime > goods.getEndTime()) {
+		if(currentTime > temp.getEndTime()) {
 			obj.put("flag", false);
 			obj.put("msg", "拍卖已结束");
 			return  obj;
 		}
 		
 		Double maxPrice = null;
-		if(null==goods.getCurrentPrice()) {
-			maxPrice = goods.getStartPrice();
+		if(null==temp.getCurrentPrice()) {
+			maxPrice = temp.getStartPrice();
 			if(price < maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
 		}else {
-			maxPrice = goods.getCurrentPrice();
+			maxPrice = temp.getCurrentPrice();
 			if(price <= maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
 		}
 		Double bidPrice = price;
 		
-		price = price - temp.getBidPrice();
+		if(null != temp.getBidPrice()) {
+			price = price - temp.getBidPrice();
+		}
 		
 		obj = getBalance(userId,String.valueOf(price),null);
 		boolean flag = (boolean)obj.get("flag");
@@ -224,7 +226,7 @@ public class DappService {
 		tRepository.insertTransaction(transaction);
 		//用于数据库回滚
 		
-		if(date > history.getGoods().getEndTime()) {
+		if(date > history.getEndTime()) {
 	        	
         	TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
             String accessToken = appClient.getAccessToken();
@@ -278,7 +280,7 @@ public class DappService {
 		
 		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE));
 		if(null != historyList&&historyList.size()>0)
-			bidCompletedMethod(historyList,gId,sellerId,historyList.get(0).getGoods().getCurrentPrice());
+			bidCompletedMethod(historyList,gId,sellerId,historyList.get(0).getCurrentPrice());
 	}
 	public void bidCompletedMethod(List<History> historyList,String gId,String sellerId,Double currentPrice) throws IOException {
 		//没人竞拍
@@ -300,7 +302,7 @@ public class DappService {
 			Map<String, String> data = null;
 			
 			if(history.getBidPrice().equals(currentPrice)) {
-				if(true == flag && history.getGoods().getBuyerId().equals("0")) {
+				if(true == flag && history.getBuyerId().equals("0")) {
 					//拍卖成功
 					msgRepository.insertMessage(sellerId, gId, '1', '0');
 					//竞拍成功
@@ -348,7 +350,8 @@ public class DappService {
 		Long endTime = System.currentTimeMillis()+60000l;
 		//没有数据返回的结果为list,第一个元素为Null
 		List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
-		list.removeAll(Collections.singleton(null));
+		if(null != list)
+			list.removeAll(Collections.singleton(null));
 		List<List<History>> result = null;
 		if(null != list && !list.isEmpty()) {
 			result = new ArrayList<List<History>>();

@@ -88,7 +88,7 @@ public class DappController {
 	}
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
-		
+		LOGGER.info("开始notify");
 		//String temp = "0";
 		
 		if(null == notifyBean||notifyBean.getOrderStatus().equals(ApiConstants.DA_SUCCESS)) {

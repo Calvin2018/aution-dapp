@@ -29,7 +29,7 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   List<History> findHistorysByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId,Pageable pageable);
   
   @Select("select trade_no,g.goods_id,h.user_id,max(bid_price),bid_time,pay_price,h.temp,avatar,user_name,user_phone,start_price,current_price,end_time from t_history h LEFT JOIN t_user u on h.user_id=u.user_id " + 
-  		"left join t_goods g on g.goods_id = h.goods_id " + 
+  		"right join t_goods g on g.goods_id = h.goods_id " + 
   		"where h.temp = '1' and h.user_id = #{userId} " + 
   		"and h.goods_id = #{gId} ")
   History findHistoryByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId);
@@ -64,10 +64,10 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   List<History> findHistoryByTemp(@Param("temp")String temp);
 
   @Select("select h.goods_id,user_id,MAX(bid_price)bid_price,u.seller_id, " + 
-	  		"u.current_price,buyer_id,to_user_id temp from t_history h RIGHT JOIN " + 
+	  		"u.current_price,buyer_id,to_user_id temp from t_history h INNER JOIN " + 
 	  		"(select goods_id,seller_id,current_price,buyer_id from t_goods  " + 
 	  		"where status = 1 and end_time < #{endTime}) u  " + 
-	  		"on u.goods_id = h.goods_id  " + 
+	  		"on u.goods_id = h.goods_id  and h.temp = '1' " + 
 	  		"left join t_transaction t on h.user_id = t.to_user_id and h.goods_id = t.goods_id " + 
 	  		"GROUP BY user_id,goods_id  " + 
 	  		"order by goods_id,bid_price desc")

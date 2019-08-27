@@ -3,8 +3,6 @@ package com.aution.dapp.server.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 @Entity
 @Table(name="t_history")
@@ -39,10 +37,21 @@ public class History {
 	@Column(name="pay_price")
 	private Double payPrice;
 	
+	@Column(name = "start_price")
+	private Double startPrice;
+	@Column(name = "current_price")
+	private Double currentPrice;
+	@Column(name = "end_time")
+	private Long endTime;
+	@Column(name = "buyer_id")
+	private String buyerId;
+	@Column(name = "seller_id")
+	private String sellerId;
 	
-	@ManyToOne(targetEntity=Goods.class)
-	@JoinColumn(name="goods_id")
-	private Goods goods;
+	/* 失效-未知
+	 * @ManyToOne(targetEntity=Goods.class,optional = true)
+	@JoinColumn(name="goods_id",referencedColumnName="goods_id")
+	private Goods goods;*/
 	
 	
 	
@@ -50,17 +59,55 @@ public class History {
 		return payPrice;
 	}
 
+
+	public String getSellerId() {
+		return sellerId;
+	}
+
+
+	public void setSellerId(String sellerId) {
+		this.sellerId = sellerId;
+	}
+
+
+	public String getBuyerId() {
+		return buyerId;
+	}
+
+
+	public void setBuyerId(String buyerId) {
+		this.buyerId = buyerId;
+	}
+
+
+	public Double getStartPrice() {
+		return startPrice;
+	}
+
+	public void setStartPrice(Double startPrice) {
+		this.startPrice = startPrice;
+	}
+
+	public Double getCurrentPrice() {
+		return currentPrice;
+	}
+
+	public void setCurrentPrice(Double currentPrice) {
+		this.currentPrice = currentPrice;
+	}
+
+	public Long getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Long endTime) {
+		this.endTime = endTime;
+	}
+
 	public void setPayPrice(Double payPrice) {
 		this.payPrice = payPrice;
 	}
 
-	public Goods getGoods() {
-		return goods;
-	}
-
-	public void setGoods(Goods goods) {
-		this.goods = goods;
-	}
 
 	public String getAvatar() {
 		return avatar;
@@ -126,12 +173,14 @@ public class History {
 		super();
 	}
 
+
 	@Override
 	public String toString() {
 		return "History [tradeNo=" + tradeNo + ", goodsId=" + goodsId + ", userId=" + userId + ", bidPrice=" + bidPrice
 				+ ", bidTime=" + bidTime + ", temp=" + temp + ", avatar=" + avatar + ", userName=" + userName
-				+ ", userPhone=" + userPhone + ", payPrice=" + payPrice + ", goods=" + goods + "]";
+				+ ", userPhone=" + userPhone + ", payPrice=" + payPrice + ", startPrice=" + startPrice
+				+ ", currentPrice=" + currentPrice + ", endTime=" + endTime + ", buyerId=" + buyerId + ", sellerId="
+				+ sellerId + "]";
 	}
-
 
 }
