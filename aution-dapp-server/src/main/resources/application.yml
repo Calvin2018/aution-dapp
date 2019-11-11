@@ -41,7 +41,7 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://10.250.199.60:30004/aution-dapp?useSSL=false&characterEncoding=UTF-8
+      url: jdbc:mysql://10.250.218.104:3306/aution-dapp?useSSL=false&characterEncoding=UTF-8
       username: root
       password: cimysqltest
       filter:
