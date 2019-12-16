@@ -57,8 +57,9 @@ public class SystemController {
 		Map<String,String> map = null;
 		try {
 			
-			if(!Strings.isNullOrEmpty(userId)) 
+			if(!Strings.isNullOrEmpty(userId)) {
 				map =  dappService.getUserInfoUserId(userId);
+			}
 			
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");

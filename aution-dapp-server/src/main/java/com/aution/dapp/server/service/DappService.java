@@ -87,8 +87,9 @@ public class DappService {
 		
 		RestApiResponse<Map<String,String>> temp = dBaseApiService.doQuery(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, userId, amount, feeAmount, typeToken,appClient);
 		if(!Strings.isNullOrEmpty(amount)) {
-			if(!temp.getCode().equals(ApiConstants.CODE_SUCCESS)) 
+			if(!temp.getCode().equals(ApiConstants.CODE_SUCCESS)) {
 				obj.put("flag", false);
+			}
 				
 		}else {
 			String balance =  temp.getData().get("balance");
@@ -107,7 +108,9 @@ public class DappService {
 	}
 	
 	public Map<String,String> getUserInfoUserId(String userId) throws IOException {
-		if(Strings.isNullOrEmpty(userId))throw new IllegalArgumentException("Arguments userId are required");
+		if(Strings.isNullOrEmpty(userId)) {
+			throw new IllegalArgumentException("Arguments userId are required");
+		}
 		
 		Goods goods = userRepository.findUserByUserId(userId);
 		Map<String,String> map = new HashMap<String,String>();
@@ -131,7 +134,9 @@ public class DappService {
 	
 	public JSONObject createOrder(String gId,String userId,Double price) throws Exception {
 		
-		if(Strings.isNullOrEmpty(gId)||Strings.isNullOrEmpty(userId)||null == price)throw new IllegalArgumentException("Arguments gId userId and price are required");
+		if(Strings.isNullOrEmpty(gId)||Strings.isNullOrEmpty(userId)||null == price) {
+			throw new IllegalArgumentException("Arguments gId userId and price are required");
+		}
 		
 		
 		JSONObject obj = new JSONObject();
@@ -149,10 +154,14 @@ public class DappService {
 		Double maxPrice = null;
 		if(null==temp.getCurrentPrice()) {
 			maxPrice = temp.getStartPrice();
-			if(price < maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+			if(price < maxPrice) {
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+			}
 		}else {
 			maxPrice = temp.getCurrentPrice();
-			if(price <= maxPrice) throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+			if(price <= maxPrice) {
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),"Current price is higher than  bid price");
+			}
 		}
 		Double bidPrice = price;
 		
@@ -163,7 +172,9 @@ public class DappService {
 		obj = getBalance(userId,String.valueOf(price),null);
 		boolean flag = (boolean)obj.get("flag");
 		 
-		if(!flag) return obj;
+		if(!flag) {
+			return obj;
+		}
 			
 		price = new BigDecimal(price).setScale(2,   BigDecimal.ROUND_HALF_DOWN).doubleValue();
 		Properties configuration = appClient.getConfiguration();
@@ -188,13 +199,15 @@ public class DappService {
 		history.setGoodsId(gId);
 		history.setUserId(userId);
 		history.setBidPrice(bidPrice);
-		history.setBidTime(new Date().getTime());
+		history.setBidTime(System.currentTimeMillis());
 		history.setPayPrice(price);
 		//判断此次竞拍是否支付 0：表示未支付 1：表示支付成功
 		history.setTemp("0");
 		Integer hFlag = hRepository.insertHistory(history);
 		//用于数据库回滚
-		if(0 == hFlag) throw new ApiException("History Insert Failed");
+		if(0 == hFlag) {
+			throw new ApiException("History Insert Failed");
+		}
 		
 			
 		obj.put("flag", true);
@@ -279,8 +292,9 @@ public class DappService {
 	public void bidCompleted(String gId,String sellerId) throws IOException{
 		
 		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE));
-		if(null != historyList&&historyList.size()>0)
+		if(null != historyList&&historyList.size()>0) {
 			bidCompletedMethod(historyList,gId,sellerId,historyList.get(0).getCurrentPrice());
+		}
 	}
 	public void bidCompletedMethod(List<History> historyList,String gId,String sellerId,Double currentPrice) throws IOException {
 		//没人竞拍
@@ -321,7 +335,9 @@ public class DappService {
 			}
 			
 		
-			if(null == data) throw new ApiException("Transaction failed");
+			if(null == data) {
+				throw new ApiException("Transaction failed");
+			}
 			long time = System.currentTimeMillis();
 			Transaction transaction = new Transaction();
 			transaction.setGoodsId(gId);
@@ -347,7 +363,7 @@ public class DappService {
 	}
 	public List<List<History>> findHistoryForNoIssueOrder(){
 		//多加1分钟 是为了避免两个定时任务 同时执行
-		Long endTime = System.currentTimeMillis()+60000l;
+		Long endTime = System.currentTimeMillis()+60000L;
 		//没有数据返回的结果为list,第一个元素为Null
 		List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
 		if(null != list)
@@ -371,7 +387,9 @@ public class DappService {
 				
 				hList.add(temp);
 				
-				if(i == list.size() -1) result.add(hList);
+				if(i == list.size() -1) {
+					result.add(hList);
+				}
 				
 			}
 			return result;

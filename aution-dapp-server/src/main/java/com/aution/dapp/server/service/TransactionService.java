@@ -27,8 +27,9 @@ public class TransactionService {
    * @return
    */
   public Transaction findTransactionByTxId(String txId) {
-	  if(!Strings.isNullOrEmpty(txId))
-		  return tRepository.findTransactionByTxId(txId);
+	  if(!Strings.isNullOrEmpty(txId)) {
+          return tRepository.findTransactionByTxId(txId);
+      }
 	  throw new IllegalArgumentException("Arguments txId are required");
   };
 	
@@ -38,8 +39,9 @@ public class TransactionService {
    * @return
    */
   public List<Transaction> findAllTransactionByTimeSort(String sort){
-	  if(!Strings.isNullOrEmpty(sort))
-		  return tRepository.findAllTransactionByTimeSort(sort);
+	  if(!Strings.isNullOrEmpty(sort)) {
+          return tRepository.findAllTransactionByTimeSort(sort);
+      }
 	  throw new IllegalArgumentException("Arguments sort are required");
   }
   /**
@@ -48,8 +50,9 @@ public class TransactionService {
    * @return
    */
   public List<Transaction> findAllTransactionByPriceSort(String sort){
-	  if(!Strings.isNullOrEmpty(sort))
-		  return tRepository.findAllTransactionByPriceSort(sort);
+	  if(!Strings.isNullOrEmpty(sort)) {
+          return tRepository.findAllTransactionByPriceSort(sort);
+      }
 	  throw new IllegalArgumentException("Arguments sort are required");
   }
   /**
@@ -58,8 +61,9 @@ public class TransactionService {
    * @return
    */
   public List<Transaction> findTransactionByParms(Transaction transaction){
-	  if(null != transaction)
-		  return tRepository.findTransactionByParms(transaction);
+	  if(null != transaction) {
+          return tRepository.findTransactionByParms(transaction);
+      }
 	  throw new IllegalArgumentException("Arguments transaction are required");
   }
 }

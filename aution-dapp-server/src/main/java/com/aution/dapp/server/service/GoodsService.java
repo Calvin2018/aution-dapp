@@ -96,9 +96,13 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsBySellerIdAndStatus(String sellerId,Integer status,Pageable pageable){
 	  if(!Strings.isNullOrEmpty(sellerId)&& null != status) {
-		  if(status == 2) msgRepository.updateMessage(sellerId,'1');
-		  else if(status == 3) msgRepository.updateMessage(sellerId,'2');
-		  else if(status == 1) msgRepository.updateMessage(sellerId,'0');
+		  if(status == 2) {
+			  msgRepository.updateMessage(sellerId,'1');
+		  } else if(status == 3) {
+			  msgRepository.updateMessage(sellerId,'2');
+		  } else if(status == 1) {
+			  msgRepository.updateMessage(sellerId,'0');
+		  }
 		  return goodsRepository.findGoodsBySellerIdAndStatus(sellerId,status, pageable);
 	  }
 	  throw new IllegalArgumentException("Arguments sellerId and status are required");
@@ -112,9 +116,13 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Pageable pageable){
 	  if(!Strings.isNullOrEmpty(buyerId)&& null != status) {
-		  if(status == 2) msgRepository.updateMessage(buyerId,'3');
-		  else if(status == 3) msgRepository.updateMessage(buyerId,'4');
-		  else if(status == 1) msgRepository.updateMessage(buyerId,'0');
+		  if(status == 2) {
+			  msgRepository.updateMessage(buyerId,'3');
+		  } else if(status == 3) {
+			  msgRepository.updateMessage(buyerId,'4');
+		  } else if(status == 1) {
+			  msgRepository.updateMessage(buyerId,'0');
+		  }
 		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,status, pageable);
 		  if(status == 3) {
 			  for(Goods temp:list) {
@@ -141,8 +149,9 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByEtimeAndSort(Long eTime,String sort,Pageable pageable){
-	  if(null != eTime)
+	  if(null != eTime) {
 		  return goodsRepository.findGoodsByEtimeAndSort(eTime,sort, pageable);
+	  }
 	  throw new IllegalArgumentException("Arguments eTime is required");
   }
   /**
@@ -152,8 +161,9 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByType(Integer type,Pageable pageable){
-	  if(null != type)
+	  if(null != type) {
 		  return goodsRepository.findGoodsByType(type, pageable);
+	  }
 	  throw new IllegalArgumentException("Arguments type are required");
   }
   
@@ -166,8 +176,9 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Pageable pageable){
-	  if(null != sPrice)
+	  if(null != sPrice) {
 		  return goodsRepository.findGoodsBySpriceAndSort(sPrice,sort,relation,pageable);
+	  }
 	  throw new IllegalArgumentException("Arguments sPrice is required");
   }
   /**
@@ -177,8 +188,9 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByTitle(String title,Pageable pageable){
-	  if(!Strings.isNullOrEmpty(title))
+	  if(!Strings.isNullOrEmpty(title)) {
 		  return goodsRepository.findGoodsByTitle(title,pageable);
+	  }
 	  throw new IllegalArgumentException("Arguments title are required");
   }
 
@@ -210,7 +222,9 @@ public class  GoodsService{
  * @throws IOException 
    */
   public boolean createGoods(Goods goods,MultipartFile[] files) throws IOException {
-	  if(null == goods||null == files)  throw new IllegalArgumentException("Arguments goods and files are required");
+	  if(null == goods||null == files) {
+		  throw new IllegalArgumentException("Arguments goods and files are required");
+	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
 	  String imgUrl = imgStore(files,goods.getGoodsId());
@@ -258,7 +272,9 @@ public class  GoodsService{
    * @return
    */
   public boolean updateGoods(Goods goods) {
-	  if(null == goods)  throw new IllegalArgumentException("Arguments goods are required");
+	  if(null == goods) {
+		  throw new IllegalArgumentException("Arguments goods are required");
+	  }
 	  Integer flag = goodsRepository.updateGoods(goods);
 	  return (0 == flag)?false:true;
   }
@@ -269,7 +285,9 @@ public class  GoodsService{
    */
   public List<Character> getNewMessage(String userId) {
 	  
-	  if(Strings.isNullOrEmpty(userId))throw new IllegalArgumentException("Arguments userId are required");
+	  if(Strings.isNullOrEmpty(userId)) {
+		  throw new IllegalArgumentException("Arguments userId are required");
+	  }
 	 
 	  List<Character> result = new ArrayList<Character>();
 	  List<Message> list = msgRepository.findMessageByUidAndFlag(userId, '0');
@@ -364,7 +382,9 @@ public class  GoodsService{
 	}
   
   public boolean  insertUser(String userId,String avatar,String userName,String userPhone) {
-	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone))throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
+	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
+		  throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
+	  }
 	  Integer flag = userRepository.insertUser(userId, avatar, userName,userPhone);
 	  return flag ==0?false:true;
   }
@@ -377,7 +397,9 @@ public class  GoodsService{
   
   
   public boolean testCreateGoods(Goods goods) throws IOException {
-	  if(null == goods)  throw new IllegalArgumentException("Arguments goods and files are required");
+	  if(null == goods) {
+		  throw new IllegalArgumentException("Arguments goods and files are required");
+	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
 	  goods.setImgs("test.jpg");

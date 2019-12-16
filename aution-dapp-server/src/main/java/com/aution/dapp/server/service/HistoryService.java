@@ -28,7 +28,6 @@ public class HistoryService {
 	
 	/**
 	 * 查询历史记录
-	 * @param pageable
 	 * @return
 	 */
 	public List<History> findAllHistory(){
@@ -36,38 +35,41 @@ public class HistoryService {
 	}
 	
 	public boolean updateHistory(String temp,String tradeNo) {
-		if(Strings.isNullOrEmpty(temp)||Strings.isNullOrEmpty(tradeNo)) throw new IllegalArgumentException("Arguments tradeNo and temp  are required");
+		if(Strings.isNullOrEmpty(temp)||Strings.isNullOrEmpty(tradeNo)) {
+			throw new IllegalArgumentException("Arguments tradeNo and temp  are required");
+		}
 		return historyRepository.updateHistory(temp, tradeNo)==0?false:true;
 	}
 	
 	/**
 	 * 通过竞拍用户id和商品id查询竞拍历史记录
-	 * @param user_id 竞拍者id
+	 * @param userId 竞拍者id
 	 * @param gId 商品id
 	 * @param pageable
 	 * @return
 	 */
 	public List<History> findHistorysByUserIdAndGoodsId(String userId,String gId,Pageable pageable){
-		 if(!Strings.isNullOrEmpty(userId)&&!Strings.isNullOrEmpty(gId))
+		 if(!Strings.isNullOrEmpty(userId)&&!Strings.isNullOrEmpty(gId)) {
 			 return historyRepository.findHistorysByUserIdAndGoodsId(userId, gId, pageable);
+		 }
 		 throw new IllegalArgumentException("Arguments user_id and gId are required");
 	}
 	/**
 	 * 通过用户id查询历史记录
-	 * @param user_id 竞拍者id
+	 * @param userId 竞拍者id
 	 * @param pageable
 	 * @return
 	 */
 	public List<History> findHistoryByUserId(String userId,Pageable pageable){
-		if(!Strings.isNullOrEmpty(userId))
+		if(!Strings.isNullOrEmpty(userId)) {
 			return historyRepository.findHistoryByUserId(userId, pageable);
+		}
 		throw new IllegalArgumentException("Arguments user_id are required");
 	}
 	/**
 	 * 通过商品id和时间排序查询历史记录列表
 	 * @param gId 商品id
 	 * @param sort
-	 * @param pageable
 	 * @return
 	 */
 	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
@@ -88,7 +90,6 @@ public class HistoryService {
 	 * 通过商品id 用户id分组及价格排序方式查询历史记录
 	 * @param gId
 	 * @param sort
-	 * @param pageable
 	 * @return
 	 */
 	public List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(String gId,String sort,Integer page,Integer size){
@@ -118,11 +119,15 @@ public class HistoryService {
 	}
 	
 	public History findHistoryByTradeNo(String tradeNo) {
-		if(Strings.isNullOrEmpty(tradeNo))  throw new IllegalArgumentException("Arguments tradeNo are required");
+		if(Strings.isNullOrEmpty(tradeNo)) {
+			throw new IllegalArgumentException("Arguments tradeNo are required");
+		}
 		return historyRepository.findHistoryByTradeNo(tradeNo);
 	}
 	public Double findMaxPriceByGid(String gId) {
-		if(Strings.isNullOrEmpty(gId))  throw new IllegalArgumentException("Arguments gId is required");
+		if(Strings.isNullOrEmpty(gId)) {
+			throw new IllegalArgumentException("Arguments gId is required");
+		}
 		return historyRepository.findMaxPriceByGid(gId);
 	}
 }

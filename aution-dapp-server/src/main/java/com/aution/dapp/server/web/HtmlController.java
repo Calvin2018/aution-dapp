@@ -44,7 +44,9 @@ public class HtmlController {
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
 		boolean flag = goodsService.insertUser(userId, avatar, userName,userPhone);
-		if(!flag)goodsService .updateUser(userId, avatar, userName, userPhone);
+		if(!flag) {
+			goodsService .updateUser(userId, avatar, userName, userPhone);
+		}
 		
 		request.getSession().setAttribute("job_number", userId);
 		request.getSession().setMaxInactiveInterval(60*60*2);
