@@ -4,10 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.core.ApiResult;
@@ -24,7 +21,7 @@ public class HisttoryController {
 	
 	@RequestMapping(value="/findHistoryByUserIdAndGoodsId",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<History>> findHistoryByUserIdAndGoodsId(String userId,String gId,Integer page,Integer size){
+	public ApiResult<List<History>> findHistoryByUserIdAndGoodsId(@RequestParam("userId") String userId, @RequestParam("gId")String gId, Integer page, Integer size){
 		
 		ApiResult<List<History>> result = new ApiResult<List<History>>();
 		try {
@@ -43,7 +40,7 @@ public class HisttoryController {
 	}
 	@RequestMapping(value="/findHistoryByUserId",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<History>> findHistoryByUserId(String userId,Integer page,Integer size){
+	public ApiResult<List<History>> findHistoryByUserId(@RequestParam("userId") String userId,Integer page,Integer size){
 		
 		ApiResult<List<History>> result = new ApiResult<List<History>>();
 		try {
@@ -62,7 +59,7 @@ public class HisttoryController {
 	}
 	@RequestMapping(value="/findHistoryByGoodsIdAndTimeSort",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<History>> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
+	public ApiResult<List<History>> findHistoryByGoodsIdAndTimeSort(@RequestParam("gId") String gId,String sort,Integer page,Integer size){
 		
 		ApiResult<List<History>> result = new ApiResult<List<History>>();
 		try {
@@ -81,7 +78,7 @@ public class HisttoryController {
 	}
 	@RequestMapping(value="/findHistoryByGoodsIdAndPriceSortAndGroupByUserId",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<History>> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(String gId,String sort,Integer page,Integer size){
+	public ApiResult<List<History>> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(@RequestParam("gId") String gId,String sort,Integer page,Integer size){
 		
 		ApiResult<List<History>> result = new ApiResult<List<History>>();
 		try {

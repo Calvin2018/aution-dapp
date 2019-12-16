@@ -74,12 +74,15 @@ public class HistoryService {
 	 */
 	public List<History> findHistoryByGoodsIdAndTimeSort(String gId,String sort,Integer page,Integer size){
 		if(!Strings.isNullOrEmpty(gId)) {
-			if(sort.toUpperCase().equals("ASC")) {
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_price").ascending()));
-			}else if(sort.toUpperCase().equals("DESC")){
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size,Sort.by("bid_price").descending()));
-			}else {
-				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId,PageRequest.of(page, size));
+			String asc = "ASC";
+			if(!Strings.isNullOrEmpty(sort)) {
+				if (sort.toUpperCase().equals(asc)) {
+					return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size, Sort.by("bid_price").ascending()));
+				} else{
+					return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size, Sort.by("bid_price").descending()));
+				}
+			}else{
+				return historyRepository.findHistoryByGoodsIdAndTimeSort(gId, PageRequest.of(page, size));
 			}
 		}
 			
@@ -94,14 +97,16 @@ public class HistoryService {
 	 */
 	public List<History> findHistoryByGoodsIdAndPriceSortAndGroupByUserId(String gId,String sort,Integer page,Integer size){
 		if(!Strings.isNullOrEmpty(gId)) {
-			if(sort.toUpperCase().equals("ASC")) {
-				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size,Sort.by("bid_price").ascending()));
-			}else if(sort.toUpperCase().equals("DESC")){
-				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size,Sort.by("bid_price").descending()));
-			}else {
-				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId,PageRequest.of(page, size));
+			String asc = "ASC";
+			if(!Strings.isNullOrEmpty(sort)) {
+				if (sort.toUpperCase().equals(asc)) {
+					return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size, Sort.by("bid_price").ascending()));
+				} else {
+					return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size, Sort.by("bid_price").descending()));
+				}
+			}else{
+				return historyRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(page, size));
 			}
-				
 		}
 		throw new IllegalArgumentException("Arguments gId is required");
 

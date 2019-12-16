@@ -40,8 +40,9 @@ public class SystemController {
 	
 	@RequestMapping(value="/api/system/transaction/echo",method=RequestMethod.GET)
 	@ResponseBody
-	public List<Transaction>  echoTra(String gId,String userId,Double price) throws Exception {
-		return transactionService.findAllTransactionByTimeSort("DESC");
+	public List<Transaction>  echoTra(String gId,String userId,Double price,Integer page,Integer size) throws Exception {
+
+		return transactionService.findAllTransactionByTimeSort("DESC",page,size);
 	}
 	@RequestMapping(value="/api/system/history/echo",method=RequestMethod.GET)
 	@ResponseBody

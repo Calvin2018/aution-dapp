@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +39,7 @@ public class DappController {
 	
 	
 	@RequestMapping(value="/getBalance",method=RequestMethod.POST)
-	public ApiResult<JSONObject> getBalance(String userId,String amount,String feeAmount) throws ApiException, IOException  {
+	public ApiResult<JSONObject> getBalance(@RequestParam("userId")String userId,String amount,String feeAmount) throws  IOException  {
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
 			JSONObject data  = dappService.getBalance(userId,amount,feeAmount);
@@ -64,7 +61,7 @@ public class DappController {
 	}
 	
 	@RequestMapping(value="/bid",method=RequestMethod.POST)
-	public ApiResult<JSONObject> bid(String gId,String userId,Double price) throws Exception {
+	public ApiResult<JSONObject> bid(@RequestParam("gId")String gId, @RequestParam("userId")String userId, @RequestParam("price")Double price) throws Exception {
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
 			JSONObject data =  dappService.createOrder(gId, userId, price);

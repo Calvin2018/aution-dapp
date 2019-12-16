@@ -54,7 +54,7 @@ public class GoodsController {
 	}
 	@RequestMapping(name="/findGoodsBySellerId",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>>  findGoodsBySellerId(String sellerId,Integer page,Integer size){
+	public ApiResult<List<Goods>>  findGoodsBySellerId(@RequestParam("sellerId") String sellerId,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsBySellerId(sellerId, PageRequest.of(page, size));
@@ -71,7 +71,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsBySellerIdAndStatus",method=RequestMethod.GET) 
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsBySellerIdAndStatus(String sellerId,Integer status,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsBySellerIdAndStatus(@RequestParam("sellerId")String sellerId,@RequestParam("status")Integer status,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsBySellerIdAndStatus(sellerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
@@ -91,7 +91,7 @@ public class GoodsController {
 	
 	@RequestMapping(value="/findGoodsByBuyerIdAndStatus",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsByBuyerIdAndStatus(@RequestParam("buyerId")String buyerId,@RequestParam("status")Integer status,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
@@ -127,7 +127,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsByType",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsByType(Integer type,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsByType(@RequestParam("type") Integer type,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsByType(type, PageRequest.of(page, size));
@@ -145,7 +145,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsBySpriceAndSort",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsBySpriceAndSort(@RequestParam("sPrice") Double sPrice,String sort,Integer relation,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsBySpriceAndSort(sPrice,sort,relation,PageRequest.of(page, size));
@@ -164,7 +164,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsByTitle",method=RequestMethod.GET) 
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsByTitle(String title,Pageable pageable){
+	public ApiResult<List<Goods>> findGoodsByTitle(@RequestParam("title") String title,Pageable pageable){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
 			List<Goods> list =  goodsService.findGoodsByTitle(title,pageable);
@@ -181,7 +181,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsByGid",method=RequestMethod.GET) 
 	@ResponseBody
-	public ApiResult<Goods> findGoodsByGid(String gId,String status) {
+	public ApiResult<Goods> findGoodsByGid(@RequestParam("gId") String gId) {
 		ApiResult<Goods> result = new ApiResult<Goods>();
 		try {
 			Goods goods = goodsService.findGoodsByGid(gId);
@@ -234,7 +234,7 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/getNewMessage",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<JSONObject> getNewMessage(String userId) throws IOException{
+	public ApiResult<JSONObject> getNewMessage(@RequestParam("userId") String userId) throws IOException{
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
 			JSONObject obj = dappService.getBalance(userId, null, null);

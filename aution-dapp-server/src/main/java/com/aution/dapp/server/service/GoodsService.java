@@ -72,9 +72,15 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(String priceSort,String timeSort,Integer type,Pageable pageable){
 	  if(Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)) {
-		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_time").descending());
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time").descending());
+	  }else if(!Strings.isNullOrEmpty(priceSort)&&!Strings.isNullOrEmpty(timeSort)){
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time","start_price").descending());
+	  }else if(Strings.isNullOrEmpty(priceSort)&&!Strings.isNullOrEmpty(timeSort)){
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time").descending());
+	  }else if(!Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)){
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_price").descending());
 	  }
-	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort,timeSort,type,pageable);
+	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,pageable);
   }
 	
   /**
@@ -153,7 +159,17 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsByEtimeAndSort(Long eTime,String sort,Pageable pageable){
 	  if(null != eTime) {
-		  return goodsRepository.findGoodsByEtimeAndSort(eTime,sort, pageable);
+	  	String asc = "ASC";
+	  	if(Strings.isNullOrEmpty(sort)){
+			pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("end_time").descending());
+		}else {
+			if (asc.equals(sort.toUpperCase())) {
+				pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("end_time").ascending());
+			} else {
+				pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("end_time").descending());
+			}
+		}
+		  return goodsRepository.findGoodsByEtimeAndSort(eTime, pageable);
 	  }
 	  throw new IllegalArgumentException("Arguments eTime is required");
   }
@@ -180,7 +196,19 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Pageable pageable){
 	  if(null != sPrice) {
-		  return goodsRepository.findGoodsBySpriceAndSort(sPrice,sort,relation,pageable);
+	  	 if(null == sort){
+			if(Strings.isNullOrEmpty(sort)) {
+				pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("start_price").ascending());
+			}else{
+				String asc = "ASC";
+				if(asc.equals(sort.toUpperCase())){
+					pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("start_price").ascending());
+				}else{
+					pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("start_price").descending());
+				}
+			}
+	  	 }
+		  return goodsRepository.findGoodsBySpriceAndSort(sPrice,relation,pageable);
 	  }
 	  throw new IllegalArgumentException("Arguments sPrice is required");
   }
@@ -392,55 +420,10 @@ public class  GoodsService{
 	  return flag ==0?false:true;
   }
   public boolean updateUser(String userId,String avatar,String userName,String userPhone) {
-	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone))throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
+	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
+		  throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
+	  }
 	  Integer flag = userRepository.updateUser(userId, avatar, userName,userPhone);
 	  return flag ==0?false:true;
-  }
-  
-  
-  
-  public boolean testCreateGoods(Goods goods) throws IOException {
-	  if(null == goods) {
-		  throw new IllegalArgumentException("Arguments goods and files are required");
-	  }
-	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
-	  goods.setStatus(1);
-	  goods.setImgs("test.jpg");
-	  Integer flag = goodsRepository.insertGoods(goods);
-	  if(flag != 0) {
-		//任务名称
-		Long time = System.currentTimeMillis();
-	    String name = time + goods.getGoodsId();
-	    //任务所属分组
-	    String group = this.getClass().getName();
-
-	    JobDataMap jobDataMap = new JobDataMap();
-	    jobDataMap.put("goodsId", goods.getGoodsId());
-	    jobDataMap.put("userId", goods.getSellerId());
-	    
-	    Date endTime = new Date(goods.getEndTime());
-	    Calendar cal = Calendar.getInstance();
-	    cal.setTime(endTime);
-
-	    String cronExpression = cal.get(Calendar.SECOND) + " " + cal.get(Calendar.MINUTE) + " " + cal.get(Calendar.HOUR_OF_DAY) 
-	    + " " + cal.get(Calendar.DAY_OF_MONTH) + " " + (cal.get(Calendar.MONTH) + 1) + " ? " + cal.get(Calendar.YEAR);
-	    CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-	    //创建任务
-	    JobDetail jobDetail = JobBuilder.newJob(BidJob.class).withIdentity(name,group).usingJobData(jobDataMap).build();
-	    //创建任务触发器
-	    TriggerKey key = TriggerKey.triggerKey(name,group);
-	    Trigger trigger = TriggerBuilder.newTrigger().withIdentity(key).withSchedule(scheduleBuilder).build();
-	    //将触发器与任务绑定到调度器内
-	    try {
-			if (!scheduler.checkExists(key)) {
-			  LOGGER.info("Schedule job - with key {} , and expression {}", key, cronExpression);
-			  scheduler.scheduleJob(jobDetail, trigger);
-			  scheduler.start();
-			}
-		} catch (SchedulerException e) {
-			  LOGGER.info("SchedulerException:{}",e.getMessage());
-		}
-	  } 
-	  return (0 == flag)?false:true;
   }
 }

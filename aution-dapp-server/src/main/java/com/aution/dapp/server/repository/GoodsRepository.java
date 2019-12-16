@@ -29,7 +29,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   List<Goods> findAllGoods(Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByTypeAndSpriceSortAndEtimeSort")
-  List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(String priceSort,String timeSort,Integer type,Pageable pageable);
+  List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(Integer type,Pageable pageable);
 	
   @Select("select goods_id,title,imgs,current_price," + 
   		"end_time,temp,avatar,user_name,user_phone from t_goods g,t_user u where g.seller_id = u.user_id and seller_id = #{sellerId}")	
@@ -40,17 +40,17 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   List<Goods> findGoodsBySellerIdAndStatus(@Param("sellerId")String sellerId,@Param("status")Integer status,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByBuyerIdAndStatus")
-  List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Pageable pageable);
+  List<Goods> findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByEtimeAndSort")	
-  List<Goods> findGoodsByEtimeAndSort(Long eTime,String sort,Pageable pageable);
+  List<Goods> findGoodsByEtimeAndSort(Long eTime,Pageable pageable);
   
   @Select("select goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone " + 
   		"from t_goods g,t_user u where g.seller_id = u.user_id and type = #{type}")
   List<Goods> findGoodsByType(@Param("type")Integer type,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsBySpriceAndSort")
-  List<Goods> findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation,Pageable pageable);
+  List<Goods> findGoodsBySpriceAndSort(@Param("sPrice")Double sPrice,@Param("relation")Integer relation,Pageable pageable);
   
   @Select("select goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone " + 
   		"from t_goods g,t_user u where g.seller_id = u.user_id and LOCATE( #{title},title)>0 ")

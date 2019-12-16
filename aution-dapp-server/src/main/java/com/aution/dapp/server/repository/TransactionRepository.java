@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -25,13 +26,12 @@ public interface TransactionRepository extends PlatformMybatisRepository<Transac
   		"where tx_id =  #{txId}")
   Transaction findTransactionByTxId(@Param("txId")String txId);
 	
-  @Select("select tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp from t_transaction " + 
-	  		"order by tx_time #{sort}")
-  List<Transaction> findAllTransactionByTimeSort(@Param("sort")String sort);
+  @Select("select tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp from t_transaction")
+  List<Transaction> findAllTransactionByTimeSort(Pageable pageable);
   
-  @Select("select tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp from t_transaction " + 
-	  		"order by price #{sort}")
-  List<Transaction> findAllTransactionByPriceSort(@Param("sort")String sort);
+  @Select("select tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp from t_transaction " +
+	  		"order by price")
+  List<Transaction> findAllTransactionByPriceSort(Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findTransactionByParms")
   List<Transaction> findTransactionByParms(@RequestBody Transaction transaction);
