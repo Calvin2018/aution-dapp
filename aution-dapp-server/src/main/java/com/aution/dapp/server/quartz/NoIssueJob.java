@@ -35,8 +35,9 @@ public class NoIssueJob implements Job{
 			//1、job
 			LOG.debug("开始执行退款");
 			List<List<History>> list = dappService.findHistoryForNoIssueOrder();
-			if(null != list)
+			if(null != list) {
 				list.removeAll(Collections.singleton(null));
+			}
 			if(null == list || list.size() == 0) {
 				LOG.debug("未找到需要退款记录");
 				LOG.debug("定时任务执行完成");
