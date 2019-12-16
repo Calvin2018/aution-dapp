@@ -38,7 +38,9 @@ public class DBaseApiService extends BaseApiService{
 	}
     
 	public <T> RestApiResponse<T> getUserInfo(String token,TypeToken<RestApiResponse<T>> typeToken) throws ApiException, IOException{
-		if(Strings.isNullOrEmpty(token)&&null == typeToken) throw new IllegalArgumentException("Arguments token and typeToken are required");
+		if(Strings.isNullOrEmpty(token)&&null == typeToken) {
+			throw new IllegalArgumentException("Arguments token and typeToken are required");
+		}
 		String url =  configuration.getProperty(ApiConstants.PROP_COIN_INFO_URL);
 		String requestUrl = String.format(url,token);
 		
@@ -80,8 +82,9 @@ public class DBaseApiService extends BaseApiService{
         if(null != map) {
         	token = map.get("access_token");
         	appClient.setAccessToken(token);
-        	if (Strings.isNullOrEmpty(token)) 
-                throw new ApiException(Integer.parseInt(ApiConstants.CODE_EMPTY_RESULT), "Return an empty token");
+        	if (Strings.isNullOrEmpty(token)) {
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_EMPTY_RESULT), "Return an empty token");
+			}
         	// Store HttpContext.
             appContext.putIfAbsentHttpContext(token,context);
         }
@@ -91,8 +94,9 @@ public class DBaseApiService extends BaseApiService{
 	
 	public String doOrder(String appid,String accessToken,PayRequest payRequest,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid)||null == payRequest)
+		if(Strings.isNullOrEmpty(appid)||null == payRequest) {
 			throw new IllegalArgumentException("Arguments appid  payRequest and typeToken are required");
+		}
 		
 		if(Strings.isNullOrEmpty(accessToken)) {
 			accessToken = accessToken(appClient);
@@ -139,12 +143,14 @@ public class DBaseApiService extends BaseApiService{
         String payUrl = null;
         if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.MERCHANT)) {
         	payUrl = (String)((Map<?, ?>)result.getData()).get("pay_url");
-        	if(Strings.isNullOrEmpty(payUrl))
-        		throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
+        	if(Strings.isNullOrEmpty(payUrl)) {
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
+			}
         }else if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.COIN)) {
         	payUrl = (String)result.getData();
-        	if(Strings.isNullOrEmpty(payUrl))
-        		throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付二维码失败");
+        	if(Strings.isNullOrEmpty(payUrl)) {
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付二维码失败");
+			}
         }else {
         	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"未知授权支付方式");
         }
@@ -154,8 +160,9 @@ public class DBaseApiService extends BaseApiService{
 	
 	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,BusinessRecord businessRecord,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid)||null == businessRecord)
+		if(Strings.isNullOrEmpty(appid)||null == businessRecord) {
 			throw new IllegalArgumentException("Arguments appid  businessRecord and typeToken are required");
+		}
 		
 		if(Strings.isNullOrEmpty(accessToken)) {
 			accessToken = accessToken(appClient);
@@ -202,15 +209,20 @@ public class DBaseApiService extends BaseApiService{
 	
 	public <T> RestApiResponse<T> doQuery(String appid,String accessToken,String userId,String amount,String feeAmount,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
-		if(Strings.isNullOrEmpty(appid))
+		if(Strings.isNullOrEmpty(appid)) {
 			throw new IllegalArgumentException("Arguments appid  typeToken are required");
+		}
 		if(Strings.isNullOrEmpty(accessToken)) {
 			accessToken = accessToken(appClient);
 			appClient.setAccessToken(accessToken);
 		}
 			
-		if(Strings.isNullOrEmpty(amount))feeAmount = null;
-		if(!Strings.isNullOrEmpty(amount)&&Strings.isNullOrEmpty(feeAmount))feeAmount = "0";
+		if(Strings.isNullOrEmpty(amount)) {
+			feeAmount = null;
+		}
+		if(!Strings.isNullOrEmpty(amount)&&Strings.isNullOrEmpty(feeAmount)) {
+			feeAmount = "0";
+		}
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 		
 		String jsonParam = "{\"user_id\":\"";
