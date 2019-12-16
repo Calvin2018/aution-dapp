@@ -71,7 +71,9 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(String priceSort,String timeSort,Integer type,Pageable pageable){
-	  if(Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)) pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_time").descending());
+	  if(Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)) {
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_time").descending());
+	  }
 	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort,timeSort,type,pageable);
   }
 	
@@ -83,8 +85,9 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsBySellerId(String sellerId,Pageable pageable){
 	 
-	  if(!Strings.isNullOrEmpty(sellerId))
+	  if(!Strings.isNullOrEmpty(sellerId)) {
 		  return goodsRepository.findGoodsBySellerId(sellerId, pageable);
+	  }
 	  throw new IllegalArgumentException("Arguments sellerId are required");
   }
   /**

@@ -77,8 +77,10 @@ public class DappService {
 	
 	public JSONObject getBalance(String userId,String amount,String feeAmount) throws IOException {
 		
-		if(Strings.isNullOrEmpty(userId))throw new IllegalArgumentException("Arguments userId are required");
-		
+		if(Strings.isNullOrEmpty(userId)) {
+            throw new IllegalArgumentException("Arguments userId are required");
+        }
+
 		JSONObject obj = new  JSONObject();
 		obj.put("flag", true);
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
@@ -114,7 +116,9 @@ public class DappService {
 		
 		Goods goods = userRepository.findUserByUserId(userId);
 		Map<String,String> map = new HashMap<String,String>();
-		if(null == goods||Strings.isNullOrEmpty(goods.getUserName())) throw new IllegalArgumentException("userId is not exist!");
+		if(null == goods||Strings.isNullOrEmpty(goods.getUserName())) {
+            throw new IllegalArgumentException("userId is not exist!");
+        }
 		map.put("job_number", userId);
 		map.put("avatar", goods.getAvatar());
 		map.put("user_name",goods.getUserName());
@@ -133,12 +137,7 @@ public class DappService {
 	 */
 	
 	public JSONObject createOrder(String gId,String userId,Double price) throws Exception {
-		
-		if(Strings.isNullOrEmpty(gId)||Strings.isNullOrEmpty(userId)||null == price) {
-			throw new IllegalArgumentException("Arguments gId userId and price are required");
-		}
-		
-		
+
 		JSONObject obj = new JSONObject();
 		//检查竞拍价格比当前价格高
 		History temp = hRepository.findHistoryByUserIdAndGoodsId(userId, gId);
@@ -349,7 +348,9 @@ public class DappService {
 			transaction.setTemp("");
 			Integer tFlag = tRepository.insertTransaction(transaction);
 			//用于数据库回滚
-			if(0 == tFlag) throw new ApiException("Transaction Insert Failed");
+			if(0 == tFlag) {
+                throw new ApiException("Transaction Insert Failed");
+            }
 		}
 		
 		if(historyList.size()<=0) {
@@ -366,8 +367,9 @@ public class DappService {
 		Long endTime = System.currentTimeMillis()+60000L;
 		//没有数据返回的结果为list,第一个元素为Null
 		List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
-		if(null != list)
-			list.removeAll(Collections.singleton(null));
+		if(null != list) {
+            list.removeAll(Collections.singleton(null));
+        }
 		List<List<History>> result = null;
 		if(null != list && !list.isEmpty()) {
 			result = new ArrayList<List<History>>();
