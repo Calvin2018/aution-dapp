@@ -35,8 +35,7 @@ public class SystemController {
 	private TransactionService transactionService;
 	@Autowired
 	private HistoryService historyService;
-	@Autowired
-	private DappService dappService;
+
 	
 	@RequestMapping(value="/api/system/transaction/echo",method=RequestMethod.GET)
 	@ResponseBody
@@ -50,33 +49,6 @@ public class SystemController {
 		return historyService.findAllHistory();
 	}
 	
-	@RequestMapping(value="/api/getUserInfo",method=RequestMethod.POST)
-	public ApiResult<Map<String,String>> getToken(HttpServletRequest request) throws ApiException, IOException  {
-		String userId = (String)request.getSession().getAttribute("job_number");
-		
-		ApiResult<Map<String,String>> result = new ApiResult<Map<String,String>>();
-		Map<String,String> map = null;
-		try {
-			
-			if(!Strings.isNullOrEmpty(userId)) {
-				map =  dappService.getUserInfoUserId(userId);
-			}
-			
-			result.setCode(ApiConstants.CODE_SUCCESS);
-			result.setMsg("");
-			result.setData(map);
-			
-		}catch(IllegalArgumentException e) {
-			result.setCode(ApiConstants.CODE_ARGS_ERROR);
-			result.setMsg(e.getMessage());
-			result.setData(null);
-		}catch(ApiException e) {
-			result.setCode(String.valueOf(e.getStatusCode()));
-			result.setMsg(e.getMessage());
-			result.setData(null);
-		}
-		return result;
-		
-	}
+
 	
 }

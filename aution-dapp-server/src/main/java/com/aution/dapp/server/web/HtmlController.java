@@ -2,6 +2,9 @@ package com.aution.dapp.server.web;
 
 
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +39,26 @@ public class HtmlController {
 	}
 	
 	@RequestMapping(value="",method=RequestMethod.GET)
-	public  String echo(@RequestParam("access_token")String accessToken,HttpServletRequest request) throws IOException {
+	public  String login(@RequestParam("access_token")String accessToken) throws IOException {
 		LOGGER.info("access_token: {}",accessToken);
 		Map<String,String> temp = dappService.getUserInfo(accessToken);
+
 		String userId = temp.get("job_number");
 		String avatar = temp.get("avatar");
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
+
+		Subject subject = SecurityUtils.getSubject();
+		UsernamePasswordToken token = new UsernamePasswordToken(userId,accessToken);
+		subject.login(token);
+
+		//不存在则插入
 		boolean flag = goodsService.insertUser(userId, avatar, userName,userPhone);
 		if(!flag) {
 			goodsService .updateUser(userId, avatar, userName, userPhone);
 		}
 		
-		request.getSession().setAttribute("job_number", userId);
-		request.getSession().setMaxInactiveInterval(60*60*2);
-		
+
 		return "redirect:index.html";
 		
 	} 
