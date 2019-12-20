@@ -86,52 +86,55 @@ public class DappController {
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		LOGGER.info("开始notify");
-		//String temp = "0";
-		
-		if(null == notifyBean||notifyBean.getOrderStatus().equals(ApiConstants.DA_SUCCESS)) {
-			//historyService.updateHistory(temp,notifyBean.getTradeNo());
+
+		if(null == notifyBean) {
 			return "FAILED";
 		}
-		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
-        MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
-        LOGGER.info("开始验证签名");
-        // 2.验证签名
-        Properties configuration = appClient.getConfiguration();
-        
-        if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
-        	LOGGER.info("Signature verification passed for sign:{}",sign);
-        } else {
-        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	LOGGER.error("Signature verification failed for sign:{}",sign);
-        	return "Signature verification failed for sign:"+sign;
-        }
-        LOGGER.info("结束验证签名");
-        // 3.验证订单金额
-        LOGGER.info("开始订单金额");
-        List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
-        Double price = 0d;
-        if(null == list || list.size() == 0) {
-        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	return "Amount verification failed for price:" + price;
-        }else if(list.size() == 1) {
-			price = list.get(0).getBidPrice();
-        }else if(list.size() == 2) {
-			price = list.get(0).getBidPrice() - list.get(1).getBidPrice();
-        }
-        if (new BigDecimal(price).equals(notifyBean.getAmount())) {
-        	LOGGER.info("Amount verification passed");
-        } else {
-        	LOGGER.error("Amount verification failed, may be illegal notification for price:{}",price);
-        	//historyService.updateHistory(temp,notifyBean.getTradeNo());
-        	return "Amount verification failed, may be illegal notification for price:"+price;
-        }
-        LOGGER.info("校验成功");
-        
-        History history = list.get(0);
-        
-       
-        dappService.doPaySuccessed(history, price, notifyBean);
-        
-        return "SUCCESS";
+		//交易正在进行
+		if(notifyBean.getStatus()==1){
+			return "IN TRANSACTION";
+			//交易完成
+		}else if(notifyBean.getStatus()==0){
+			// 1.基于内存的消息去重,分布式环境请自行编写去重实例
+			MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
+			LOGGER.info("开始验证签名");
+			// 2.验证签名
+			Properties configuration = appClient.getConfiguration();
+
+			if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
+				LOGGER.info("Signature verification passed for sign:{}", sign);
+			} else {
+				LOGGER.error("Signature verification failed for sign:{}", sign);
+				return "Signature verification failed for sign:" + sign;
+			}
+			LOGGER.info("结束验证签名");
+			// 3.验证订单金额
+			LOGGER.info("开始订单金额");
+			List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
+			Double price = 0d;
+			if (null == list || list.size() == 0) {
+				return "Amount verification failed for price:" + price;
+			} else if (list.size() == 1) {
+				price = list.get(0).getBidPrice();
+			} else if (list.size() == 2) {
+				price = list.get(0).getBidPrice() - list.get(1).getBidPrice();
+			}
+			if (new BigDecimal(price).equals(notifyBean.getAmount())) {
+				LOGGER.info("Amount verification passed");
+			} else {
+				LOGGER.error("Amount verification failed, may be illegal notification for price:{}", price);
+				return "Amount verification failed, may be illegal notification for price:" + price;
+			}
+			LOGGER.info("校验成功");
+
+			History history = list.get(0);
+
+
+			dappService.doPaySuccessed(history, price, notifyBean);
+
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}
 	}
 }
