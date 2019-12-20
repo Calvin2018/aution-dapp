@@ -253,7 +253,7 @@ public class DappService {
 		transaction.setFromUserId(history.getUserId());
 		transaction.setPrice(price);
 		transaction.setToUserId(transferId);
-		transaction.setTxId(notifyBean.getCoinTradeNo());
+		transaction.setTxId(notifyBean.getBusinessNo());
 		transaction.setTxTime(date);
 		tRepository.insertTransaction(transaction);
 
@@ -283,7 +283,7 @@ public class DappService {
         	} catch(ApiException e) {
 	        	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_INSUFFICIENT_BALANCE)) {
 	        		 //退款失败则修改交易状态为2即退款失败
-	        		 hRepository.updateHistory("2",notifyBean.getCoinTradeNo());
+	        		 hRepository.updateHistory("2",notifyBean.getBusinessNo());
 	        	}
 	        	return "FAILED";
 	        }catch (IOException e) {

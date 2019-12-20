@@ -19,11 +19,11 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
 
     private String tradeNo; //商户订单号
 
-    private String coinTradeNo; //灵光币订单号
+    private String businessNo; //灵光币订单号
 
     private BigDecimal amount; //总金额,单位为元
 
-    private String orderStatus; //订单支付状态
+    private Integer status; //订单支付状态
 
     @DateTimeFormat(pattern = "yyyyMMddHHmmss")
     private String payTime; //订单支付完成时间
@@ -42,12 +42,12 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
 		this.tradeNo = tradeNo;
 	}
 
-	public String getCoinTradeNo() {
-		return coinTradeNo;
+	public String getBusinessNo() {
+		return businessNo;
 	}
 
-	public void setCoinTradeNo(String coinTradeNo) {
-		this.coinTradeNo = coinTradeNo;
+	public void setBusinessNo(String businessNo) {
+		this.businessNo = businessNo;
 	}
 
 	public BigDecimal getAmount() {
@@ -58,12 +58,12 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
 		this.amount = amount;
 	}
 
-	public String getOrderStatus() {
-		return orderStatus;
+	public Integer getStatus() {
+		return status;
 	}
 
-	public void setOrderStatus(String orderStatus) {
-		this.orderStatus = orderStatus;
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 	public String getPayTime() {
@@ -74,14 +74,15 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
 		this.payTime = payTime;
 	}
 
-	public PayNotifyBean() {
-		super();
-	}
-
 	@Override
 	public String toString() {
-		return "PayNotifyBean [tradeNo=" + tradeNo + ", coinTradeNo=" + coinTradeNo + ", amount=" + amount
-				+ ", orderStatus=" + orderStatus + ", payTime=" + payTime + "]";
+		return "PayNotifyBean{" +
+				"tradeNo='" + tradeNo + '\'' +
+				", businessNo='" + businessNo + '\'' +
+				", amount=" + amount +
+				", status='" + status + '\'' +
+				", payTime='" + payTime + '\'' +
+				'}';
 	}
-    
+
 }
