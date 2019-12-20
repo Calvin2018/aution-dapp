@@ -73,8 +73,15 @@ public class DappService {
 	
 	
 	private static AppClient appClient = AppClient.getInstance();
-	
-	
+
+	/**
+	 * 获取用户余额 不提供
+	 * @param userId
+	 * @param amount
+	 * @param feeAmount
+	 * @return
+	 * @throws IOException
+	 */
 	public JSONObject getBalance(String userId,String amount,String feeAmount) throws IOException {
 		
 		if(Strings.isNullOrEmpty(userId)) {
@@ -99,8 +106,13 @@ public class DappService {
 		}
 		return obj;
 	}
-	
-	
+
+	/**
+	 * 调用灵光币接口获取用户信息
+	 * @param authToken
+	 * @return
+	 * @throws IOException
+	 */
 	public Map<String,String> getUserInfo(String authToken) throws IOException {
 		
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
@@ -108,7 +120,13 @@ public class DappService {
 		Map<String,String> map = dBaseApiService.getUserInfo(authToken, typeToken).getData();
 		return map;
 	}
-	
+
+	/**
+	 * 查询本地数据库获取用户信息
+	 * @param userId
+	 * @return
+	 * @throws IOException
+	 */
 	public Map<String,String> getUserInfoUserId(String userId) throws IOException {
 		if(Strings.isNullOrEmpty(userId)) {
 			throw new IllegalArgumentException("Arguments userId are required");
@@ -119,6 +137,7 @@ public class DappService {
 		if(null == goods||Strings.isNullOrEmpty(goods.getUserName())) {
             throw new IllegalArgumentException("userId is not exist!");
         }
+		//TODO 带修改
 		map.put("job_number", userId);
 		map.put("avatar", goods.getAvatar());
 		map.put("user_name",goods.getUserName());
@@ -217,7 +236,8 @@ public class DappService {
 	
 	@Transactional(rollbackFor = Exception.class)
 	public String doPaySuccessed(History history,Double price,PayNotifyBean notifyBean) throws ApiException, ParseException {
-		
+
+		//进入该方法表示用户已经支付成功，因此更新交易状态为1即已经支付
 		LOGGER.debug("start update table t_history,tradeNo: {}",notifyBean.getTradeNo());
         hRepository.updateHistory("1",notifyBean.getTradeNo());
 		LOGGER.debug("finnish update table t_history,tradeNo: {}",notifyBean.getTradeNo());
@@ -227,7 +247,7 @@ public class DappService {
 		 
 		//业务查询 
 		String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
-		
+		//插入交易到本地数据库
 		Transaction transaction = new Transaction();
 		transaction.setGoodsId(history.getGoodsId());
 		transaction.setFromUserId(history.getUserId());
@@ -236,11 +256,10 @@ public class DappService {
 		transaction.setTxId(notifyBean.getCoinTradeNo());
 		transaction.setTxTime(date);
 		tRepository.insertTransaction(transaction);
-		//用于数据库回滚
-		
+
+		//当支付时间超过商品竞拍截止时间则直接发起退款
 		if(date > history.getEndTime()) {
 	        	
-        	TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
             String accessToken = appClient.getAccessToken();
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
             BusinessRecord businessRecord= new BusinessRecord();
@@ -249,7 +268,7 @@ public class DappService {
     		businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
     		Map<String, String> data = null;
         	try {
-        		data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken,appClient).getData();
+        		data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, new TypeToken<RestApiResponse<Map<String,String>>>(){},appClient).getData();
 			
 				transaction.setGoodsId(history.getGoodsId());
 				transaction.setFromUserId(transferId);
@@ -263,6 +282,7 @@ public class DappService {
 				
         	} catch(ApiException e) {
 	        	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_INSUFFICIENT_BALANCE)) {
+	        		 //退款失败则修改交易状态为2即退款失败
 	        		 hRepository.updateHistory("2",notifyBean.getCoinTradeNo());
 	        	}
 	        	return "FAILED";
@@ -274,7 +294,8 @@ public class DappService {
         }
         		
 		Double maxPrice = hRepository.findMaxPriceByGid(history.getGoodsId());
-		
+		//当用户1、用户2同时进入支付界面时此时是在灵光币平台本系统无法得知那个支付的金额大因此需要进行验证
+		//验证 当支付金额是最大值时更新当前商品竞拍价格
 		if(history.getBidPrice() >= maxPrice) {
 			Goods goods = new Goods();
 			goods.setGoodsId(history.getGoodsId());
@@ -286,8 +307,13 @@ public class DappService {
 		return "SUCCESS";
 		
 	}
-	
-	
+
+	/**
+	 * 竞拍完成时定时任务调用
+	 * @param gId
+	 * @param sellerId
+	 * @throws IOException
+	 */
 	public void bidCompleted(String gId,String sellerId) throws IOException{
 		
 		List<History> historyList = hRepository.findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId, PageRequest.of(0, Integer.MAX_VALUE));
@@ -296,15 +322,24 @@ public class DappService {
 		}
 	}
 	public void bidCompletedMethod(List<History> historyList,String gId,String sellerId,Double currentPrice) throws IOException {
-		//没人竞拍
+
 		Goods goods = new Goods();
 		goods.setGoodsId(gId);
+
+		//没人竞拍
+		if(historyList.size()<=0) {
+			goods.setStatus(3);
+			goodsRepository.updateGoods(goods);
+			msgRepository.insertMessage(sellerId, gId, '2', '0');
+			return;
+		}
 		
 		DBaseApiService dBaseApiService = appClient.getdBaseApiService();
 		BusinessRecord businessRecord= new BusinessRecord();
 
 		TypeToken<RestApiResponse<Map<String,String>>> typeToken = new TypeToken<RestApiResponse<Map<String,String>>>(){};
 		String accessToken = appClient.getAccessToken();
+		//判断是否是买家
 		boolean flag = true;
 		for(int i=0;i<historyList.size();i++) {
 			
@@ -314,19 +349,20 @@ public class DappService {
 			businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
 			Map<String, String> data = null;
 			
-			if(history.getBidPrice().equals(currentPrice)) {
-				if(true == flag && history.getBuyerId().equals("0")) {
-					//拍卖成功
-					msgRepository.insertMessage(sellerId, gId, '1', '0');
-					//竞拍成功
-					msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
-					
-					goods.setBuyerId(history.getUserId());
-					businessRecord.setUserId(sellerId);
-					data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken,appClient).getData();
-					flag = false;
-					
-				}
+			if(true == flag&&history.getBidPrice().equals(currentPrice)) {
+				//拍卖成功
+				msgRepository.insertMessage(sellerId, gId, '1', '0');
+				//竞拍成功
+				msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
+
+				goods.setBuyerId(history.getUserId());
+				businessRecord.setUserId(sellerId);
+				//给卖家付款
+				data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken,appClient).getData();
+				goods.setStatus(2);
+				goodsRepository.updateGoods(goods);
+				flag = false;
+
 			}else {
 				//竞拍失败
 				msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
@@ -337,6 +373,7 @@ public class DappService {
 			if(null == data) {
 				throw new ApiException("Transaction failed");
 			}
+			//插入交易数据到本地数据库
 			long time = System.currentTimeMillis();
 			Transaction transaction = new Transaction();
 			transaction.setGoodsId(gId);
@@ -346,22 +383,16 @@ public class DappService {
 			transaction.setTxId(data.get(ApiConstants.X_TRADE_NO));
 			transaction.setTxTime(time);
 			transaction.setTemp("");
-			Integer tFlag = tRepository.insertTransaction(transaction);
-			//用于数据库回滚
-			if(0 == tFlag) {
-                throw new ApiException("Transaction Insert Failed");
-            }
+			tRepository.insertTransaction(transaction);
+
 		}
-		
-		if(historyList.size()<=0) {
-			goods.setStatus(3);
-			goodsRepository.updateGoods(goods);
-			msgRepository.insertMessage(sellerId, gId, '2', '0');
-		}else {
-			goods.setStatus(2);
-			goodsRepository.updateGoods(goods);
-		}
+
 	}
+
+	/**
+	 * 查询未退款交易并根据商品id进行分类 一个商品一个list
+	 * @return
+	 */
 	public List<List<History>> findHistoryForNoIssueOrder(){
 		//多加1分钟 是为了避免两个定时任务 同时执行
 		Long endTime = System.currentTimeMillis()+60000L;
@@ -372,7 +403,7 @@ public class DappService {
         }
 		List<List<History>> result = null;
 		if(null != list && !list.isEmpty()) {
-			result = new ArrayList<List<History>>();
+			result = new ArrayList<>();
 			Set<String> set = new HashSet<String>();
 			List<History> hList = null;
 			for(int i=0;i<list.size();i++) {
@@ -383,8 +414,10 @@ public class DappService {
 				}
 				if(!set.contains(temp.getGoodsId())) {
 					set.add(temp.getGoodsId());
-					if(null != hList&&hList.size()>0) result.add(hList);
-					hList = new ArrayList<History>();
+					if(null != hList&&hList.size()>0) {
+						result.add(hList);
+					}
+					hList = new ArrayList<>();
 				}
 				
 				hList.add(temp);
@@ -400,6 +433,10 @@ public class DappService {
 		}
 	}
 
+	/**
+	 * 查询定时任务退款失败的交易
+	 * @throws IOException
+	 */
 	public void findHistoryOfIssueFailed() throws IOException{
 		String temp = "2";
 		List<History> list =  hRepository.findHistoryByTemp(temp);

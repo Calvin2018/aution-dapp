@@ -35,30 +35,30 @@ public class DappController {
 	private DappService dappService;
 	
 	private static AppClient appClient = AppClient.getInstance();
-	
-	
-	
-	@RequestMapping(value="/getBalance",method=RequestMethod.POST)
-	public ApiResult<JSONObject> getBalance(@RequestParam("userId")String userId,String amount,String feeAmount) throws  IOException  {
-		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
-		try {
-			JSONObject data  = dappService.getBalance(userId,amount,feeAmount);
-			result.setCode(ApiConstants.CODE_SUCCESS);
-			result.setMsg("");
-			result.setData(data);
-			
-		}catch(IllegalArgumentException e) {
-			result.setCode(ApiConstants.CODE_ARGS_ERROR);
-			result.setMsg(e.getMessage());
-			result.setData(null);
-		}catch(ApiException e) {
-			result.setCode(String.valueOf(e.getStatusCode()));
-			result.setMsg(e.getMessage());
-			result.setData(null);
-		}
-		
-		return result;
-	}
+
+
+//	灵光币平台不提供该接口
+//	@RequestMapping(value="/getBalance",method=RequestMethod.POST)
+//	public ApiResult<JSONObject> getBalance(@RequestParam("userId")String userId,String amount,String feeAmount) throws  IOException  {
+//		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
+//		try {
+//			JSONObject data  = dappService.getBalance(userId,amount,feeAmount);
+//			result.setCode(ApiConstants.CODE_SUCCESS);
+//			result.setMsg("");
+//			result.setData(data);
+//
+//		}catch(IllegalArgumentException e) {
+//			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+//			result.setMsg(e.getMessage());
+//			result.setData(null);
+//		}catch(ApiException e) {
+//			result.setCode(String.valueOf(e.getStatusCode()));
+//			result.setMsg(e.getMessage());
+//			result.setData(null);
+//		}
+//
+//		return result;
+//	}
 	
 	@RequestMapping(value="/bid",method=RequestMethod.POST)
 	public ApiResult<JSONObject> bid(@RequestParam("gId")String gId, @RequestParam("userId")String userId, @RequestParam("price")Double price) throws Exception {

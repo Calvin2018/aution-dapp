@@ -2,6 +2,8 @@ package com.aution.dapp.server.web;
 
 
 
+import com.aution.dapp.server.core.ApiConstants;
+import com.aution.dapp.server.core.AppClient;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -18,9 +20,7 @@ import com.aution.dapp.server.service.GoodsService;
 
 import java.io.IOException;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import java.util.Properties;
 
 
 @Controller
@@ -31,31 +31,52 @@ public class HtmlController {
 	private DappService dappService;
 	@Autowired
 	private GoodsService goodsService;
+
+	private static AppClient appClient = AppClient.getInstance();
 	
 	@RequestMapping(value="/api/order/pay/successed")
 	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
 		LOGGER.info("查看详情");
 		return "redirect:/index.html";
 	}
-	
-	@RequestMapping(value="",method=RequestMethod.GET)
-	public  String login(@RequestParam("access_token")String accessToken) throws IOException {
-		LOGGER.info("access_token: {}",accessToken);
-		Map<String,String> temp = dappService.getUserInfo(accessToken);
+	@RequestMapping(value="/login")
+	public String login() {
+		Properties config = appClient.getConfiguration();
 
-		String userId = temp.get("job_number");
+		String appId = config.getProperty(ApiConstants.DA_APPID);
+		String redirectUrl=config.getProperty(ApiConstants.DA_URL);
+		String responseType = ApiConstants.DA_RESPONSE_TYPE;
+		String scope = "userinfo";
+		String state = config.getProperty(ApiConstants.DA_STATE);
+		String authUrl= String.format(config.getProperty(ApiConstants.PROP_COIN_AUTH_URL),appId,redirectUrl,responseType,scope,state);
+		return "redirect:" + authUrl;
+	}
+
+
+	@RequestMapping(value="",method=RequestMethod.GET)
+	public  String getCode(@RequestParam("code")String code,@RequestParam("state")String state) throws IOException {
+		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
+		if(!state.equals(dappState)){
+			return "redirect:unauthorized.html";
+		}
+
+		LOGGER.info("code: {}",code);
+		Map<String,String> temp = dappService.getUserInfo(code);
+
+		String userNo = temp.get("user_no");
 		String avatar = temp.get("avatar");
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
 
 		Subject subject = SecurityUtils.getSubject();
-		UsernamePasswordToken token = new UsernamePasswordToken(userId,accessToken);
+
+		UsernamePasswordToken token = new UsernamePasswordToken(userNo,code);
 		subject.login(token);
 
 		//不存在则插入
-		boolean flag = goodsService.insertUser(userId, avatar, userName,userPhone);
+		boolean flag = goodsService.insertUser(userNo, avatar, userName,userPhone);
 		if(!flag) {
-			goodsService .updateUser(userId, avatar, userName, userPhone);
+			goodsService .updateUser(userNo, avatar, userName, userPhone);
 		}
 		
 
