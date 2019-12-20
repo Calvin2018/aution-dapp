@@ -50,9 +50,10 @@ public class ShiroConfiguration {
         map.put("/**","authc");
 
         //静态资源匿名获取，否则页面将无法获取样式等
-        map.put("/","anon");
+        map.put("/scoin","anon");
+        map.put("/login","anon");
         //url拦截，匿名提交会自动跳转到登录界面
-        shiroFilterFactoryBean.setLoginUrl("/");
+        shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setUnauthorizedUrl("/");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
         return shiroFilterFactoryBean;

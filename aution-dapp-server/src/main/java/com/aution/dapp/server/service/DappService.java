@@ -348,7 +348,7 @@ public class DappService {
 			businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
 			businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
 			Map<String, String> data = null;
-			
+
 			if(true == flag&&history.getBidPrice().equals(currentPrice)) {
 				//拍卖成功
 				msgRepository.insertMessage(sellerId, gId, '1', '0');
@@ -368,7 +368,7 @@ public class DappService {
 				msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
 				data = dBaseApiService.doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken, businessRecord, typeToken,appClient).getData();
 			}
-			
+
 		
 			if(null == data) {
 				throw new ApiException("Transaction failed");

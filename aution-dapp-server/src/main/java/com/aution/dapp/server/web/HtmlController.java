@@ -53,7 +53,7 @@ public class HtmlController {
 	}
 
 
-	@RequestMapping(value="",method=RequestMethod.GET)
+	@RequestMapping(value="/scoin",method=RequestMethod.GET)
 	public  String getCode(@RequestParam("code")String code,@RequestParam("state")String state) throws IOException {
 		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
 		if(!state.equals(dappState)){
