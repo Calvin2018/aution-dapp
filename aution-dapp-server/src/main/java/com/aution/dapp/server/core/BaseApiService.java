@@ -91,44 +91,31 @@ public class BaseApiService {
 		  break;
 	  case ApiConstants.CODE_REQUEST_EROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
-	case ApiConstants.CODE_PARAM_INVALID:
+	case ApiConstants.CODE_PARAMS_ERROR:
 		throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_PARAM_EROR:
+	  case ApiConstants.CODE_SERVER_ERROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_TIMESTAMP_EXPIRED:
+	  case ApiConstants.CODE_ACCOUNT_NOT_EXSIT:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TOKEN_ERROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_ORDER_REPEAT:
+	  case ApiConstants.CODE_INSUFFICIENT_BALANCE:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_SIGN_ERROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_APPID_ERROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_USERID_NULL:
+	  case ApiConstants.CODE_CANT_REFUND:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_TRANSACTION_EXCEPTION:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_CHECK_FAILED:
+	  case ApiConstants.CODE_AUTH_INVALID:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_INSUFFICIENT_BALANCE:
+	   case ApiConstants.CODE_TRANSACTION_NOT_EXIST:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_TRANSACTION_NOT_EXIST:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_REFUND_FAILED:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_FEE_FAILED:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_CORRECT_FAILED:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_OPERATE_FREQUENTLY:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_TRY_AGAIN_LATER:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	  case ApiConstants.CODE_ORDER_COMPLETED:
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString()); 
-	  default :
-		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString()); 
+		case ApiConstants.CODE_TIMESTAMP_EXPIRED:
+          throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
+
 	  }
 	  
 	  

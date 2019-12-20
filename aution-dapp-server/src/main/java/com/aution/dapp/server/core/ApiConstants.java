@@ -13,33 +13,28 @@ public interface ApiConstants {
   String DA_ARG_DELIMITER = ";";
   String DA_IMG_FILENAME = "dapp.img.filename";
 
+  String CODE_EMPTY_RESULT = "100002";
+  String CODE_PRICE_ERROR = "100003";
+  String CODE_ARGS_ERROR = "100004";
+  String CODE_TIMT_OUT = "100005";
+
   String CODE_SUCCESS = "0";
   String CODE_REQUEST_EROR = "-1";
-  String CODE_EMPTY_RESULT = "1002";
-  String CODE_PARAM_INVALID = "1001";
-  String CODE_PRICE_ERROR = "1003";
-  String CODE_ARGS_ERROR = "1004";
-  String CODE_TIMT_OUT = "1005";
-  String CODE_PARAM_EROR = "40001";
-  String CODE_TIMESTAMP_EXPIRED = "40002";
-  String CODE_TOKEN_ERROR = "40003";
-  String CODE_ORDER_REPEAT = "40004";
-  String CODE_SIGN_ERROR = "40005";
-  String CODE_APPID_ERROR = "40006";
-  String CODE_USERID_NULL = "40007";
-  String CODE_TRANSACTION_EXCEPTION = "50001";
-  String CODE_CHECK_FAILED = "50002";
-  String CODE_INSUFFICIENT_BALANCE = "50003";
-  String CODE_TRANSACTION_NOT_EXIST = "50004";
-  String CODE_REFUND_FAILED = "50005";
-  String CODE_FEE_FAILED = "50006";
-  String CODE_CORRECT_FAILED = "50007";
-  String CODE_OPERATE_FREQUENTLY = "50008";
-  String CODE_TRY_AGAIN_LATER = "50009";
-  String CODE_ORDER_COMPLETED = "500010";  
-  
-  String PROP_COIN_AUTH_URL= "dapp.auth.token.url";
-  String PROP_COIN_LOGIN_URL = "dapp.access.login.url";
+  String CODE_PARAMS_ERROR = "-1000";
+  String CODE_SERVER_ERROR = "-1001";
+  String CODE_ACCOUNT_NOT_EXSIT = "1001";
+  String CODE_INSUFFICIENT_BALANCE = "1002";
+  String CODE_TIMESTAMP_EXPIRED = "2003";
+  String CODE_TOKEN_ERROR = "2004";
+  String CODE_SIGN_ERROR = "2005";
+  String CODE_APPID_ERROR = "2006";
+  String CODE_TRANSACTION_EXCEPTION = "3010";
+  String CODE_TRANSACTION_NOT_EXIST = "3002";
+  String CODE_ORDER_COMPLETED = "3015";
+  String CODE_CANT_REFUND = "3022";
+  String CODE_AUTH_INVALID="7003";
+
+  String PROP_COIN_AUTH_URL= "dapp.auth.code.url";
   String PROP_COIN_INFO_URL = "dapp.coin.info.url";
   String PROP_COIN_PAY_URL = "dapp.coin.pay.url";
   String PROP_COIN_ISSUE_URL = "dapp.coin.issue.url";
@@ -58,6 +53,13 @@ public interface ApiConstants {
   String DA_CANCEL = "CANCEL";
   String DA_NOTIFY_URL = "dapp.pay.notify.url";
   String DA_DETAIL_URL = "dapp.pay.order.detail.url";
+
+  String DA_STATE = "dapp.state";
+  /**
+   * 灵光币平台提供，固定
+   */
+  String DA_RESPONSE_TYPE="code";
+  String DA_URL = "dapp.url";
   
   enum ApiPayAuthType {
       /**

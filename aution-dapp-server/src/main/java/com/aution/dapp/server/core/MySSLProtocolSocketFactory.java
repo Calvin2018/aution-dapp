@@ -50,6 +50,7 @@ public class MySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
     return this.sslcontext;
   }
 
+  @Override
   public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
       throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(
@@ -60,6 +61,7 @@ public class MySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
     );
   }
 
+  @Override
   public Socket createSocket(String host, int port) throws IOException,
       UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(
@@ -69,11 +71,13 @@ public class MySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
   }
 
 
+  @Override
   public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
       throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port, clientHost, clientPort);
   }
 
+  @Override
   public Socket createSocket(String host, int port, InetAddress localAddress,
                              int localPort, HttpConnectionParams params) throws IOException,
       UnknownHostException, ConnectTimeoutException {
@@ -97,12 +101,15 @@ public class MySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
   //自定义私有类
   private static class TrustAnyTrustManager implements X509TrustManager {
 
+    @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
     }
 
+    @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
     }
 
+    @Override
     public X509Certificate[] getAcceptedIssuers() {
       return new X509Certificate[]{};
     }

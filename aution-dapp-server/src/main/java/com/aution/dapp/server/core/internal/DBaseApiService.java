@@ -81,10 +81,11 @@ public class DBaseApiService extends BaseApiService{
         String token = null;
         if(null != map) {
         	token = map.get("access_token");
-        	appClient.setAccessToken(token);
+
         	if (Strings.isNullOrEmpty(token)) {
 				throw new ApiException(Integer.parseInt(ApiConstants.CODE_EMPTY_RESULT), "Return an empty token");
 			}
+			appClient.setAccessToken(token);
         	// Store HttpContext.
             appContext.putIfAbsentHttpContext(token,context);
         }
