@@ -85,39 +85,43 @@ public class DappController {
 	}
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
+		//flag ：true 支付回调 false :下发回调
+		return commonNotify(sign,notifyBean,true);
+	}
+	private String commonNotify(String sign, PayNotifyBean notifyBean,boolean flag) throws ApiException, ParseException {
 		LOGGER.info("开始notify");
 
 		if(null == notifyBean) {
-			return "FAILED";
+			throw new IllegalArgumentException("notifyBean is null");
 		}
+		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
+		MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
+		LOGGER.info("开始验证签名");
+		// 2.验证签名
+		Properties configuration = appClient.getConfiguration();
+
+		if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
+			LOGGER.info("Signature verification passed for sign:{}", sign);
+		} else {
+			LOGGER.error("Signature verification failed for sign:{}", sign);
+			return "SIGN FAILED";
+		}
+
 		//交易正在进行
 		if(notifyBean.getStatus()==1){
 			return "IN TRANSACTION";
 			//交易完成
 		}else if(notifyBean.getStatus()==0){
-			// 1.基于内存的消息去重,分布式环境请自行编写去重实例
-			MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
-			LOGGER.info("开始验证签名");
-			// 2.验证签名
-			Properties configuration = appClient.getConfiguration();
 
-			if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
-				LOGGER.info("Signature verification passed for sign:{}", sign);
-			} else {
-				LOGGER.error("Signature verification failed for sign:{}", sign);
-				return "Signature verification failed for sign:" + sign;
-			}
 			LOGGER.info("结束验证签名");
 			// 3.验证订单金额
 			LOGGER.info("开始订单金额");
-			List<History> list = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
+			History history = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
 			Double price = 0d;
-			if (null == list || list.size() == 0) {
+			if (null == history) {
 				return "Amount verification failed for price:" + price;
-			} else if (list.size() == 1) {
-				price = list.get(0).getBidPrice();
-			} else if (list.size() == 2) {
-				price = list.get(0).getBidPrice() - list.get(1).getBidPrice();
+			} else{
+				price = history.getPayPrice();
 			}
 			if (new BigDecimal(price).equals(notifyBean.getAmount())) {
 				LOGGER.info("Amount verification passed");
@@ -127,14 +131,27 @@ public class DappController {
 			}
 			LOGGER.info("校验成功");
 
-			History history = list.get(0);
-
-
-			dappService.doPaySuccessed(history, price, notifyBean);
+			dappService.doPaySuccessed(history, price, notifyBean,flag);
 
 			return "SUCCESS";
 		}else{
 			return "FAILED";
 		}
+	}
+	@RequestMapping(value="/issue/single/notify",method=RequestMethod.POST)
+	public String issueNotifyForSingle(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
+		return commonNotify(sign,notifyBean,false);
+	}
+	@RequestMapping(value="/issue/notify",method=RequestMethod.POST)
+	public String issueNotify(String sign, @RequestBody List<PayNotifyBean> list) throws ApiException, ParseException {
+		String flag = "SIGN FAILED";
+		for(PayNotifyBean notifyBean:list) {
+			 String message = commonNotify(sign, notifyBean,false);
+			 //签名校验不通过则直接推出
+			 if(message.equals(flag)){
+			 	break;
+			 }
+		}
+		return "SUCCESS";
 	}
 }
