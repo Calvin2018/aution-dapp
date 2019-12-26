@@ -82,3 +82,9 @@ spring:
 ##    servlet:
 ##      #Content-Type默认为text/html
 ##      content-type: text/html
+quartz:
+  job:
+    issue:
+      cronExpression: 0 30 0/1 * * ? *
+    check:
+      cronExpression: 0 0 0/2 * * ? *
