@@ -25,7 +25,7 @@ public class PayRequest {
      * 默认支付方式：MERCHANT
      * </pre>
      */
-    private ApiConstants.ApiPayAuthType authType = ApiConstants.ApiPayAuthType.MERCHANT;
+//    private ApiConstants.ApiPayAuthType authType = ApiConstants.ApiPayAuthType.MERCHANT;
 
     /**
      * <pre>
@@ -82,7 +82,7 @@ public class PayRequest {
      * （其获取方法参见“灵光币授权获取用户信息”相关接口）
      * </pre>
      */
-    private String userId;
+    private String userNo;
 
     /**
      * <pre>
@@ -139,15 +139,40 @@ public class PayRequest {
      * 默认值： 20分钟，在规定时间内没有支付则取消交易
      * </pre>
      */
-    private Integer expireSeconds = 1200;
+//    private Integer expireSeconds = 1200;
 
-	public ApiConstants.ApiPayAuthType getAuthType() {
+	/**
+	 * <pre>
+	 * 字段名：支付后确认按钮跳转的链接地址
+	 * 是否必填：否
+	 * 类型：String
+	 * </pre>
+ 	 */
+	private String redirect_url;
+
+	public String getUserNo() {
+		return userNo;
+	}
+
+	public void setUserNo(String userNo) {
+		this.userNo = userNo;
+	}
+
+	public String getRedirect_url() {
+		return redirect_url;
+	}
+
+	public void setRedirect_url(String redirect_url) {
+		this.redirect_url = redirect_url;
+	}
+
+	/*	public ApiConstants.ApiPayAuthType getAuthType() {
 		return authType;
 	}
 
 	public void setAuthType(ApiConstants.ApiPayAuthType authType) {
 		this.authType = authType;
-	}
+	}*/
 
 	public String getTitle() {
 		return title;
@@ -181,14 +206,6 @@ public class PayRequest {
 		this.notifyUrl = notifyUrl;
 	}
 
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
 	public String getOrderDetailUrl() {
 		return orderDetailUrl;
 	}
@@ -205,13 +222,13 @@ public class PayRequest {
 		this.detail = detail;
 	}
 
-	public Integer getExpireSeconds() {
+/*	public Integer getExpireSeconds() {
 		return expireSeconds;
 	}
 
 	public void setExpireSeconds(Integer expireSeconds) {
 		this.expireSeconds = expireSeconds;
-	}
+	}*/
 
 	public PayRequest() {
 		super();
@@ -219,9 +236,15 @@ public class PayRequest {
 
 	@Override
 	public String toString() {
-		return "PayRequest [authType=" + authType + ", title=" + title + ", amount=" + amount + ", tradeNo=" + tradeNo
-				+ ", notifyUrl=" + notifyUrl + ", userId=" + userId + ", orderDetailUrl=" + orderDetailUrl + ", detail="
-				+ detail + ", expireSeconds=" + expireSeconds + "]";
+		return "PayRequest{" +
+				"title='" + title + '\'' +
+				", amount=" + amount +
+				", tradeNo='" + tradeNo + '\'' +
+				", notifyUrl='" + notifyUrl + '\'' +
+				", userNo='" + userNo + '\'' +
+				", orderDetailUrl='" + orderDetailUrl + '\'' +
+				", detail='" + detail + '\'' +
+				", redirect_url='" + redirect_url + '\'' +
+				'}';
 	}
-
 }

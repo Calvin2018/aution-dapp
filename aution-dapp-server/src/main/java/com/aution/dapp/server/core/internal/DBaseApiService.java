@@ -2,9 +2,11 @@ package com.aution.dapp.server.core.internal;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import java.util.Set;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -164,7 +166,7 @@ public class DBaseApiService extends BaseApiService{
         	}
         }
         String payUrl = null;
-        if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.MERCHANT)) {
+/*        if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.MERCHANT)) {
         	payUrl = (String)((Map<?, ?>)result.getData()).get("pay_url");
         	if(Strings.isNullOrEmpty(payUrl)) {
 				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
@@ -176,7 +178,11 @@ public class DBaseApiService extends BaseApiService{
 			}
         }else {
         	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"未知授权支付方式");
-        }
+        }*/
+        payUrl = (String)((Map<?, ?>)result.getData()).get("pay_url");
+        if (Strings.isNullOrEmpty(payUrl)){
+        	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
+		}
         LOGGER.info("payUrl: %s"+payUrl);
         return payUrl;
 	}
@@ -185,16 +191,17 @@ public class DBaseApiService extends BaseApiService{
 	 * 下发
 	 * @param appid
 	 * @param accessToken
-	 * @param businessRecord
+	 * @param businessRecords
 	 * @param typeToken
 	 * @param appClient
 	 * @param <T>
 	 * @return
 	 * @throws IOException
 	 */
-	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,BusinessRecord businessRecord,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
-		
-		if(Strings.isNullOrEmpty(appid)||null == businessRecord) {
+	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,
+			List<BusinessRecord> businessRecords,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
+
+		if(Strings.isNullOrEmpty(appid)||null == businessRecords) {
 			throw new IllegalArgumentException("Arguments appid  businessRecord and typeToken are required");
 		}
 		
@@ -203,7 +210,7 @@ public class DBaseApiService extends BaseApiService{
 			appClient.setAccessToken(accessToken);
 		}
 		
-		String jsonParam = JsonUtil.toSnakeJson(businessRecord);
+		String jsonParam = JsonUtil.toSnakeJson(businessRecords);
 		
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         Map<String, String> signParam = new LinkedHashMap<>();
@@ -218,7 +225,7 @@ public class DBaseApiService extends BaseApiService{
         String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
         
         @SuppressWarnings("unchecked")
-		Map<String, String> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
+		Set<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Set.class);
         
         HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
         RestApiResponse<T> result = null;

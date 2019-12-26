@@ -102,6 +102,7 @@ public interface ApiConstants {
   String DA_CANCEL = "CANCEL";
   String DA_NOTIFY_URL = "dapp.pay.notify.url";
   String DA_DETAIL_URL = "dapp.pay.order.detail.url";
+  String DA_ISSUE_NOTIFY_URL = "dapp.issue.notify.url";
 
   String DA_STATE = "dapp.state";
   /**
