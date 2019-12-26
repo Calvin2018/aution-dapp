@@ -431,7 +431,7 @@ public class DappService {
      */
     public List<List<History>> findHistoryForNoIssueOrder() {
         //多加6分钟 执行
-        Long endTime = System.currentTimeMillis() + 60000L;
+        Long endTime = System.currentTimeMillis() + 1000*60*6L;
         //没有数据返回的结果为list,第一个元素为Null
         List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
         if (null != list) {
