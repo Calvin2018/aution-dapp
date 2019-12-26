@@ -1,9 +1,6 @@
 package com.aution.dapp.server.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * 商品实体类
@@ -50,14 +47,19 @@ public class Goods {
 	//商品状态 1:正在运行 2：竞拍成功 3：竞拍失败
 	private Integer status;
 	//用户头像
+	@Transient
 	private String avatar;
 	//用户名称
+	@Transient
 	@Column(name = "user_name")
 	private String userName;
+	@Transient
 	@Column(name = "user_phone")
 	private String userPhone;
-	
+
+	@Transient
 	private String buyName;
+	@Transient
 	private String buyPhone;
 	
 	

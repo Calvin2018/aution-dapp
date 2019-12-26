@@ -225,9 +225,9 @@ public class DBaseApiService extends BaseApiService{
         String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
         
         @SuppressWarnings("unchecked")
-		Set<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Set.class);
+		//Map<String, String> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
         
-        HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
+        HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, jsonParam);
         RestApiResponse<T> result = null;
         try {
         	result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
@@ -238,7 +238,7 @@ public class DBaseApiService extends BaseApiService{
     		    signParam.put("access_token", accessToken);
     		    sign = SignUtil.createCommonSign(signParam);
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
-    		    hp = HttpRequests.newHttpPost2(createOrderUrl, params);
+    		    hp = HttpRequests.newHttpPost2(createOrderUrl, jsonParam);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
         	}else {
         		throw e;

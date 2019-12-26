@@ -258,6 +258,7 @@ public class  GoodsService{
 	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
+	  goods.setTemp("0");
 	  String imgUrl = imgStore(files,goods.getGoodsId());
 	  goods.setImgs(imgUrl);
 	  Integer flag = goodsRepository.insertGoods(goods);
