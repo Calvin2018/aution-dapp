@@ -2,6 +2,7 @@ package com.aution.dapp.server.repository;
 
 
 
+import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.model.Goods;
 import com.aution.dapp.server.model.Transaction;
 import com.google.common.base.Strings;
@@ -139,6 +140,24 @@ public class DappProvider {
 			sb.append(" from_user_id = #{transaction.fromUserId}");
 		}
 		return sb.toString();
+	}
+
+	public String updateHistory(String temp,String isIssue,String isValid,String tradeNo){
+
+		StringBuffer sb = new StringBuffer("update t_history set ");
+		if(!Strings.isNullOrEmpty(temp)){
+			sb.append(" temp = #{temp},");
+		}
+		if(!Strings.isNullOrEmpty(isIssue)){
+			sb.append(" is_issue = #{isIssue},");
+		}
+		if(!Strings.isNullOrEmpty(isValid)){
+			sb.append(" is_valid = #{isValid},");
+		}
+		String test = sb.toString();
+		test = test.substring(0, temp.length()-1);
+		return test + "where trade_no = #{tradeNo}";
+
 	}
 	
 }

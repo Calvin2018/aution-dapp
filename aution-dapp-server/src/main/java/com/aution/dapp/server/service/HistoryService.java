@@ -34,11 +34,11 @@ public class HistoryService {
 		return historyRepository.findAllHistory();
 	}
 	
-	public boolean updateHistory(String temp,String tradeNo) {
+	public boolean updateHistory(String temp,String isIssue,String isValid,String tradeNo) {
 		if(Strings.isNullOrEmpty(temp)||Strings.isNullOrEmpty(tradeNo)) {
 			throw new IllegalArgumentException("Arguments tradeNo and temp  are required");
 		}
-		return historyRepository.updateHistory(temp, tradeNo)==0?false:true;
+		return historyRepository.updateHistory(temp,isIssue,isValid, tradeNo)==0?false:true;
 	}
 	
 	/**
@@ -112,11 +112,10 @@ public class HistoryService {
 
 	}
 	
-	public List<History> findHistoryByTradeNoAndGidAndPriceSort(String tradeNo) throws ApiException {
+	public History findHistoryByTradeNoAndGidAndPriceSort(String tradeNo) throws ApiException {
 		if(!Strings.isNullOrEmpty(tradeNo)) {
-			Pageable pageable = PageRequest.of(0, 2);
-			List<History> list = historyRepository.findHistoryByTradeNoAndGidAndPriceSort(tradeNo, pageable);
-			return list;
+			History temp = historyRepository.findHistoryByTradeNoAndGidAndPriceSort(tradeNo);
+			return temp;
 		}
 			
 		throw new IllegalArgumentException("Arguments tradeNo are required");
