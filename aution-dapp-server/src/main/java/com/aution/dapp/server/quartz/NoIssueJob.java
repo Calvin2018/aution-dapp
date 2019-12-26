@@ -44,12 +44,15 @@ public class NoIssueJob implements Job{
 				return ;
 			}
 			for(List<History> temp:list) {
+				for(int i=0;i<temp.size();i++){
+					String status = dappService.doQueryTxStatus(temp.get(i).getTradeNo());
+					//只有交易不存在的才会进行第二次下发
+					if(!status.equals("2")){
+						temp.remove(i);
+					}
+				}
 				dappService.bidCompletedMethod(temp, temp.get(0).getGoodsId(), temp.get(0).getSellerId(),temp.get(0).getCurrentPrice());
 			}
-			//2、job
-			dappService.findHistoryOfIssueFailed();
-			
-			
 			LOG.debug("完成执行退款操作");
 		}catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_INSUFFICIENT_BALANCE)) {
