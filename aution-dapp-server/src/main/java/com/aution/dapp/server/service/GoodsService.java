@@ -283,7 +283,8 @@ public class  GoodsService{
 	    JobDetail jobDetail = JobBuilder.newJob(BidJob.class).withIdentity(name,group).usingJobData(jobDataMap).build();
 	    //创建任务触发器
 	    TriggerKey key = TriggerKey.triggerKey(name,group);
-	    Trigger trigger = TriggerBuilder.newTrigger().withIdentity(key).withSchedule(scheduleBuilder).build();
+	    //设置优先级为100
+	    Trigger trigger = TriggerBuilder.newTrigger().withIdentity(key).withSchedule(scheduleBuilder).withPriority(100).build();
 	    //将触发器与任务绑定到调度器内
 	    try {
 			if (!scheduler.checkExists(key)) {
