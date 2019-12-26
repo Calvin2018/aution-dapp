@@ -36,7 +36,16 @@ public class DBaseApiService extends BaseApiService{
 	public DBaseApiService(AppContext appContext, Properties configuration) {
 		super(appContext, configuration);
 	}
-    
+
+	/**
+	 * 查询用户信息
+	 * @param token
+	 * @param typeToken
+	 * @param <T>
+	 * @return
+	 * @throws ApiException
+	 * @throws IOException
+	 */
 	public <T> RestApiResponse<T> getUserInfo(String token,TypeToken<RestApiResponse<T>> typeToken) throws ApiException, IOException{
 		if(Strings.isNullOrEmpty(token)&&null == typeToken) {
 			throw new IllegalArgumentException("Arguments token and typeToken are required");
@@ -53,8 +62,13 @@ public class DBaseApiService extends BaseApiService{
         return doPost(hp, context, typeToken);
 		
 	}
-	
-	
+
+	/**
+	 * 获取access_token
+	 * @param appClient
+	 * @return
+	 * @throws IOException
+	 */
 	public  String accessToken(AppClient appClient) throws IOException{
 		
 		
@@ -91,8 +105,16 @@ public class DBaseApiService extends BaseApiService{
         }
         return token;
 	}
-	
-	
+
+	/**
+	 * 创建订单
+	 * @param appid
+	 * @param accessToken
+	 * @param payRequest
+	 * @param appClient
+	 * @return
+	 * @throws IOException
+	 */
 	public String doOrder(String appid,String accessToken,PayRequest payRequest,AppClient appClient) throws IOException{
 		
 		if(Strings.isNullOrEmpty(appid)||null == payRequest) {
@@ -158,7 +180,18 @@ public class DBaseApiService extends BaseApiService{
         LOGGER.info("payUrl: %s"+payUrl);
         return payUrl;
 	}
-	
+
+	/**
+	 * 下发
+	 * @param appid
+	 * @param accessToken
+	 * @param businessRecord
+	 * @param typeToken
+	 * @param appClient
+	 * @param <T>
+	 * @return
+	 * @throws IOException
+	 */
 	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,BusinessRecord businessRecord,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
 		if(Strings.isNullOrEmpty(appid)||null == businessRecord) {
@@ -174,7 +207,7 @@ public class DBaseApiService extends BaseApiService{
 		
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         Map<String, String> signParam = new LinkedHashMap<>();
-        signParam.put("_body", jsonParam);	
+        signParam.put("_body", jsonParam);
         signParam.put("access_token", accessToken);
         signParam.put("appid", configuration.getProperty(ApiConstants.DA_APPID));
         signParam.put("appsecret", configuration.getProperty(ApiConstants.DA_APPSECRET));
@@ -207,7 +240,20 @@ public class DBaseApiService extends BaseApiService{
 		return result;
 		
 	}
-	
+
+	/**
+	 * 查询用户余额  接口不提供
+	 * @param appid
+	 * @param accessToken
+	 * @param userId
+	 * @param amount
+	 * @param feeAmount
+	 * @param typeToken
+	 * @param appClient
+	 * @param <T>
+	 * @return
+	 * @throws IOException
+	 */
 	public <T> RestApiResponse<T> doQuery(String appid,String accessToken,String userId,String amount,String feeAmount,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 		
 		if(Strings.isNullOrEmpty(appid)) {
@@ -268,5 +314,54 @@ public class DBaseApiService extends BaseApiService{
 		return result;
 		
 	}
-	
+
+	public <T> RestApiResponse<T> doQueryTxStatus(String appid,String accessToken,String tradeNo,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
+
+		if(Strings.isNullOrEmpty(appid)) {
+			throw new IllegalArgumentException("Arguments appid   are required");
+		}
+		if(Strings.isNullOrEmpty(accessToken)) {
+			accessToken = accessToken(appClient);
+			appClient.setAccessToken(accessToken);
+		}
+
+		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
+		String jsonParam = "{\"trade_no\":\"" +  tradeNo +"\"}";
+
+
+		Map<String, String> signParam = new LinkedHashMap<>();
+		signParam.put("_body", jsonParam);
+		signParam.put("access_token", accessToken);
+		signParam.put("appid", configuration.getProperty(ApiConstants.DA_APPID));
+		signParam.put("appsecret", configuration.getProperty(ApiConstants.DA_APPSECRET));
+		signParam.put("timestamp", timestamp);
+		String sign = SignUtil.createCommonSign(signParam);
+
+		String url = configuration.getProperty(ApiConstants.PROP_COIN_QUERY_TX_URL);
+		String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
+
+		HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
+		RestApiResponse<T> result = null;
+		try {
+			result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
+		}catch(ApiException e) {
+			if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
+				accessToken = accessToken(appClient);
+				appClient.setAccessToken(accessToken);
+				signParam.put("access_token", accessToken);
+				sign = SignUtil.createCommonSign(signParam);
+				createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
+				hp = HttpRequests.newHttpPost2(createOrderUrl, params);
+				result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
+			}else {
+				throw e;
+			}
+		}
+		return result;
+
+	}
 }

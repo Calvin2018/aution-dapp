@@ -91,7 +91,7 @@ public class BaseApiService {
 		  break;
 	  case ApiConstants.CODE_REQUEST_EROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
-	case ApiConstants.CODE_PARAMS_ERROR:
+	  case ApiConstants.CODE_PARAMS_ERROR:
 		throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_SERVER_ERROR:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getHeaders(),response.toString());

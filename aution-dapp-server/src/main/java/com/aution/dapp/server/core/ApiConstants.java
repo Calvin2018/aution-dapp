@@ -13,25 +13,73 @@ public interface ApiConstants {
   String DA_ARG_DELIMITER = ";";
   String DA_IMG_FILENAME = "dapp.img.filename";
 
+  String DA_COMMA = ",";
+  String DA_SEMICOLON = ";";
+
   String CODE_EMPTY_RESULT = "100002";
   String CODE_PRICE_ERROR = "100003";
   String CODE_ARGS_ERROR = "100004";
   String CODE_TIMT_OUT = "100005";
 
+  /**
+   * 成功
+   */
   String CODE_SUCCESS = "0";
+  /**
+   * 请求异常,请联系管理员
+   */
   String CODE_REQUEST_EROR = "-1";
+  /**
+   * 请求参数异常
+   */
   String CODE_PARAMS_ERROR = "-1000";
+  /**
+   * 服务调用异常
+   */
   String CODE_SERVER_ERROR = "-1001";
+  /**
+   * 账号不存在
+   */
   String CODE_ACCOUNT_NOT_EXSIT = "1001";
+  /**
+   * 余额不足
+   */
   String CODE_INSUFFICIENT_BALANCE = "1002";
+  /**
+   * 时间戳已过期
+   */
   String CODE_TIMESTAMP_EXPIRED = "2003";
+  /**
+   * token无效或已过期
+   */
   String CODE_TOKEN_ERROR = "2004";
+  /**
+   * 签名校验失败
+   */
   String CODE_SIGN_ERROR = "2005";
+  /**
+   * 请使用正确的appId
+   */
   String CODE_APPID_ERROR = "2006";
+  /**
+   * 交易类型错误
+   */
   String CODE_TRANSACTION_EXCEPTION = "3010";
+  /**
+   * 该交易不存在
+   */
   String CODE_TRANSACTION_NOT_EXIST = "3002";
+  /**
+   * 该订单已完成
+   */
   String CODE_ORDER_COMPLETED = "3015";
+  /**
+   * 过风险期不能退款
+   */
   String CODE_CANT_REFUND = "3022";
+  /**
+   * 授权码过期或不存在
+   */
   String CODE_AUTH_INVALID="7003";
 
   String PROP_COIN_AUTH_URL= "dapp.auth.code.url";
@@ -39,6 +87,7 @@ public interface ApiConstants {
   String PROP_COIN_PAY_URL = "dapp.coin.pay.url";
   String PROP_COIN_ISSUE_URL = "dapp.coin.issue.url";
   String PROP_COIN_QUERY_URL = "dapp.coin.balance.url";
+  String PROP_COIN_QUERY_TX_URL = "dapp.query.tx.url";
   String FORM_TOKEN = "token";
   String ACCESS_TOKEN_URL="dapp.access.token.url";
   String DA_APPID = "dapp.appId";
