@@ -190,7 +190,12 @@ public class DappService {
 
         JSONObject obj = new JSONObject();
         //检查竞拍价格比当前价格高
-        History temp = hRepository.findHistoryByUserIdAndGoodsId(userId, gId);
+        History temp = hRepository.findMaxHistoryByUserIdAndGoodsId(userId, gId);
+
+        if(null == temp){
+            throw new ApiException(Integer.parseInt(ApiConstants.CODE_GOODS_NOT_EXIST),
+                    "This goods is not exist!");
+        }
 
         Long currentTime = System.currentTimeMillis();
         if (currentTime > temp.getEndTime()) {
@@ -367,8 +372,7 @@ public class DappService {
 
         //查询处
         List<History> historyList = hRepository
-                .findHistoryByGoodsIdAndPriceSortAndGroupByUserId(gId,
-                        PageRequest.of(0, Integer.MAX_VALUE));
+                .findBidHistoryByGoodsId(gId);
         if (null != historyList && historyList.size() > 0) {
             bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
         }
@@ -400,26 +404,39 @@ public class DappService {
         for (int i = 0; i < historyList.size(); i++) {
             BusinessRecord businessRecord = new BusinessRecord();
             History history = historyList.get(i);
+            //查看这个用户这件商品是否下发过
+            String isIssue = history.getIsIssue();
             businessRecord.setUserNo(history.getUserId());
-            businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
+            if(null !=isIssue && isIssue.equals("1")) {
+                businessRecord.setAmount(new BigDecimal(history.getPayPrice()));
+            }else if(null == isIssue || isIssue.equals("0")){
+                businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
+            }
             businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
             businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
             if (true == flag && history.getBidPrice().equals(currentPrice)) {
-                //拍卖成功
-                msgRepository.insertMessage(sellerId, gId, '1', '0');
-                //竞拍成功
-                msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
-                goods.setBuyerId(history.getUserId());
+                if(null ==history.getBuyerId() || history.getBuyerId().equals("0")) {
+                    //拍卖成功
+                    msgRepository.insertMessage(sellerId, gId, '1', '0');
+                    //竞拍成功
+                    msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
+                    goods.setBuyerId(history.getUserId());
+                    goods.setStatus(2);
+                }
+
                 businessRecord.setUserNo(sellerId);
                 businessRecords.add(businessRecord);
-                goods.setStatus(2);
-                goodsRepository.updateGoods(goods);
                 flag = false;
             } else {
                 businessRecords.add(businessRecord);
                 //竞拍失败
-                msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
+                if(null ==history.getBuyerId() || history.getBuyerId().equals("0")) {
+                    msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
+                }
             }
+        }
+        if(null ==historyList.get(0).getBuyerId() || historyList.get(0).getBuyerId().equals("0")) {
+            goodsRepository.updateGoods(goods);
         }
          dBaseApiService
                 .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
