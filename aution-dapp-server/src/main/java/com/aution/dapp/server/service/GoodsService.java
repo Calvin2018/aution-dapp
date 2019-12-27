@@ -258,6 +258,8 @@ public class  GoodsService{
 	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
+	  //设置为-1，表示未评价
+	  goods.setTemp("-1");
 	  String imgUrl = imgStore(files,goods.getGoodsId());
 	  goods.setImgs(imgUrl);
 	  Integer flag = goodsRepository.insertGoods(goods);
@@ -304,9 +306,18 @@ public class  GoodsService{
    * @return
    */
   public boolean updateGoods(Goods goods) {
-	  if(null == goods) {
+	  if(null == goods||Strings.isNullOrEmpty(goods.getGoodsId()) ) {
 		  throw new IllegalArgumentException("Arguments goods are required");
 	  }
+	  //清除不能修改数据
+	  goods.setTemp(null);
+	  goods.setSellerId(null);
+	  goods.setStartPrice(null);
+	  goods.setStatus(null);
+	  goods.setStartTime(null);
+	  goods.setEndTime(null);
+	  goods.setCurrentPrice(null);
+	  goods.setBuyerId(null);
 	  Integer flag = goodsRepository.updateGoods(goods);
 	  return (0 == flag)?false:true;
   }
