@@ -17,6 +17,11 @@ import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.service.DappService;
 
+/**
+ * 主要是解决下发失败问题
+ * @author hewensheng
+ *
+ */
 @Component
 public class NoIssueJob implements Job{
 

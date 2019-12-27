@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 主要解决灵光云支付成功回调失败问题
+ * @author hewensheng
+ */
 @Component
 public class CheckJob implements Job{
 
