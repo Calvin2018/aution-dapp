@@ -20,6 +20,7 @@ public interface ApiConstants {
   String CODE_PRICE_ERROR = "100003";
   String CODE_ARGS_ERROR = "100004";
   String CODE_TIMT_OUT = "100005";
+  String CODE_GOODS_NOT_EXIST = "100006";
 
   /**
    * 成功
