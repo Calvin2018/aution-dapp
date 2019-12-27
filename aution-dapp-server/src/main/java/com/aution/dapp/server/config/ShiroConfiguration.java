@@ -1,4 +1,4 @@
-package com.aution.dapp.server.config.shiro;
+package com.aution.dapp.server.config;
 
 import com.cesgroup.authen4.ws.CoreHttpClientWS;
 import com.cesgroup.authen4.ws.OrganizeHttpClientWS;
@@ -6,6 +6,7 @@ import com.cesgroup.platform.autoconfigure.shiro.AbstractShiroBaseWebConfigurati
 import com.cesgroup.platform.autoconfigure.shiro.PlatformShiroProperties;
 import com.cesgroup.platform.autoconfigure.shiro.jwt.EnableShiroJWT;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
@@ -29,6 +30,13 @@ public class ShiroConfiguration  extends AbstractShiroBaseWebConfiguration{
         return myShiroRealm;
     }
 
+    @Override
+    @Bean(name="sessionManager")
+    public DefaultWebSessionManager sessionManager(){
+        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        return sessionManager;
+
+    }
     //权限管理，配置主要是Realm的管理认证
     @Bean(value = "securityManager")
     public DefaultWebSecurityManager securityManager() {

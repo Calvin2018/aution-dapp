@@ -35,7 +35,7 @@ public class CheckJob implements Job{
 			throws JobExecutionException {
 		
 		try {
-			LOG.debug("完成执行检查任务");
+			LOG.debug("开始执行检查任务");
 			dappService.checkNoPayTx();
 			LOG.debug("完成执行检查任务");
 		}catch (IOException e) {

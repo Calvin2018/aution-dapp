@@ -45,7 +45,6 @@ public class NoIssueJob implements Job{
 			}
 			if(null == list || list.size() == 0) {
 				LOG.debug("未找到需要退款记录");
-				LOG.debug("定时任务执行完成");
 				return ;
 			}
 			for(List<History> temp:list) {

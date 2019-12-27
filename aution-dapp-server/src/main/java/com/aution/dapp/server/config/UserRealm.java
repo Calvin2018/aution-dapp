@@ -1,4 +1,4 @@
-package com.aution.dapp.server.config.shiro;
+package com.aution.dapp.server.config;
 
 
 import org.apache.shiro.authc.AuthenticationException;
