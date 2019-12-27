@@ -210,9 +210,8 @@
     </dependency>
 
       <dependency>
-          <groupId>org.apache.shiro</groupId>
-          <artifactId>shiro-spring</artifactId>
-          <version>${shiro.version}</version>
+          <groupId>com.cesgroup.platform</groupId>
+          <artifactId>platform-shiro</artifactId>
       </dependency>
       <dependency>
           <groupId>junit</groupId>
@@ -232,7 +231,10 @@
 	    <!-- 本地Debug部署的打包参数profile 默认 -->
 	    <profile>
 	      <id>target.dev</id>
-	    
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>1.8</jdk>
+            </activation>
 	      <properties>
 	        <target.for>For Local Debug</target.for>
 	        <target.label>dev</target.label>
@@ -257,10 +259,10 @@
 	    <!-- 产品化的部署和打包参数profile -->
 	    <profile>
 	      <id>target.prd</id>
-	       <activation>
-	        <activeByDefault>true</activeByDefault>
-	        <jdk>1.8</jdk>
-	      </activation>
+<!--	       <activation>-->
+<!--	        <activeByDefault>true</activeByDefault>-->
+<!--	        <jdk>1.8</jdk>-->
+<!--	      </activation>-->
 	      <properties>
 	        <target.label>prd</target.label>
 	        <target.for>For Produce Server</target.for>
@@ -307,7 +309,9 @@
 	                  <filtering>true</filtering>
 	                  <includes>
 	                    <include>**/*.xml</include>                
-	                    <include>**/*.yml</include>	
+	                    <include>**/*.yml</include>
+                        <include>**/dapp.properties</include>
+                        <include>**/quartz.properties</include>
 	                  </includes>
 	                </resource>
 	              </resources>

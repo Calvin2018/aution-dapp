@@ -1,20 +1,26 @@
 package com.aution.dapp.server.config.shiro;
 
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
-import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import com.cesgroup.authen4.ws.CoreHttpClientWS;
+import com.cesgroup.authen4.ws.OrganizeHttpClientWS;
+import com.cesgroup.platform.autoconfigure.shiro.AbstractShiroBaseWebConfiguration;
+import com.cesgroup.platform.autoconfigure.shiro.PlatformShiroProperties;
+import com.cesgroup.platform.autoconfigure.shiro.jwt.EnableShiroJWT;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 
 @Configuration
-public class ShiroConfiguration {
+@EnableShiroJWT(EnableShiroJWT.Mode.SSO)
+public class ShiroConfiguration  extends AbstractShiroBaseWebConfiguration{
+
+
+    public ShiroConfiguration(PlatformShiroProperties properties) {
+        super(properties);
+    }
 
 	//将自己的验证方式加入容器
     @Bean
@@ -22,48 +28,14 @@ public class ShiroConfiguration {
     	UserRealm myShiroRealm = new UserRealm();
         return myShiroRealm;
     }
-    
-    @Bean(name="sessionManager")
-    public DefaultWebSessionManager sessionManager(){
-    	DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-    	return sessionManager;
-    	
-    }
 
     //权限管理，配置主要是Realm的管理认证
-    @Bean(name="securityManager")
+    @Bean(value = "securityManager")
     public DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(myShiroRealm());
         securityManager.setSessionManager(sessionManager());
         return securityManager;
-    }
-    //Filter工厂，设置对应的过滤条件和跳转条件
-    @Bean
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-        shiroFilterFactoryBean.setSecurityManager(securityManager);
-        Map<String,String> map = new ConcurrentHashMap<String, String>();
-        //登出
-        map.put("/logout","logout");
-        //对所有用户认证
-        map.put("/**","authc");
-
-        //静态资源匿名获取，否则页面将无法获取样式等
-        map.put("/scoin","anon");
-        map.put("/login","anon");
-        //url拦截，匿名提交会自动跳转到登录界面
-        shiroFilterFactoryBean.setLoginUrl("/login");
-        shiroFilterFactoryBean.setUnauthorizedUrl("/");
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
-        return shiroFilterFactoryBean;
-    }
-
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager securityManager) {
-    	AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
-        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
-        return authorizationAttributeSourceAdvisor;
     }
     @Bean
     public SimpleMappingExceptionResolver unauthoriedCatch(){
@@ -74,5 +46,28 @@ public class ShiroConfiguration {
     	exceptionResolver.setExceptionMappings(exception);
     	return exceptionResolver;
     }
-   
+
+    @Bean
+    public CoreHttpClientWS coreHttpClientWS(){
+        return CoreHttpClientWS.getCoreHttpClientWS();
+    }
+
+    @Bean
+    public OrganizeHttpClientWS organizeHttpClientWS(){
+        return OrganizeHttpClientWS.getOrganizeHttpClientWS();
+    }
+
+
+//    @Override
+//    public void configureFilterChainDefinition(ShiroFilterChainDefinitionBuilder builder) {
+//        super.configureFilterChainDefinition(builder);
+//        builder.defaultPath(ShiroConstants.FILTER_USER);
+//        builder.path("/login", ShiroConstants.FILTER_ANON);
+//        builder.path("/scoin", ShiroConstants.FILTER_ANON);
+//    }
+//
+//    @Override
+//    public void configureFilter(ShiroWebFiltersBuilder builder) {
+//
+//    }
 }
