@@ -24,9 +24,9 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   @Select("select trade_no,goods_id,h.user_id,bid_price,bid_time,pay_price,temp,avatar,user_name,user_phone from t_history h LEFT JOIN t_user u on h.user_id=u.user_id where temp = '1' and is_valid = '1'  and h.user_id = #{userId} and goods_id = #{gId} order by bid_price DESC,bid_time ASC")
   List<History> findHistorysByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId,Pageable pageable);
   
-  @Select("select trade_no,g.goods_id,h.user_id,bid_time,bid_price,h.temp,avatar,user_name,user_phone,start_price,current_price,end_time " +
-          " from t_history h LEFT JOIN t_user u on h.user_id=u.user_id right join t_goods g on g.goods_id = h.goods_id  where h.temp = '1' and is_valid = '1'  and " +
-          " h.user_id = #{userId} and h.goods_id = #{gId} order by bid_time desc LIMIT 1")
+      @Select("select trade_no,g.goods_id,h.user_id,bid_time,bid_price,h.temp,avatar,user_name,user_phone,start_price,current_price,end_time\n" +
+              "          from  t_goods g  LEFT JOIN (select user_id,goods_id,trade_no,bid_price,temp,bid_time from t_history where temp = '1' and is_valid = '1'  and \n" +
+              "          user_id = #{userId}) h on g.goods_id = h.goods_id left join t_user u on h.user_id=u.user_id    where  g.goods_id = #{gId} order by bid_time desc LIMIT 1")
   History findMaxHistoryByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId);
   
   
@@ -86,13 +86,39 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   Integer insertHistory(@RequestBody History History);
 
   @UpdateProvider(type = DappProvider.class,method = "updateHistory")
-  Integer updateHistory(@Param("temp")String temp,@Param("isIssue")String isIssue,@Param("is_valid")String isValid,@Param("tradeNo")String tradeNo);
+  Integer updateHistory(@Param("temp")String temp,@Param("isIssue")String isIssue,@Param("isValid")String isValid,@Param("tradeNo")String tradeNo);
   @Select("select trade_no,goods_id,user_id,bid_price,bid_time,pay_price,temp FROM t_history WHERE trade_no = #{tradeNo}")
   History findHistoryByTradeNo(@Param("tradeNo")String tradeNo);
-  @Select("select trade_no,goods_id,user_id,bid_price,bid_time,pay_price,temp,is_issue,is_valid FROM t_history where temp = '0' and is_valid = '0' or is_valid = '2' ")
+  @Select("SELECT\n" +
+          "\ttrade_no,\n" +
+          "\tgoods_id,\n" +
+          "\tuser_id,\n" +
+          "\tbid_price,\n" +
+          "\tbid_time,\n" +
+          "\tpay_price,\n" +
+          "\ttemp,\n" +
+          "\tis_issue,\n" +
+          "\tis_valid  from \n" +
+          "(SELECT\n" +
+          "\ttrade_no,\n" +
+          "\tgoods_id,\n" +
+          "\tuser_id,\n" +
+          "\tbid_price,\n" +
+          "\tbid_time,\n" +
+          "\tpay_price,\n" +
+          "\ttemp,\n" +
+          "\tis_issue,\n" +
+          "\tis_valid \n" +
+          "FROM\n" +
+          "\tt_history \n" +
+          "WHERE\n" +
+          "\ttemp = '0' )temp \n" +
+          "\twhere \n" +
+          "\t is_valid = '0' \n" +
+          "\tOR is_valid = '2'")
   List<History> checkNoPayTx();
 
-  @Select("select temp1.goods_id,temp1.user_id,temp1.bid_price,u.seller_id,   " +
+  @Select("select h.trade_no,temp1.goods_id,temp1.user_id,temp1.bid_price,u.seller_id,   " +
 	  		" u.current_price,u.buyer_id,temp2.is_issue,h.pay_price from  " +
 	  		" (select user_id,goods_id,Max(bid_price)bid_price from t_history h " +
 	  		" where  h.temp = '1'  and h.is_issue = '0'  " +
@@ -102,9 +128,9 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
           " (select  user_id,goods_id,Max(is_issue)is_issue from t_history h  where  h.temp = '1' and  h.goods_id = h.goods_id GROUP BY user_id,goods_id )temp2  " +
           " on  temp1.goods_id = temp2.goods_id and  temp1.user_id = temp2.user_id " +
           " LEFT JOIN " +
-          " (select goods_id,seller_id,current_price,buyer_id from t_goods " +
-          " where status = 1 and end_time < #{endTime} ) u   " +
-          " on u.goods_id = temp1.goods_id  " +
+          " (select goods_id,seller_id,current_price,buyer_id,end_time from t_goods " +
+          "  ) u   " +
+          " on u.goods_id = temp1.goods_id  where  u.end_time < #{endTime}" +
           " order by goods_id ,bid_price desc ")
   List<History> findTransactionForNoIssueOrder(@Param("endTime")Long endTime);
 }

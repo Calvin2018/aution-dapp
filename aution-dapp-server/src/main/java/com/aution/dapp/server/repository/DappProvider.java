@@ -6,10 +6,12 @@ import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.model.Goods;
 import com.aution.dapp.server.model.Transaction;
 import com.google.common.base.Strings;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.RequestBody;
 
 public class DappProvider {
 
-	public String findGoodsByTypeAndSpriceSortAndEtimeSort(Integer type) {
+	public String findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type) {
 		StringBuffer sb = new StringBuffer("select goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone from t_goods g,t_user u where g.seller_id = u.user_id and status = '1' ");
 		if(null != type) {
 			sb.append(" and type = #{type} ");
@@ -33,7 +35,7 @@ public class DappProvider {
 			
 	}
 	
-	public String findGoodsByBuyerIdAndStatus(String buyerId,Integer status) {
+	public String findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status) {
 		
 		Integer bidStatus = null ;
 		if(status == 1 || status == 2) {
@@ -55,7 +57,7 @@ public class DappProvider {
 		return sb.toString();
 	}
 	
-	public String findGoodsByEtimeAndSort(Long eTime) {
+	public String findGoodsByEtimeAndSort(@Param("eTime")Long eTime) {
 		StringBuffer sb = new StringBuffer("select goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone  " + 
 				"from t_goods g,t_user u where g.seller_id = u.user_id ");
 		if(null != eTime) {
@@ -64,7 +66,7 @@ public class DappProvider {
 		return sb.toString();
 	}
 	
-	public String findGoodsBySpriceAndSort(Double sPrice,String sort,Integer relation) {
+	public String findGoodsBySpriceAndSort(@Param("sPrice") Double sPrice,@Param("sort")String sort,@Param("relation")Integer relation) {
 		StringBuffer sb = new StringBuffer("select goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone " + 
 				"from t_goods g ,t_user u where g.seller_id = u.user_id ");
 		if(null != sPrice) {
@@ -78,14 +80,14 @@ public class DappProvider {
 		return sb.toString();
 	}
 	
-	public String insertGoods(Goods goods) {
+	public String insertGoods(@RequestBody Goods goods) {
 		
 		StringBuffer sb = new StringBuffer("insert into t_goods(goods_id,seller_id,title,type,start_price,start_time,details,imgs," + 
 				"status,end_time");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(" ,temp");
 		}
-		sb.append(") values(#{goods.goodsId},#{goods.sellerId},#{goods.title},#{goods.type},#{goods.startPrice},#{goods.startTime},#{goods.details},#{goods.imgs},#{goods.status},#{goods.endTime}");
+		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{details},#{imgs},#{status},#{endTime}");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(",#{goods.temp}");
 		}
@@ -93,56 +95,56 @@ public class DappProvider {
 		return sb.toString();
 	}
 	
-	public String updateGoods(Goods goods) {
+	public String updateGoods(@RequestBody Goods goods) {
 		
 		StringBuffer sb = new StringBuffer("update t_goods set ");
 		if(null != goods.getCurrentPrice()) {
-			sb.append(" current_price=#{goods.currentPrice}, ");
+			sb.append(" current_price=#{currentPrice}, ");
 		}
 		if(null != goods.getStatus()) {
-			sb.append(" status = #{goods.status}, ");
+			sb.append(" status = #{status}, ");
 		}
 		if(null != goods.getType()) {
-			sb.append(" type = #{goods.type}, ");
+			sb.append(" type = #{type}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getBuyerId())) {
-			sb.append(" buyer_id = #{goods.buyerId}, ");
+			sb.append(" buyer_id = #{buyerId}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getContent())) {
-			sb.append(" content = #{goods.content}, ");
+			sb.append(" content = #{content}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getDetails())) {
-			sb.append(" details = #{goods.details}, ");
+			sb.append(" details = #{details}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getImgs())) {
-			sb.append(" imgs = #{goods.imgs}, ");
+			sb.append(" imgs = #{imgs}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getTitle())) {
-			sb.append(" title = #{goods.title}, ");
+			sb.append(" title = #{title}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
-			sb.append(" temp = #{goods.temp}, ");
+			sb.append(" temp = #{temp}, ");
 		}
 		String result = sb.toString();
 		result =  result.substring(0, result.length()-2);
-		String where = " where goods_id = #{goods.goodsId}";
+		String where = " where goods_id = #{goodsId}";
 		
 		return result + where;
 	}
 	
-	public String findTransactionByParms(Transaction transaction) {
+	public String findTransactionByParms(@RequestBody Transaction transaction) {
 		StringBuffer sb = new StringBuffer("select tx_id,from_user_id,to_user_id,price,goods_id,tx_time,temp " + 
 				"from t_transaction where ");
 		if(!Strings.isNullOrEmpty(transaction.getGoodsId())) {
-			sb.append(" goods_id = #{transaction.goodsId} and ");
+			sb.append(" goods_id = #{goodsId} and ");
 		}
 		if(!Strings.isNullOrEmpty(transaction.getFromUserId())) {
-			sb.append(" from_user_id = #{transaction.fromUserId}");
+			sb.append(" from_user_id = #{fromUserId}");
 		}
 		return sb.toString();
 	}
 
-	public String updateHistory(String temp,String isIssue,String isValid,String tradeNo){
+	public String updateHistory(@Param("temp")String temp, @Param("isIssue")String isIssue, @Param("isValid")String isValid, @Param("tradeNo")String tradeNo){
 
 		StringBuffer sb = new StringBuffer("update t_history set ");
 		if(!Strings.isNullOrEmpty(temp)){
@@ -155,7 +157,7 @@ public class DappProvider {
 			sb.append(" is_valid = #{isValid},");
 		}
 		String test = sb.toString();
-		test = test.substring(0, temp.length()-1);
+		test = test.substring(0, test.length()-1);
 		return test + "where trade_no = #{tradeNo}";
 
 	}
