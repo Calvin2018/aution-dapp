@@ -9,20 +9,20 @@ server:
     context-path: /dapp
 #框架配置
 platform:
-  shiro:
-    max-session: 10
-    jcaptcha-enable: false
-    session-timeout: 30
-    login-url: /login
-    submit-url: /login
-    success-url: /index.html
-    kickout-last: false
-    logout-url: /logout
-    ignore-urls:
-      - /login
-      - /scoin
-    jwt-secret-key: cesgroup-blockchain
-    jwt-param: token
+#  shiro:
+#    max-session: 10
+#    jcaptcha-enable: false
+#    session-timeout: 30
+#    login-url: /login
+#    submit-url: /login
+#    success-url: /index.html
+#    kickout-last: false
+#    logout-url: /logout
+#    ignore-urls:
+#      - /login
+#      - /scoin
+#    jwt-secret-key: cesgroup-blockchain
+#    jwt-param: token
 
   # 系统管理平台配置
   authsystem:

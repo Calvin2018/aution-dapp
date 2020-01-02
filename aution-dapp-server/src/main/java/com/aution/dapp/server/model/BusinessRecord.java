@@ -13,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BusinessRecord {
 
+	//'用户id':是用户表中的job_number
+	private String userNo;
+
     // 第三方支付交易号
     private String tradeNo;
-
-    //'用户id':是用户表中的job_number
-    private String userNo;
 
     //订单实际需要支付金额
     private BigDecimal amount;

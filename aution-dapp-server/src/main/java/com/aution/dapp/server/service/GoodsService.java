@@ -258,6 +258,7 @@ public class  GoodsService{
 	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
+	  goods.setSellerId("15091383015");
 	  //设置为-1，表示未评价
 	  goods.setTemp("-1");
 	  String imgUrl = imgStore(files,goods.getGoodsId());

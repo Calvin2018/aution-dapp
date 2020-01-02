@@ -224,12 +224,12 @@ public class DappService {
             price = price - temp.getBidPrice();
         }
 
-        obj = getBalance(userId, String.valueOf(price), null);
-        boolean flag = (boolean) obj.get("flag");
-
-        if (!flag) {
-            return obj;
-        }
+//        obj = getBalance(userId, String.valueOf(price), null);
+//        boolean flag = (boolean) obj.get("flag");
+//
+//        if (!flag) {
+//            return obj;
+//        }
 
         price = new BigDecimal(price).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
         Properties configuration = appClient.getConfiguration();
@@ -436,7 +436,9 @@ public class DappService {
             }
         }
         if(null ==historyList.get(0).getBuyerId() || historyList.get(0).getBuyerId().equals("0")) {
-            goodsRepository.updateGoods(goods);
+            if(!Strings.isNullOrEmpty(goods.getBuyerId())) {
+                goodsRepository.updateGoods(goods);
+            }
         }
          dBaseApiService
                 .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),

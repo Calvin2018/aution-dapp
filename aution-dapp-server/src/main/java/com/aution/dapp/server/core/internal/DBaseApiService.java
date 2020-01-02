@@ -179,7 +179,16 @@ public class DBaseApiService extends BaseApiService{
         }else {
         	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"未知授权支付方式");
         }*/
-        payUrl = (String)((Map<?, ?>)result.getData()).get("pay_url");
+		if(null != result&& null != result.getData()&&null != (Map<?, ?>)result.getData()){
+			Object payUrlTemp = ((Map<?, ?>)result.getData()).get("pay_url");
+			if(null == payUrlTemp){
+				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
+			}else{
+				payUrl = (String)payUrlTemp;
+			}
+		}else{
+			throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
+		}
         if (Strings.isNullOrEmpty(payUrl)){
         	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
 		}
@@ -220,14 +229,14 @@ public class DBaseApiService extends BaseApiService{
         signParam.put("appsecret", configuration.getProperty(ApiConstants.DA_APPSECRET));
         signParam.put("timestamp", timestamp);
         String sign = SignUtil.createCommonSign(signParam);
-        
+
         String url = configuration.getProperty(ApiConstants.PROP_COIN_ISSUE_URL);
         String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
         
         @SuppressWarnings("unchecked")
-		//Map<String, String> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
+		List<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, List.class);
         
-        HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, jsonParam);
+        HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
         RestApiResponse<T> result = null;
         try {
         	result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
@@ -240,7 +249,7 @@ public class DBaseApiService extends BaseApiService{
     		    createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
     		    hp = HttpRequests.newHttpPost2(createOrderUrl, jsonParam);
     		    result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);
-        	}else {
+        	}else{
         		throw e;
         	}
         }

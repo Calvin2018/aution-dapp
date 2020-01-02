@@ -3,10 +3,15 @@ package com.aution.dapp.server.web;
 
 
 import com.aution.dapp.server.core.ApiConstants;
+import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.core.AppClient;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
+//import org.apache.shiro.SecurityUtils;
+//import org.apache.shiro.authc.UsernamePasswordToken;
+//import org.apache.shiro.subject.Subject;
+import com.aution.dapp.server.model.History;
+import com.aution.dapp.server.quartz.NoIssueJob;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,8 @@ import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -68,10 +75,10 @@ public class HtmlController {
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
 
-		Subject subject = SecurityUtils.getSubject();
-
-		UsernamePasswordToken token = new UsernamePasswordToken(userNo,code);
-		subject.login(token);
+//		Subject subject = SecurityUtils.getSubject();
+//
+//		UsernamePasswordToken token = new UsernamePasswordToken(userNo,code);
+//		subject.login(token);
 
 		//不存在则插入
 		boolean flag = goodsService.insertUser(userNo, avatar, userName,userPhone);
@@ -82,7 +89,33 @@ public class HtmlController {
 
 		return "redirect:index.html";
 		
-	} 
+	}
+	private static final Log LOG = LogFactory.getLog(HtmlController.class);
+	public void test(){
+		try {
+			//1、job
+			LOG.debug("开始执行退款");
+			List<List<History>> list = dappService.findHistoryForNoIssueOrder();
+			if(null != list) {
+				list.removeAll(Collections.singleton(null));
+			}
+			if(null == list || list.size() == 0) {
+				LOG.debug("未找到需要退款记录");
+				return ;
+			}
+			for(List<History> temp:list) {
+
+				dappService.bidCompletedMethod(temp, temp.get(0).getGoodsId(), temp.get(0).getSellerId(),temp.get(0).getCurrentPrice());
+			}
+			LOG.debug("完成执行退款操作");
+		}catch(ApiException e) {
+			if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_INSUFFICIENT_BALANCE)) {
+				LOG.debug("定时任务NoIssueJob下发失败,账号余额不足");
+			}
+		}catch (IOException e) {
+			LOG.error("IOException："+e.getMessage());
+		}
+	}
 	
 	
 	

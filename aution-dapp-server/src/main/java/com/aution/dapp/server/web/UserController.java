@@ -5,8 +5,8 @@ import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.core.ApiResult;
 import com.aution.dapp.server.service.DappService;
 import com.google.common.base.Strings;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+//import org.apache.shiro.SecurityUtils;
+//import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,8 +27,9 @@ public class UserController {
     @RequestMapping(value="/getUserInfo",method= RequestMethod.POST)
     public ApiResult<Map<String,String>> getToken() throws ApiException, IOException {
 
-        Subject subject = SecurityUtils.getSubject();
-        String userId = (String)subject.getPrincipal();
+//        Subject subject = SecurityUtils.getSubject();
+//        String userId = (String)subject.getPrincipal();
+        String userId = "";
         ApiResult<Map<String,String>> result = new ApiResult<Map<String,String>>();
         Map<String,String> map = null;
         try {
