@@ -6,6 +6,7 @@ import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.service.DappService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -21,6 +22,7 @@ import java.util.List;
  * @author hewensheng
  */
 @Component
+@DisallowConcurrentExecution
 public class CheckJob implements Job{
 
 	private static final Log LOG = LogFactory.getLog(CheckJob.class);
@@ -34,13 +36,13 @@ public class CheckJob implements Job{
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		
-		try {
-			LOG.debug("开始执行检查任务");
-			dappService.checkNoPayTx();
-			LOG.debug("完成执行检查任务");
-		}catch (IOException e) {
-			LOG.error("IOException："+e.getMessage());
-		}
+//		try {
+//			LOG.debug("开始执行检查任务");
+//			dappService.checkNoPayTx();
+//			LOG.debug("完成执行检查任务");
+//		}catch (IOException e) {
+//			LOG.error("IOException："+e.getMessage());
+//		}
 	}
 	
 	

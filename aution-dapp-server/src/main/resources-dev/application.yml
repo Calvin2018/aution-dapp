@@ -21,7 +21,6 @@ platform:
     ignore-urls:
       - /login
       - /scoin
-      - /static/**
     jwt-secret-key: cesgroup-blockchain
     jwt-param: token
 

@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -65,7 +66,8 @@ public class HtmlController {
 
 
 	@RequestMapping(value="/scoin",method=RequestMethod.GET)
-	public  String getCode(@RequestParam("code")String code,@RequestParam("state")String state) throws IOException {
+	public  String getCode(@RequestParam("code")String code, @RequestParam("state")String state, HttpServletRequest request) throws IOException {
+
 		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
 		if(!state.equals(dappState)){
 			return "redirect:unauthorized.html";
