@@ -87,6 +87,7 @@ public interface ApiConstants {
   String PROP_COIN_INFO_URL = "dapp.coin.info.url";
   String PROP_COIN_PAY_URL = "dapp.coin.pay.url";
   String PROP_COIN_ISSUE_URL = "dapp.coin.issue.url";
+  String PROP_COIN_SINGLE_ISSUE_URL="dapp.coin.single.issue.url";
   String PROP_COIN_QUERY_URL = "dapp.coin.balance.url";
   String PROP_COIN_QUERY_TX_URL = "dapp.query.tx.url";
   String FORM_TOKEN = "token";
@@ -104,6 +105,7 @@ public interface ApiConstants {
   String DA_NOTIFY_URL = "dapp.pay.notify.url";
   String DA_DETAIL_URL = "dapp.pay.order.detail.url";
   String DA_ISSUE_NOTIFY_URL = "dapp.issue.notify.url";
+
 
   String DA_STATE = "dapp.state";
   /**

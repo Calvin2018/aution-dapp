@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Consts;
@@ -130,6 +132,21 @@ public class HttpRequests {
     return post;
   }
 
+  public static HttpPost arrayHttpPost(String url, String value) {
+    if (url == null || url.isEmpty()) {
+      throw new IllegalArgumentException("The argument url is required.");
+    }
+
+    HttpPost post = new HttpPost(url);
+    EntityBuilder eb = EntityBuilder.create();
+    eb.setContentEncoding(Consts.UTF_8.name());
+    eb.setContentType(ContentType.APPLICATION_JSON);
+    HttpEntity entity = eb.setText(value).build();
+    post.setEntity(entity);
+    post.addHeader(ApiConstants.HEADER_CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
+    post.addHeader(ApiConstants.HEADER_ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+    return post;
+  }
 
   public static HttpDelete newHttpDelete(String url, String id) {
     if (url == null || url.isEmpty() || Strings.isNullOrEmpty(id)) {

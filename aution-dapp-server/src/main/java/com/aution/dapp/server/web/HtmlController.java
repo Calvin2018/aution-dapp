@@ -2,14 +2,20 @@ package com.aution.dapp.server.web;
 
 
 
+import com.aution.dapp.server.config.MyUsernamePasswordToken;
 import com.aution.dapp.server.core.ApiConstants;
 import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.core.AppClient;
-//import org.apache.shiro.SecurityUtils;
-//import org.apache.shiro.authc.UsernamePasswordToken;
-//import org.apache.shiro.subject.Subject;
+import com.aution.dapp.server.model.ShiroUser;
+import com.google.common.base.Strings;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import com.aution.dapp.server.model.BusinessRecord;
 import com.aution.dapp.server.model.History;
 import com.aution.dapp.server.quartz.NoIssueJob;
+import com.aution.dapp.server.utils.SignUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
@@ -24,10 +30,8 @@ import com.aution.dapp.server.service.DappService;
 import com.aution.dapp.server.service.GoodsService;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+
 
 
 @Controller
@@ -68,6 +72,8 @@ public class HtmlController {
 		}
 
 		LOGGER.info("code: {}",code);
+
+
 		Map<String,String> temp = dappService.getUserInfo(code);
 
 		String userNo = temp.get("user_no");
@@ -75,11 +81,18 @@ public class HtmlController {
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
 
-//		Subject subject = SecurityUtils.getSubject();
-//
-//		UsernamePasswordToken token = new UsernamePasswordToken(userNo,code);
-//		subject.login(token);
+		Subject subject = SecurityUtils.getSubject();
+		ShiroUser user = new ShiroUser();
+		user.setLoginName(userNo);
+		user.setPassword(code);
+		user.setUserName(userName);
+		MyUsernamePasswordToken token = new MyUsernamePasswordToken(user);
+		subject.login(token);
 
+
+		if(null == avatar){
+			avatar = "";
+		}
 		//不存在则插入
 		boolean flag = goodsService.insertUser(userNo, avatar, userName,userPhone);
 		if(!flag) {
@@ -91,6 +104,7 @@ public class HtmlController {
 		
 	}
 	private static final Log LOG = LogFactory.getLog(HtmlController.class);
+	@RequestMapping(value = "/test",method = RequestMethod.GET)
 	public void test(){
 		try {
 			//1、job
@@ -116,8 +130,22 @@ public class HtmlController {
 			LOG.error("IOException："+e.getMessage());
 		}
 	}
-	
-	
-	
+
+    @RequestMapping(value = "/test1",method = RequestMethod.GET)
+    public void test1(){
+       String test = "_body=[{\"user_no\":\"10012019102102386143256887992328\",\"trade_no\":\"aa055b1f-b26c-471c-9d5a-b7ac554a72da\",\"amount\":2,\"notify_url\":\"http://172.16.214.200:8080/dapp/api/order/issue/notify\"}]&access_token=fd0a3c52c0ed4c5ea5a07860883cb0e5&appid=xft98nu5rp8px848dqbwyw5liiz&appsecret=f5bd32e2e43c4667b081a5401e85a4c8&timestamp=1577709344";
+       String sign =  DigestUtils.sha1Hex(test);
+       System.out.println(sign);
+        Map<String, String> signParam = new LinkedHashMap<>();
+        signParam.put("_body", "[{\"user_no\":\"10012019102102386143256887992328\",\"trade_no\":\"aa055b1f-b26c-471c-9d5a-b7ac554a72da\",\"amount\":2,\"notify_url\":\"http://172.16.214.200:8080/dapp/api/order/issue/notify\"}]");
+        signParam.put("access_token", "fd0a3c52c0ed4c5ea5a07860883cb0e5");
+        signParam.put("appid", "xft98nu5rp8px848dqbwyw5liiz");
+        signParam.put("appsecret", "f5bd32e2e43c4667b081a5401e85a4c8");
+        signParam.put("timestamp", "1577709344");
+        String sign1 = SignUtil.createCommonSign(signParam);
+        System.out.println(sign1);
+        System.out.println(sign.equals(sign1));
+    }
+
 	
 }

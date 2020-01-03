@@ -1,12 +1,8 @@
 package com.aution.dapp.server.core.internal;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
-import java.util.Set;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -41,27 +37,60 @@ public class DBaseApiService extends BaseApiService{
 
 	/**
 	 * 查询用户信息
-	 * @param token
+	 * @param code
 	 * @param typeToken
 	 * @param <T>
 	 * @return
 	 * @throws ApiException
 	 * @throws IOException
 	 */
-	public <T> RestApiResponse<T> getUserInfo(String token,TypeToken<RestApiResponse<T>> typeToken) throws ApiException, IOException{
-		if(Strings.isNullOrEmpty(token)&&null == typeToken) {
+	public <T> RestApiResponse<T> getUserInfo(String code,String accessToken,String appid,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws ApiException, IOException{
+		if(Strings.isNullOrEmpty(code)&&null == typeToken) {
 			throw new IllegalArgumentException("Arguments token and typeToken are required");
 		}
+
+		if(Strings.isNullOrEmpty(accessToken)) {
+			accessToken = accessToken(appClient);
+			appClient.setAccessToken(accessToken);
+		}
 		String url =  configuration.getProperty(ApiConstants.PROP_COIN_INFO_URL);
-		String requestUrl = String.format(url,token);
+
+		Map<String, String> params = new LinkedHashMap<String,String>();
+		params.put("code",code);
+
+		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+		Map<String, String> signParam = new LinkedHashMap<>();
+		signParam.put("_body", JsonUtil.toSnakeJson(params));
+		signParam.put("access_token",accessToken);
+		signParam.put("appid", configuration.getProperty(ApiConstants.DA_APPID));
+		signParam.put("appsecret", configuration.getProperty(ApiConstants.DA_APPSECRET));
+		signParam.put("timestamp", timestamp);
+		String sign = SignUtil.createCommonSign(signParam);
+
+		String requestUrl = String.format(url,code,timestamp,appid,accessToken,sign);
 		
-		HttpPost hp = HttpRequests.newHttpPost2(requestUrl,new LinkedHashMap<>());
+		HttpPost hp = HttpRequests.newHttpPost2(requestUrl,params);
         
-        HttpClientContext context = new HttpClientContext();
+		HttpClientContext context = appContext.getHttpContext(AppClient.getInstance().getAccessToken());
         CookieStore cookieStore = new BasicCookieStore();
         context.setCookieStore(cookieStore);
-        
-        return doPost(hp, context, typeToken);
+		RestApiResponse<T> result = null;
+        try{
+			result = doPost(hp, context, typeToken);
+		}catch(ApiException e) {
+			if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
+				accessToken = accessToken(appClient);
+				appClient.setAccessToken(accessToken);
+				signParam.put("access_token", accessToken);
+				sign = SignUtil.createCommonSign(signParam);
+				requestUrl = String.format(url,timestamp,appid,accessToken,sign);
+				hp = HttpRequests.newHttpPost2(requestUrl, params);
+				result = doPost(hp, context, typeToken);
+			}else {
+				throw e;
+			}
+		}
+        return result;
 		
 	}
 
@@ -166,19 +195,7 @@ public class DBaseApiService extends BaseApiService{
         	}
         }
         String payUrl = null;
-/*        if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.MERCHANT)) {
-        	payUrl = (String)((Map<?, ?>)result.getData()).get("pay_url");
-        	if(Strings.isNullOrEmpty(payUrl)) {
-				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付链接失败");
-			}
-        }else if(payRequest.getAuthType().equals(ApiConstants.ApiPayAuthType.COIN)) {
-        	payUrl = (String)result.getData();
-        	if(Strings.isNullOrEmpty(payUrl)) {
-				throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"创建支付二维码失败");
-			}
-        }else {
-        	throw new ApiException(Integer.parseInt(ApiConstants.CODE_REQUEST_EROR),"未知授权支付方式");
-        }*/
+
 		if(null != result&& null != result.getData()&&null != (Map<?, ?>)result.getData()){
 			Object payUrlTemp = ((Map<?, ?>)result.getData()).get("pay_url");
 			if(null == payUrlTemp){
@@ -230,11 +247,12 @@ public class DBaseApiService extends BaseApiService{
         signParam.put("timestamp", timestamp);
         String sign = SignUtil.createCommonSign(signParam);
 
-        String url = configuration.getProperty(ApiConstants.PROP_COIN_ISSUE_URL);
+        String url = configuration.getProperty(ApiConstants.PROP_COIN_SINGLE_ISSUE_URL);
         String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
         
         @SuppressWarnings("unchecked")
 		List<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, List.class);
+
         
         HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
         RestApiResponse<T> result = null;

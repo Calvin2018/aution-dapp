@@ -4,17 +4,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.Calendar;
 
+import com.aution.dapp.server.quartz.BidJob;
 import com.mchange.v2.holders.SynchronizedCharHolder;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +147,10 @@ public class DappService {
         DBaseApiService dBaseApiService = appClient.getdBaseApiService();
         TypeToken<RestApiResponse<Map<String, String>>> typeToken = new TypeToken<RestApiResponse<Map<String, String>>>() {
         };
-        Map<String, String> map = dBaseApiService.getUserInfo(authToken, typeToken).getData();
+        String accessToken = appClient.getAccessToken();
+        Properties configuration = appClient.getConfiguration();
+        String appid = configuration.getProperty(ApiConstants.DA_APPID);
+        Map<String, String> map = dBaseApiService.getUserInfo(authToken, accessToken, appid, typeToken,appClient).getData();
         return map;
     }
 
@@ -224,12 +222,7 @@ public class DappService {
             price = price - temp.getBidPrice();
         }
 
-//        obj = getBalance(userId, String.valueOf(price), null);
-//        boolean flag = (boolean) obj.get("flag");
-//
-//        if (!flag) {
-//            return obj;
-//        }
+
 
         price = new BigDecimal(price).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
         Properties configuration = appClient.getConfiguration();
@@ -260,11 +253,8 @@ public class DappService {
         history.setPayPrice(price);
         //判断此次竞拍是否支付 0：表示未支付 1：表示支付成功
         history.setTemp("0");
-        Integer hFlag = hRepository.insertHistory(history);
-        //用于数据库回滚
-        if (0 == hFlag) {
-            throw new ApiException("History Insert Failed");
-        }
+        hRepository.insertHistory(history);
+
 
         obj.put("flag", true);
         obj.put("pay_url", payUrl);
@@ -373,8 +363,24 @@ public class DappService {
         //查询处
         List<History> historyList = hRepository
                 .findBidHistoryByGoodsId(gId);
+        Goods goods = new Goods();
+        goods.setGoodsId(gId);
         if (null != historyList && historyList.size() > 0) {
+            //设置商品完成
+            goods.setStatus(2);
+            goodsRepository.updateGoods(goods);
+            //推迟5分钟下发
+            try {
+                Thread.sleep(1000*60*5L);
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage());
+            }
             bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
+        }else{
+            //设置商品流拍
+            goods.setStatus(3);
+            goodsRepository.updateGoods(goods);
+            msgRepository.insertMessage(sellerId, gId, '2', '0');
         }
     }
 
@@ -400,10 +406,18 @@ public class DappService {
         String accessToken = appClient.getAccessToken();
         //判断是否是买家
         boolean flag = true;
+        boolean flag1 = true;
         List<BusinessRecord> businessRecords = new ArrayList<>();
         for (int i = 0; i < historyList.size(); i++) {
-            BusinessRecord businessRecord = new BusinessRecord();
             History history = historyList.get(i);
+            if(flag1&&null == history.getCurrentPrice()){
+                Double maxPrice = hRepository.findMaxPriceByGid(history.getGoodsId());
+                if(history.getBidPrice().equals(maxPrice)){
+                    currentPrice = maxPrice;
+                    flag1 = false;
+                }
+            }
+            BusinessRecord businessRecord = new BusinessRecord();
             //查看这个用户这件商品是否下发过
             String isIssue = history.getIsIssue();
             businessRecord.setUserNo(history.getUserId());
@@ -449,8 +463,8 @@ public class DappService {
      * 查询未退款交易并根据商品id进行分类 一个商品一个list
      */
     public List<List<History>> findHistoryForNoIssueOrder() {
-        //多加6分钟 执行
-        Long endTime = System.currentTimeMillis() + 1000*60*6L;
+        //多加10分钟 执行
+        Long endTime = System.currentTimeMillis() + 1000*60*10L;
         //没有数据返回的结果为list,第一个元素为Null
         List<History> list = hRepository.findTransactionForNoIssueOrder(endTime);
         if (null != list) {

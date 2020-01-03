@@ -28,6 +28,7 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
     @DateTimeFormat(pattern = "yyyyMMddHHmmss")
     private String payTime; //订单支付完成时间
 
+
     @Override
     @JsonIgnore
     public String getMessageId() {
@@ -80,9 +81,8 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
 				"tradeNo='" + tradeNo + '\'' +
 				", businessNo='" + businessNo + '\'' +
 				", amount=" + amount +
-				", status='" + status + '\'' +
+				", status=" + status +
 				", payTime='" + payTime + '\'' +
 				'}';
 	}
-
 }

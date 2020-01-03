@@ -426,14 +426,14 @@ public class  GoodsService{
 	}
   
   public boolean  insertUser(String userId,String avatar,String userName,String userPhone) {
-	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
+	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
 		  throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
 	  }
 	  Integer flag = userRepository.insertUser(userId, avatar, userName,userPhone);
 	  return flag ==0?false:true;
   }
   public boolean updateUser(String userId,String avatar,String userName,String userPhone) {
-	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(avatar)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
+	  if(Strings.isNullOrEmpty(userId)||Strings.isNullOrEmpty(userName)||Strings.isNullOrEmpty(userPhone)) {
 		  throw new IllegalArgumentException("Arguments userId userPhone and user_name avatar are required");
 	  }
 	  Integer flag = userRepository.updateUser(userId, avatar, userName,userPhone);

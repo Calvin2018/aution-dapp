@@ -37,29 +37,6 @@ public class DappController {
 	private static AppClient appClient = AppClient.getInstance();
 
 
-//	灵光币平台不提供该接口
-//	@RequestMapping(value="/getBalance",method=RequestMethod.POST)
-//	public ApiResult<JSONObject> getBalance(@RequestParam("userId")String userId,String amount,String feeAmount) throws  IOException  {
-//		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
-//		try {
-//			JSONObject data  = dappService.getBalance(userId,amount,feeAmount);
-//			result.setCode(ApiConstants.CODE_SUCCESS);
-//			result.setMsg("");
-//			result.setData(data);
-//
-//		}catch(IllegalArgumentException e) {
-//			result.setCode(ApiConstants.CODE_ARGS_ERROR);
-//			result.setMsg(e.getMessage());
-//			result.setData(null);
-//		}catch(ApiException e) {
-//			result.setCode(String.valueOf(e.getStatusCode()));
-//			result.setMsg(e.getMessage());
-//			result.setData(null);
-//		}
-//
-//		return result;
-//	}
-	
 	@RequestMapping(value="/bid",method=RequestMethod.POST)
 	public ApiResult<JSONObject> bid(@RequestParam("gId")String gId, @RequestParam("userId")String userId, @RequestParam("price")Double price) throws Exception {
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
@@ -84,11 +61,11 @@ public class DappController {
 		return result;
 	}
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
-	public String notify(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
+	public String notify( @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		//flag ：true 支付回调 false :下发回调
-		return commonNotify(sign,notifyBean,true);
+		return commonNotify(notifyBean,true);
 	}
-	private String commonNotify(String sign, PayNotifyBean notifyBean,boolean flag) throws ApiException, ParseException {
+	private String commonNotify(PayNotifyBean notifyBean,boolean flag) throws ApiException, ParseException {
 		LOGGER.info("开始notify");
 
 		if(null == notifyBean) {
@@ -100,12 +77,6 @@ public class DappController {
 		// 2.验证签名
 		Properties configuration = appClient.getConfiguration();
 
-		if (notifyBean.createSign(configuration.getProperty(ApiConstants.DA_APPSECRET)).equals(sign)) {
-			LOGGER.info("Signature verification passed for sign:{}", sign);
-		} else {
-			LOGGER.error("Signature verification failed for sign:{}", sign);
-			return "SIGN FAILED";
-		}
 
 		//交易正在进行
 		if(notifyBean.getStatus()==1){
@@ -140,17 +111,12 @@ public class DappController {
 	}
 	@RequestMapping(value="/issue/single/notify",method=RequestMethod.POST)
 	public String issueNotifyForSingle(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
-		return commonNotify(sign,notifyBean,false);
+		return commonNotify(notifyBean,false);
 	}
 	@RequestMapping(value="/issue/notify",method=RequestMethod.POST)
 	public String issueNotify(String sign, @RequestBody List<PayNotifyBean> list) throws ApiException, ParseException {
-		String flag = "SIGN FAILED";
 		for(PayNotifyBean notifyBean:list) {
-			 String message = commonNotify(sign, notifyBean,false);
-			 //签名校验不通过则直接推出
-			 if(message.equals(flag)){
-			 	break;
-			 }
+			 commonNotify( notifyBean,false);
 		}
 		return "SUCCESS";
 	}
