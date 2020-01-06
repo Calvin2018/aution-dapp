@@ -83,7 +83,7 @@ public class DBaseApiService extends BaseApiService{
 				appClient.setAccessToken(accessToken);
 				signParam.put("access_token", accessToken);
 				sign = SignUtil.createCommonSign(signParam);
-				requestUrl = String.format(url,timestamp,appid,accessToken,sign);
+				requestUrl = String.format(url,code,timestamp,appid,accessToken,sign);
 				hp = HttpRequests.newHttpPost2(requestUrl, params);
 				result = doPost(hp, context, typeToken);
 			}else {

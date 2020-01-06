@@ -132,7 +132,13 @@ public class  GoodsService{
 		  } else if(status == 1) {
 			  msgRepository.updateMessage(buyerId,'0');
 		  }
-		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,status, pageable);
+		  Integer bidStatus = null ;
+		  if(status == 1 || status == 2) {
+			  bidStatus = status;
+		  }else{
+			  bidStatus = 2;
+		  }
+		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,bidStatus, pageable);
 		  if(status == 3) {
 			  for(Goods temp:list) {
 				  temp.setStatus(6);

@@ -237,7 +237,7 @@ public class GoodsController {
 	public ApiResult<JSONObject> getNewMessage(@RequestParam("userId") String userId) throws IOException{
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
-			JSONObject obj = dappService.getBalance(userId, null, null);
+			JSONObject obj = new JSONObject();
 			obj.put("msg", goodsService.getNewMessage(userId));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
@@ -245,10 +245,6 @@ public class GoodsController {
 			
 		}catch(IllegalArgumentException e) {
 			result.setCode(ApiConstants.CODE_ARGS_ERROR);
-			result.setMsg(e.getMessage());
-			result.setData(null);
-		}catch(ApiException e) {
-			result.setCode(String.valueOf(e.getStatusCode()));
 			result.setMsg(e.getMessage());
 			result.setData(null);
 		}

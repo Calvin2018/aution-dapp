@@ -16,37 +16,18 @@ public class DappProvider {
 		if(null != type) {
 			sb.append(" and type = #{type} ");
 		}
-//		sb.append(" order by");
-//		if(!Strings.isNullOrEmpty(priceSort)) {
-//			sb.append(" start_price "+ priceSort + ",");
-//		}
-//		if(!Strings.isNullOrEmpty(timeSort)) {
-//			sb.append(" end_time "+timeSort);
-//		}
-//
-//		String temp = sb.toString();
-//		if(temp.endsWith(",")) {
-//			temp = temp.substring(0, temp.length()-1);
-//		}
-//		if(temp.endsWith("order by")) {
-//			temp = temp.replace("order by", "");
-//		}
+
 		return sb.toString();
 			
 	}
 	
 	public String findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status) {
 		
-		Integer bidStatus = null ;
-		if(status == 1 || status == 2) {
-			bidStatus = status;
-		}else{
-			bidStatus = 2;
-		}
+
 		
 		StringBuffer sb = new StringBuffer("select g.goods_id,seller_id,title,imgs,current_price,end_time,temp,avatar,user_name,user_phone " + 
-				"from t_goods g left join t_user u on g.seller_id = u.user_id right join (select goods_id from t_history where temp = '1' and user_id = '"+ buyerId +"' group by goods_id,user_id)ids " + 
-				" on g.goods_id = ids.goods_id where status = #{bidStatus}");
+				"from t_goods g left join t_user u on g.seller_id = u.user_id right join (select goods_id from t_history where temp = '1' and user_id = #{buyerId} group by goods_id,user_id)ids " +
+				" on g.goods_id = ids.goods_id where status = #{status}");
 		
 		if(status == 2) {
 			sb.append(" and buyer_id = #{buyerId}");
@@ -89,7 +70,7 @@ public class DappProvider {
 		}
 		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{details},#{imgs},#{status},#{endTime}");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
-			sb.append(",#{goods.temp}");
+			sb.append(",#{temp}");
 		}
 		sb.append("')");
 		return sb.toString();
