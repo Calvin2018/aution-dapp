@@ -77,11 +77,11 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   @Select("select MAX(bid_price)maxPrice from t_history where temp = '1' and is_valid = '1'  and  goods_id = #{gId}")
   Double findMaxPriceByGid(@Param("gId")String gId);
   
-  @Select("select trade_no,h.goods_id,h.user_id,bid_price,pay_price,user_name,user_phone,g.current_price,g.end_time from t_history h " + 
+  @Select("select trade_no,h.goods_id,h.user_id,bid_price,pay_price,user_name,user_phone,g.current_price,g.end_time,temp from t_history h " +
   		"  		 		left join t_user u on h.user_id = u.user_id left join t_goods g on g.goods_id = h.goods_id  where trade_no = #{tradeNo} ")
   History findHistoryByTradeNoAndGidAndPriceSort(@Param("tradeNo")String tradeNo);
 
-    @Select("select trade_no,h.goods_id,h.user_id,bid_price,pay_price,user_name,user_phone,g.current_price,g.end_time from t_history h " +
+    @Select("select trade_no,h.goods_id,h.user_id,bid_price,pay_price,user_name,user_phone,g.current_price,g.end_time,is_issue from t_history h " +
             "  		 		left join t_user u on h.user_id = u.user_id left join t_goods g on g.goods_id = h.goods_id  where issue_trade_no = #{issueTradeNo} ")
   History findHistoryByIssueTradeNo(@Param("issueTradeNo")String issueTradeNo);
   

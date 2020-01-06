@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -88,8 +89,26 @@ public class DappController {
 			History history = null;
 			if(flag) {
 				history = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
+                if (null == history) {
+                    LOGGER.info("Amount verification failed for price");
+                    return "Amount verification failed for price";
+                }else{
+                    if(history.getTemp().equals("1")){
+                        LOGGER.info("Callback already");
+                        return "Callback already";
+                    }
+                }
 			}else{
 				history = historyService.findHistoryByIssueTradeNo(notifyBean.getTradeNo());
+                if (null == history) {
+                    LOGGER.info("Amount verification failed for price");
+                    return "Amount verification failed for price";
+                }else{
+                    if(history.getIsValid().equals("1")){
+                        LOGGER.info("Callback already");
+                        return "Callback already";
+                    }
+                }
 			}
 			Double price = 0d;
 			if (null == history) {
