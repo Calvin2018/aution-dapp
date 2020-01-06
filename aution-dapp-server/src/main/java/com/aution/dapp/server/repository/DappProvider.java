@@ -72,7 +72,7 @@ public class DappProvider {
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(",#{temp}");
 		}
-		sb.append("')");
+		sb.append(")");
 		return sb.toString();
 	}
 	

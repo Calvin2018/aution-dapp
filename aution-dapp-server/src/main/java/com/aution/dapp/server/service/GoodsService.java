@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.aution.dapp.server.core.ApiConstants;
@@ -264,7 +265,6 @@ public class  GoodsService{
 	  }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
-	  goods.setSellerId("15091383015");
 	  //设置为-1，表示未评价
 	  goods.setTemp("-1");
 	  String imgUrl = imgStore(files,goods.getGoodsId());
@@ -362,8 +362,9 @@ public class  GoodsService{
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
 			//File  project= new File(System.getProperty("user.dir"));
-			//File project = ResourceUtils.getFile("classpath:static");
-			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
+			File project = ResourceUtils.getFile("classpath:static");
+            String imgLocation = project.getAbsolutePath();
+			//String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
 			LOGGER.info("图片路径：{}",imgLocation);
 			LOGGER.info(imgLocation);
 			String path = imgLocation+File.separator;
