@@ -132,12 +132,14 @@ public class DappService {
             if (String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TRANSACTION_NOT_EXIST)) {
                 status = "2";
                 if(null == temp){
+                    temp = new HashMap<>();
                     temp.put("status",status);
                 }
             }
         } catch (Exception e) {
             status = "3";
             if(null == temp) {
+                temp = new HashMap<>();
                 temp.put("status", status);
             }
         }
@@ -484,6 +486,8 @@ public class DappService {
                     }
                 //交易不存在
                 } else if (data.get("status").equals("2")) {
+                    businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
+                    hRepository.updateHistory(null,null,null,businessRecord.getTradeNo(),history.getTradeNo());
                     businessRecords.add(businessRecord);
                 }
             }
