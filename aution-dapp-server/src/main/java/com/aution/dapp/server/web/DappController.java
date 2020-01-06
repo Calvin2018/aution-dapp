@@ -74,8 +74,6 @@ public class DappController {
 		// 1.基于内存的消息去重,分布式环境请自行编写去重实例
 		MsgInMemoryDuplicateChecker.getInstance().isDuplicate(notifyBean);
 		LOGGER.info("开始验证签名");
-		// 2.验证签名
-		Properties configuration = appClient.getConfiguration();
 
 
 		//交易正在进行
@@ -87,14 +85,19 @@ public class DappController {
 			LOGGER.info("结束验证签名");
 			// 3.验证订单金额
 			LOGGER.info("开始订单金额");
-			History history = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
+			History history = null;
+			if(flag) {
+				history = historyService.findHistoryByTradeNoAndGidAndPriceSort(notifyBean.getTradeNo());
+			}else{
+				history = historyService.findHistoryByIssueTradeNo(notifyBean.getTradeNo());
+			}
 			Double price = 0d;
 			if (null == history) {
 				return "Amount verification failed for price:" + price;
 			} else{
 				price = history.getPayPrice();
 			}
-			if (new BigDecimal(price).equals(notifyBean.getAmount())) {
+			if (new BigDecimal(price).setScale(2,BigDecimal.ROUND_HALF_DOWN).equals(notifyBean.getAmount().setScale(2,BigDecimal.ROUND_HALF_DOWN))) {
 				LOGGER.info("Amount verification passed");
 			} else {
 				LOGGER.error("Amount verification failed, may be illegal notification for price:{}", price);
@@ -110,11 +113,11 @@ public class DappController {
 		}
 	}
 	@RequestMapping(value="/issue/single/notify",method=RequestMethod.POST)
-	public String issueNotifyForSingle(String sign, @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
+	public String issueNotifyForSingle(@RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		return commonNotify(notifyBean,false);
 	}
 	@RequestMapping(value="/issue/notify",method=RequestMethod.POST)
-	public String issueNotify(String sign, @RequestBody List<PayNotifyBean> list) throws ApiException, ParseException {
+	public String issueNotify(@RequestBody List<PayNotifyBean> list) throws ApiException, ParseException {
 		for(PayNotifyBean notifyBean:list) {
 			 commonNotify( notifyBean,false);
 		}

@@ -28,8 +28,17 @@ public class PayNotifyBean extends BeanSigner implements MsgIdGenerator {
     @DateTimeFormat(pattern = "yyyyMMddHHmmss")
     private String payTime; //订单支付完成时间
 
+	private String payTradeNo;
 
-    @Override
+	public String getPayTradeNo() {
+		return payTradeNo;
+	}
+
+	public void setPayTradeNo(String payTradeNo) {
+		this.payTradeNo = payTradeNo;
+	}
+
+	@Override
     @JsonIgnore
     public String getMessageId() {
         return tradeNo;

@@ -144,7 +144,7 @@ public class DappProvider {
 		return sb.toString();
 	}
 
-	public String updateHistory(@Param("temp")String temp, @Param("isIssue")String isIssue, @Param("isValid")String isValid, @Param("tradeNo")String tradeNo){
+	public String updateHistory(@Param("temp")String temp, @Param("isIssue")String isIssue, @Param("isValid")String isValid, @Param("issueTradeNo")String issueTradeNo,@Param("tradeNo")String tradeNo){
 
 		StringBuffer sb = new StringBuffer("update t_history set ");
 		if(!Strings.isNullOrEmpty(temp)){
@@ -155,6 +155,9 @@ public class DappProvider {
 		}
 		if(!Strings.isNullOrEmpty(isValid)){
 			sb.append(" is_valid = #{isValid},");
+		}
+		if(!Strings.isNullOrEmpty(issueTradeNo)){
+			sb.append(" issue_trade_no = #{issueTradeNo},");
 		}
 		String test = sb.toString();
 		test = test.substring(0, test.length()-1);

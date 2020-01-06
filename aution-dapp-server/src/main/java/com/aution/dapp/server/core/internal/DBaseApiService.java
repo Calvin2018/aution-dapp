@@ -247,14 +247,13 @@ public class DBaseApiService extends BaseApiService{
         signParam.put("timestamp", timestamp);
         String sign = SignUtil.createCommonSign(signParam);
 
-        String url = configuration.getProperty(ApiConstants.PROP_COIN_SINGLE_ISSUE_URL);
+        String url = configuration.getProperty(ApiConstants.PROP_COIN_ISSUE_URL);
         String createOrderUrl = String.format(url,timestamp,appid,accessToken,sign);
         
         @SuppressWarnings("unchecked")
-		List<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, List.class);
+		//List<Map<String, String>> params = JsonUtil.toObjectFromSnakeJson(jsonParam, List.class);
 
-        
-        HttpPost hp = HttpRequests.newHttpPost2(createOrderUrl, params);
+        HttpPost hp = HttpRequests.arrayHttpPost(createOrderUrl, jsonParam);
         RestApiResponse<T> result = null;
         try {
         	result = doPost(hp, appContext.getHttpContext(accessToken), typeToken);

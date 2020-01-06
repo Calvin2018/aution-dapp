@@ -1,7 +1,6 @@
 package com.aution.dapp.server.config;
 
 import com.aution.dapp.server.model.ShiroUser;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.HostAuthenticationToken;
 import org.apache.shiro.authc.RememberMeAuthenticationToken;
 

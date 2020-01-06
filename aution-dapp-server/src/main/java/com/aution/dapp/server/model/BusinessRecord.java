@@ -41,6 +41,7 @@ public class BusinessRecord {
 	//交易租户，长度32位字节，跨租户交易时使用。为空则表示为当前租户交易
 	private String tradeTenantNo;
 
+
 	public String getTradeNo() {
 		return tradeNo;
 	}

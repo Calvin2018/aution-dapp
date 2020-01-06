@@ -239,6 +239,7 @@ public class DappService {
         payRequest.setOrderDetailUrl(configuration.getProperty(ApiConstants.DA_DETAIL_URL));
         payRequest.setTitle("竞拍");
         payRequest.setTradeNo(tradeNo);
+        payRequest.setRedirect_url(configuration.getProperty(ApiConstants.DA_DETAIL_URL));
 
         String payUrl = dBaseApiService
                 .doOrder(configuration.getProperty(ApiConstants.DA_APPID), accessToken, payRequest,
@@ -281,12 +282,13 @@ public class DappService {
             transaction.setToUserId(transferId);
             transaction.setTxId(notifyBean.getBusinessNo());
             transaction.setTxTime(date);
+            transaction.setTemp("1");
             tRepository.insertTransaction(transaction);
 
             //当支付时间超过商品竞拍截止时间则直接发起退款
             if (date > history.getEndTime()) {
                 //设置此交易为无效交易
-                hRepository.updateHistory("1", null, "3", notifyBean.getTradeNo());
+                hRepository.updateHistory("1", null, "3",null, notifyBean.getTradeNo());
 
                 String accessToken = appClient.getAccessToken();
                 DBaseApiService dBaseApiService = appClient.getdBaseApiService();
@@ -321,7 +323,7 @@ public class DappService {
             } else {
                 //进入该方法表示用户已经支付成功，因此更新交易状态为1即已经支付
                 LOGGER.debug("start update table t_history,tradeNo: {}", notifyBean.getTradeNo());
-                hRepository.updateHistory("1", null, "1", notifyBean.getTradeNo());
+                hRepository.updateHistory("1", null, "1",null,notifyBean.getTradeNo());
                 LOGGER.debug("finnish update table t_history,tradeNo: {}", notifyBean.getTradeNo());
             }
 
@@ -341,7 +343,7 @@ public class DappService {
         } else {
             //进入该方法表示用户已经支付成功，因此退款
             LOGGER.debug("start update table t_history,tradeNo: {}", notifyBean.getTradeNo());
-            hRepository.updateHistory(null, "1", "1", notifyBean.getTradeNo());
+            hRepository.updateHistory(null, "1", "1",null, notifyBean.getTradeNo());
             LOGGER.debug("finnish update table t_history,tradeNo: {}", notifyBean.getTradeNo());
 
             transaction.setFromUserId(transferId);
@@ -427,7 +429,12 @@ public class DappService {
                 businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
             }
             businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
-            businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
+            String issueTradeNo = history.getIssueTradeNo();
+            if(Strings.isNullOrEmpty(issueTradeNo)) {
+                businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
+            }else{
+                businessRecord.setTradeNo(issueTradeNo);
+            }
             if (true == flag && history.getBidPrice().equals(currentPrice)) {
                 if(null ==history.getBuyerId() || history.getBuyerId().equals("0")) {
                     //拍卖成功
@@ -439,24 +446,36 @@ public class DappService {
                 }
 
                 businessRecord.setUserNo(sellerId);
-                businessRecords.add(businessRecord);
                 flag = false;
             } else {
-                businessRecords.add(businessRecord);
                 //竞拍失败
                 if(null ==history.getBuyerId() || history.getBuyerId().equals("0")) {
                     msgRepository.insertMessage(history.getUserId(), gId, '4', '0');
                 }
             }
+
+            if(Strings.isNullOrEmpty(issueTradeNo)) {
+                hRepository.updateHistory(null,null,null,businessRecord.getTradeNo(),history.getTradeNo());
+            }else{
+                String status = doQueryTxStatus(issueTradeNo);
+                if (status.equals("0")) {
+                    hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
+                //交易不存在
+                } else if (status.equals("2")) {
+                    businessRecords.add(businessRecord);
+                }
+            }
+
         }
         if(null ==historyList.get(0).getBuyerId() || historyList.get(0).getBuyerId().equals("0")) {
             if(!Strings.isNullOrEmpty(goods.getBuyerId())) {
                 goodsRepository.updateGoods(goods);
             }
         }
-         dBaseApiService
-                .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
-                        accessToken, businessRecords, typeToken, appClient).getData();
+        dBaseApiService
+                    .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
+                            accessToken, businessRecords, typeToken, appClient).getData();
+
     }
 
     /**
@@ -478,9 +497,7 @@ public class DappService {
             for (int i = 0; i < list.size(); i++) {
                 History temp = list.get(i);
                 LOGGER.info("History:{}", temp);
-//				if( null != temp.getTemp()) {
-//					continue;
-//				}
+
                 if (!set.contains(temp.getGoodsId())) {
                     set.add(temp.getGoodsId());
                     if (null != hList && hList.size() > 0) {
@@ -512,15 +529,15 @@ public class DappService {
             String status = doQueryTxStatus(history.getTradeNo());
             //表示交易已经完成
             if (status.equals("0")) {
-                hRepository.updateHistory("1", null, "1", history.getTradeNo());
+                hRepository.updateHistory("1", null, "1",null, history.getTradeNo());
             } else if (status.equals("1")) {
                 if (history.getIsValid().equals("2")) {
-                    hRepository.updateHistory(null, null, "3", history.getTradeNo());
+                    hRepository.updateHistory(null, null, "3",null, history.getTradeNo());
                 } else {
-                    hRepository.updateHistory(null, null, "2", history.getTradeNo());
+                    hRepository.updateHistory(null, null, "2",null, history.getTradeNo());
                 }
             } else if (status.equals("2")) {
-                hRepository.updateHistory(null, null, "3", history.getTradeNo());
+                hRepository.updateHistory(null, null, "3",null, history.getTradeNo());
             }
         }
 

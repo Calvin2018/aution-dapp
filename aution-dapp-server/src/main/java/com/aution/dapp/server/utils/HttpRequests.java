@@ -140,7 +140,7 @@ public class HttpRequests {
     HttpPost post = new HttpPost(url);
     EntityBuilder eb = EntityBuilder.create();
     eb.setContentEncoding(Consts.UTF_8.name());
-    eb.setContentType(ContentType.APPLICATION_JSON);
+    eb.setContentType(ContentType.APPLICATION_FORM_URLENCODED);
     HttpEntity entity = eb.setText(value).build();
     post.setEntity(entity);
     post.addHeader(ApiConstants.HEADER_CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());

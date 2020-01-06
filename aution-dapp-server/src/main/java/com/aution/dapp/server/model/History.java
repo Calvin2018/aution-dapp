@@ -46,6 +46,8 @@ public class History {
 	private String isIssue;
 	@Column(name="is_valid")
 	private String isValid;
+	@Column(name = "issue_trade_no")
+	private String issueTradeNo;
 
 
 	/**
@@ -78,13 +80,21 @@ public class History {
 	@Column(name = "seller_id")
 	private String sellerId;
 
+
 	/* 失效-未知
 	 * @ManyToOne(targetEntity=Goods.class,optional = true)
 	@JoinColumn(name="goods_id",referencedColumnName="goods_id")
 	private Goods goods;*/
-	
-	
-	
+
+
+	public String getIssueTradeNo() {
+		return issueTradeNo;
+	}
+
+	public void setIssueTradeNo(String issueTradeNo) {
+		this.issueTradeNo = issueTradeNo;
+	}
+
 	public Double getPayPrice() {
 		return payPrice;
 	}
@@ -220,7 +230,6 @@ public class History {
 		super();
 	}
 
-
 	@Override
 	public String toString() {
 		return "History{" +
@@ -233,6 +242,7 @@ public class History {
 				", payPrice=" + payPrice +
 				", isIssue='" + isIssue + '\'' +
 				", isValid='" + isValid + '\'' +
+				", issueTradeNo='" + issueTradeNo + '\'' +
 				", userName='" + userName + '\'' +
 				", userPhone='" + userPhone + '\'' +
 				", avatar='" + avatar + '\'' +
