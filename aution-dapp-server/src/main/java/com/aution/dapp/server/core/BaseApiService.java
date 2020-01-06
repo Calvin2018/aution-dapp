@@ -111,11 +111,13 @@ public class BaseApiService {
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 	  case ApiConstants.CODE_AUTH_INVALID:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-	   case ApiConstants.CODE_TRANSACTION_NOT_EXIST:
+	  case ApiConstants.CODE_TRANSACTION_NOT_EXIST:
 		  throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
 		case ApiConstants.CODE_TIMESTAMP_EXPIRED:
           throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
-
+       case ApiConstants.CODE_INSUFFICIENT_BALANCE_1:
+              throw new ApiException(Integer.parseInt(response.getCode()),response.getMsg(),response.getHeaders(),response.toString());
+       default:
 	  }
 	  
 	  

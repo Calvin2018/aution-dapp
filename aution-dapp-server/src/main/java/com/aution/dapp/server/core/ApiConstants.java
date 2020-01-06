@@ -47,6 +47,11 @@ public interface ApiConstants {
    */
   String CODE_INSUFFICIENT_BALANCE = "1002";
   /**
+   * 余额不足
+   */
+  String CODE_INSUFFICIENT_BALANCE_1 = "9006";
+
+  /**
    * 时间戳已过期
    */
   String CODE_TIMESTAMP_EXPIRED = "2003";
