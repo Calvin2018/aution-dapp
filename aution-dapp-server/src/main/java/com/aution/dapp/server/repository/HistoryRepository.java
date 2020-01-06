@@ -38,7 +38,7 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
 
 
    @Select("SELECT\n" +
-            "\ttrade_no,issue_trade_no\n" +
+            "\ttrade_no,issue_trade_no,\n" +
             "\th.goods_id,\n" +
             "\th.user_id,\n" +
             "\th.bid_price,\n" +
