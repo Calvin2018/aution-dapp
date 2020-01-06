@@ -104,39 +104,44 @@ public class DappService {
     /**
      * 查询交易是否存在
      */
-    public String doQueryTxStatus(String tradeNo) {
+    public Map<String, Object> doQueryTxStatus(String tradeNo) {
 
         if (Strings.isNullOrEmpty(tradeNo)) {
             throw new IllegalArgumentException("Arguments tradeNo are required");
         }
-        //0，1是对接接口返回的；3，4是自定义的；0：交易完成，1：交易中，2：交易不存在，3：接口异常
+        //0，1是对接接口返回的；2，3是自定义的；0：交易完成，1：交易中，2：交易不存在，3：接口异常
         String status = "3";
+        Map<String, Object> temp = new HashMap<>();
         try {
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
             String accessToken = appClient.getAccessToken();
-            TypeToken<RestApiResponse<Map<String, String>>> typeToken = new TypeToken<RestApiResponse<Map<String, String>>>() {
+            TypeToken<RestApiResponse<Map<String, Object>>> typeToken = new TypeToken<RestApiResponse<Map<String, Object>>>() {
             };
 
-            RestApiResponse<Map<String, String>> temp = dBaseApiService.doQueryTxStatus(
+            temp = dBaseApiService.doQueryTxStatus(
                     appClient.getConfiguration().getProperty(ApiConstants.DA_APPID), accessToken,
-                    tradeNo, typeToken, appClient);
+                    tradeNo, typeToken, appClient).getData();
 
-            if (null != temp) {
-                Map<String, String> data = temp.getData();
-                if (null != data) {
-                    status = (String) data.get("status");
-                }
+            if (null == temp) {
+                status = "2";
+                temp.put("status",status);
             }
         } catch (ApiException e) {
             //交易不存在
             if (String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TRANSACTION_NOT_EXIST)) {
                 status = "2";
+                if(null == temp){
+                    temp.put("status",status);
+                }
             }
         } catch (Exception e) {
             status = "3";
+            if(null == temp) {
+                temp.put("status", status);
+            }
         }
 
-        return status;
+        return temp;
     }
 
     /**
@@ -167,7 +172,7 @@ public class DappService {
         if (null == goods || Strings.isNullOrEmpty(goods.getUserName())) {
             throw new IllegalArgumentException("userId is not exist!");
         }
-        //TODO 带修改
+        //TODO 带修改 job_number 字段名称
         map.put("job_number", userId);
         map.put("avatar", goods.getAvatar());
         map.put("user_name", goods.getUserName());
@@ -457,11 +462,27 @@ public class DappService {
             if(Strings.isNullOrEmpty(issueTradeNo)) {
                 hRepository.updateHistory(null,null,null,businessRecord.getTradeNo(),history.getTradeNo());
             }else{
-                String status = doQueryTxStatus(issueTradeNo);
-                if (status.equals("0")) {
+                Map<String,Object> data = doQueryTxStatus(issueTradeNo);
+
+                if (data.get("status").equals("0")) {
                     hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
+
+                    String txId = String.valueOf(data.get("business_no"));
+                    Integer count = tRepository.checkTx(txId);
+                    if(count == 0) {
+                        Transaction transaction = new Transaction();
+                        String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
+                        transaction.setGoodsId(history.getGoodsId());
+                        transaction.setFromUserId(transferId);
+                        transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                        transaction.setToUserId(businessRecord.getUserNo());
+                        transaction.setTxId(txId);
+                        transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+                        transaction.setTemp("1");
+                        tRepository.insertTransaction(transaction);
+                    }
                 //交易不存在
-                } else if (status.equals("2")) {
+                } else if (data.get("status").equals("2")) {
                     businessRecords.add(businessRecord);
                 }
             }
@@ -472,9 +493,11 @@ public class DappService {
                 goodsRepository.updateGoods(goods);
             }
         }
-        dBaseApiService
+        if(businessRecords.size()>0) {
+            dBaseApiService
                     .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
                             accessToken, businessRecords, typeToken, appClient).getData();
+        }
 
     }
 
@@ -526,17 +549,31 @@ public class DappService {
         List<History> list = hRepository.checkNoPayTx();
         list.removeAll(Collections.singleton(null));
         for (History history : list) {
-            String status = doQueryTxStatus(history.getTradeNo());
+            Map<String,Object> data = doQueryTxStatus(history.getTradeNo());
             //表示交易已经完成
-            if (status.equals("0")) {
+            if (data.get("status").equals("0")) {
                 hRepository.updateHistory("1", null, "1",null, history.getTradeNo());
-            } else if (status.equals("1")) {
+                String txId = String.valueOf(data.get("business_no"));
+                Integer count = tRepository.checkTx(txId);
+                if(count == 0) {
+                    Transaction transaction = new Transaction();
+                    String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
+                    transaction.setGoodsId(history.getGoodsId());
+                    transaction.setFromUserId(history.getUserId());
+                    transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                    transaction.setToUserId(transferId);
+                    transaction.setTxId(String.valueOf(data.get("business_no")));
+                    transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+                    transaction.setTemp("1");
+                    tRepository.insertTransaction(transaction);
+                }
+            } else if (data.get("status").equals("1")) {
                 if (history.getIsValid().equals("2")) {
                     hRepository.updateHistory(null, null, "3",null, history.getTradeNo());
                 } else {
                     hRepository.updateHistory(null, null, "2",null, history.getTradeNo());
                 }
-            } else if (status.equals("2")) {
+            } else if (data.get("status").equals("2")) {
                 hRepository.updateHistory(null, null, "3",null, history.getTradeNo());
             }
         }

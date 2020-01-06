@@ -36,13 +36,13 @@ public class CheckJob implements Job{
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		
-//		try {
-//			LOG.debug("开始执行检查任务");
-//			dappService.checkNoPayTx();
-//			LOG.debug("完成执行检查任务");
-//		}catch (IOException e) {
-//			LOG.error("IOException："+e.getMessage());
-//		}
+		try {
+			LOG.debug("开始执行检查任务");
+			dappService.checkNoPayTx();
+			LOG.debug("完成执行检查任务");
+		}catch (IOException e) {
+			LOG.error("IOException："+e.getMessage());
+		}
 	}
 	
 	

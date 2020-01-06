@@ -21,6 +21,10 @@ platform:
     ignore-urls:
       - /login
       - /scoin
+      - /api/order/pay/notify
+      - /api/order/issue/single/notify
+      - /api/order/issue/notify
+      - /api/order/pay/successed
     jwt-secret-key: cesgroup-blockchain
     jwt-param: token
 

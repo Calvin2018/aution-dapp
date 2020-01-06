@@ -47,8 +47,8 @@ public class HtmlController {
 	private static AppClient appClient = AppClient.getInstance();
 	
 	@RequestMapping(value="/api/order/pay/successed")
-	public String showPaySuccessedPage(@RequestParam("trade_no")String tradeNo,@RequestParam("coin_trade_no")String coinTradeNo) {
-		LOGGER.info("查看详情");
+	public String showPaySuccessedPage() {
+		LOGGER.info("跳转到首页");
 		return "redirect:/index.html";
 	}
 	@RequestMapping(value="/login")
