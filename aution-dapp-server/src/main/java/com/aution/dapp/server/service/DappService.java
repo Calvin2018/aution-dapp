@@ -111,7 +111,7 @@ public class DappService {
         }
         //0，1是对接接口返回的；2，3是自定义的；0：交易完成，1：交易中，2：交易不存在，3：接口异常
         String status = "3";
-        Map<String, Object> temp = new HashMap<>();
+        Map<String, Object> temp = null;
         try {
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
             String accessToken = appClient.getAccessToken();
@@ -123,6 +123,7 @@ public class DappService {
                     tradeNo, typeToken, appClient).getData();
 
             if (null == temp) {
+                temp = new HashMap<>();
                 status = "2";
                 temp.put("status",status);
             }
