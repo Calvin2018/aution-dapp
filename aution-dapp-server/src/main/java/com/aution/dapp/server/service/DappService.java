@@ -478,33 +478,34 @@ public class DappService {
                 findBus.put(businessRecord.getTradeNo(),businessRecord);
             }else{
                 Map<String,String> data = doQueryTxStatus(issueTradeNo);
+                if(null != data) {
+                    if ("0".equals(data.get("status")) || "1".equals(data.get("status"))) {
+                        hRepository.updateHistory(null, "1", null, null, history.getTradeNo());
 
-                if (data.get("status").equals("0")||data.get("status").equals("1")) {
-                    hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
+                        String txId = data.get("business_no");
+                        Integer count = tRepository.checkTx(txId);
+                        if (count == 0) {
+                            Transaction transaction = new Transaction();
+                            String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
+                            transaction.setGoodsId(history.getGoodsId());
+                            transaction.setFromUserId(transferId);
+                            transaction.setPrice(Double.parseDouble(data.get("amount")));
+                            transaction.setToUserId(businessRecord.getUserNo());
+                            transaction.setTxId(txId);
 
-                    String txId = data.get("business_no");
-                    Integer count = tRepository.checkTx(txId);
-                    if(count == 0) {
-                        Transaction transaction = new Transaction();
-                        String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
-                        transaction.setGoodsId(history.getGoodsId());
-                        transaction.setFromUserId(transferId);
-                        transaction.setPrice(Double.parseDouble(data.get("amount")));
-                        transaction.setToUserId(businessRecord.getUserNo());
-                        transaction.setTxId(txId);
-
-                        try {
-                            transaction.setTxTime(sdf.parse(data.get("last_time")).getTime());
-                        } catch (ParseException e) {
-                            LOGGER.error(e.getMessage());
+                            try {
+                                transaction.setTxTime(sdf.parse(data.get("last_time")).getTime());
+                            } catch (ParseException e) {
+                                LOGGER.error(e.getMessage());
+                            }
+                            transaction.setTemp("1");
+                            tRepository.insertTransaction(transaction);
                         }
-                        transaction.setTemp("1");
-                        tRepository.insertTransaction(transaction);
+                        //交易不存在
+                    } else if (data.get("status").equals("2")) {
+                        businessRecords.add(businessRecord);
+                        findBus.put(businessRecord.getTradeNo(), businessRecord);
                     }
-                //交易不存在
-                } else if (data.get("status").equals("2")) {
-                    businessRecords.add(businessRecord);
-                    findBus.put(businessRecord.getTradeNo(),businessRecord);
                 }
             }
 
