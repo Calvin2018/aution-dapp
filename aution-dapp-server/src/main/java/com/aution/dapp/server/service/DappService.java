@@ -69,6 +69,8 @@ public class DappService {
 
     private static AppClient appClient = AppClient.getInstance();
 
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     /**
      * 获取用户余额 不提供
      */
@@ -104,18 +106,18 @@ public class DappService {
     /**
      * 查询交易是否存在
      */
-    public Map<String, Object> doQueryTxStatus(String tradeNo) {
+    public Map<String, String> doQueryTxStatus(String tradeNo) {
 
         if (Strings.isNullOrEmpty(tradeNo)) {
             throw new IllegalArgumentException("Arguments tradeNo are required");
         }
         //0，1是对接接口返回的；2，3是自定义的；0：交易完成，1：交易中，2：交易不存在，3：接口异常
         String status = "3";
-        Map<String, Object> temp = null;
+        Map<String, String> temp = null;
         try {
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
             String accessToken = appClient.getAccessToken();
-            TypeToken<RestApiResponse<Map<String, Object>>> typeToken = new TypeToken<RestApiResponse<Map<String, Object>>>() {
+            TypeToken<RestApiResponse<Map<String, String>>> typeToken = new TypeToken<RestApiResponse<Map<String, String>>>() {
             };
 
             temp = dBaseApiService.doQueryTxStatus(
@@ -394,6 +396,8 @@ public class DappService {
         }
     }
 
+
+
     public void bidCompletedMethod(List<History> historyList, String gId, String sellerId,
             Double currentPrice) throws IOException {
 
@@ -473,22 +477,27 @@ public class DappService {
                 businessRecords.add(businessRecord);
                 findBus.put(businessRecord.getTradeNo(),businessRecord);
             }else{
-                Map<String,Object> data = doQueryTxStatus(issueTradeNo);
+                Map<String,String> data = doQueryTxStatus(issueTradeNo);
 
                 if (data.get("status").equals("0")||data.get("status").equals("1")) {
                     hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
 
-                    String txId = String.valueOf(data.get("business_no"));
+                    String txId = data.get("business_no");
                     Integer count = tRepository.checkTx(txId);
                     if(count == 0) {
                         Transaction transaction = new Transaction();
                         String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
                         transaction.setGoodsId(history.getGoodsId());
                         transaction.setFromUserId(transferId);
-                        transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                        transaction.setPrice(Double.parseDouble(data.get("amount")));
                         transaction.setToUserId(businessRecord.getUserNo());
                         transaction.setTxId(txId);
-                        transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+
+                        try {
+                            transaction.setTxTime(sdf.parse(data.get("last_time")).getTime());
+                        } catch (ParseException e) {
+                            LOGGER.error(e.getMessage());
+                        }
                         transaction.setTemp("1");
                         tRepository.insertTransaction(transaction);
                     }
@@ -585,7 +594,7 @@ public class DappService {
         List<History> list = hRepository.checkNoPayTx();
         list.removeAll(Collections.singleton(null));
         for (History history : list) {
-            Map<String,Object> data = doQueryTxStatus(history.getTradeNo());
+            Map<String,String> data = doQueryTxStatus(history.getTradeNo());
             //表示交易已经完成
             if (data.get("status").equals("0")) {
                 hRepository.updateHistory("1", null, "1",null, history.getTradeNo());
@@ -596,10 +605,10 @@ public class DappService {
                     String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
                     transaction.setGoodsId(history.getGoodsId());
                     transaction.setFromUserId(history.getUserId());
-                    transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                    transaction.setPrice(Double.parseDouble(data.get("amount")));
                     transaction.setToUserId(transferId);
-                    transaction.setTxId(String.valueOf(data.get("business_no")));
-                    transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+                    transaction.setTxId(data.get("business_no"));
+                    transaction.setTxTime(Long.parseLong(data.get("last_time")));
                     transaction.setTemp("1");
                     tRepository.insertTransaction(transaction);
                 }
