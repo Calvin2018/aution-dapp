@@ -224,7 +224,8 @@ public class DBaseApiService extends BaseApiService{
 	 * @return
 	 * @throws IOException
 	 */
-	public <T> RestApiResponse<T> doIssue(String appid,String accessToken,
+	public <T> RestApiResponse<T>
+	doIssue(String appid,String accessToken,
 			List<BusinessRecord> businessRecords,TypeToken<RestApiResponse<T>> typeToken,AppClient appClient) throws IOException{
 
 		if(Strings.isNullOrEmpty(appid)||null == businessRecords) {

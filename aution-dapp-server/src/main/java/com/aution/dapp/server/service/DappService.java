@@ -69,6 +69,8 @@ public class DappService {
 
     private static AppClient appClient = AppClient.getInstance();
 
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     /**
      * 获取用户余额 不提供
      */
@@ -104,18 +106,18 @@ public class DappService {
     /**
      * 查询交易是否存在
      */
-    public Map<String, Object> doQueryTxStatus(String tradeNo) {
+    public Map<String, String> doQueryTxStatus(String tradeNo) {
 
         if (Strings.isNullOrEmpty(tradeNo)) {
             throw new IllegalArgumentException("Arguments tradeNo are required");
         }
         //0，1是对接接口返回的；2，3是自定义的；0：交易完成，1：交易中，2：交易不存在，3：接口异常
         String status = "3";
-        Map<String, Object> temp = null;
+        Map<String, String> temp = null;
         try {
             DBaseApiService dBaseApiService = appClient.getdBaseApiService();
             String accessToken = appClient.getAccessToken();
-            TypeToken<RestApiResponse<Map<String, Object>>> typeToken = new TypeToken<RestApiResponse<Map<String, Object>>>() {
+            TypeToken<RestApiResponse<Map<String, String>>> typeToken = new TypeToken<RestApiResponse<Map<String, String>>>() {
             };
 
             temp = dBaseApiService.doQueryTxStatus(
@@ -132,12 +134,14 @@ public class DappService {
             if (String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TRANSACTION_NOT_EXIST)) {
                 status = "2";
                 if(null == temp){
+                    temp = new HashMap<>();
                     temp.put("status",status);
                 }
             }
         } catch (Exception e) {
             status = "3";
             if(null == temp) {
+                temp = new HashMap<>();
                 temp.put("status", status);
             }
         }
@@ -213,13 +217,13 @@ public class DappService {
             maxPrice = temp.getStartPrice();
             if (price < maxPrice) {
                 throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),
-                        "Current price is higher than  bid price");
+                        "竞拍价小于当前价，请重新选择竞拍价");
             }
         } else {
             maxPrice = temp.getCurrentPrice();
             if (price <= maxPrice) {
                 throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),
-                        "Current price is higher than  bid price");
+                        "竞拍价小于当前价，请重新选择竞拍价");
             }
         }
         Double bidPrice = price;
@@ -392,8 +396,11 @@ public class DappService {
         }
     }
 
+
+
     public void bidCompletedMethod(List<History> historyList, String gId, String sellerId,
             Double currentPrice) throws IOException {
+
 
         Goods goods = new Goods();
         goods.setGoodsId(gId);
@@ -408,6 +415,8 @@ public class DappService {
 
         Properties configuration = appClient.getConfiguration();
         DBaseApiService dBaseApiService = appClient.getdBaseApiService();
+
+        Map<String,BusinessRecord> findBus = new HashMap<>();
 
         TypeToken<RestApiResponse<List<Map<String, String>>>> typeToken = new TypeToken<RestApiResponse<List<Map<String, String>>>>() {
         };
@@ -434,7 +443,7 @@ public class DappService {
             }else if(null == isIssue || isIssue.equals("0")){
                 businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
             }
-            businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
+            //businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
             String issueTradeNo = history.getIssueTradeNo();
             if(Strings.isNullOrEmpty(issueTradeNo)) {
                 businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
@@ -449,9 +458,12 @@ public class DappService {
                     msgRepository.insertMessage(history.getUserId(), gId, '3', '0');
                     goods.setBuyerId(history.getUserId());
                     goods.setStatus(2);
+                    businessRecord.setUserNo(sellerId);
                 }
-
-                businessRecord.setUserNo(sellerId);
+                //防止 当商品信息更新了，但是下发失败
+                if(history.getUserId().equals(history.getBuyerId())){
+                    businessRecord.setUserNo(sellerId);
+                }
                 flag = false;
             } else {
                 //竞拍失败
@@ -462,29 +474,37 @@ public class DappService {
 
             if(Strings.isNullOrEmpty(issueTradeNo)) {
                 hRepository.updateHistory(null,null,null,businessRecord.getTradeNo(),history.getTradeNo());
+                businessRecords.add(businessRecord);
+                findBus.put(businessRecord.getTradeNo(),businessRecord);
             }else{
-                Map<String,Object> data = doQueryTxStatus(issueTradeNo);
+                Map<String,String> data = doQueryTxStatus(issueTradeNo);
 
-                if (data.get("status").equals("0")) {
+                if (data.get("status").equals("0")||data.get("status").equals("1")) {
                     hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
 
-                    String txId = String.valueOf(data.get("business_no"));
+                    String txId = data.get("business_no");
                     Integer count = tRepository.checkTx(txId);
                     if(count == 0) {
                         Transaction transaction = new Transaction();
                         String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
                         transaction.setGoodsId(history.getGoodsId());
                         transaction.setFromUserId(transferId);
-                        transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                        transaction.setPrice(Double.parseDouble(data.get("amount")));
                         transaction.setToUserId(businessRecord.getUserNo());
                         transaction.setTxId(txId);
-                        transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+
+                        try {
+                            transaction.setTxTime(sdf.parse(data.get("last_time")).getTime());
+                        } catch (ParseException e) {
+                            LOGGER.error(e.getMessage());
+                        }
                         transaction.setTemp("1");
                         tRepository.insertTransaction(transaction);
                     }
                 //交易不存在
                 } else if (data.get("status").equals("2")) {
                     businessRecords.add(businessRecord);
+                    findBus.put(businessRecord.getTradeNo(),businessRecord);
                 }
             }
 
@@ -495,9 +515,33 @@ public class DappService {
             }
         }
         if(businessRecords.size()>0) {
-            dBaseApiService
+            List<Map<String, String>> data = dBaseApiService
                     .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
                             accessToken, businessRecords, typeToken, appClient).getData();
+
+            if(null != data) {
+                for (Map<String, String> temp : data) {
+                    String tradeNo = temp.get("trade_no");
+                    String status = temp.get("status");
+                    String businessNo = temp.get("business_no");
+                    String statusFlag = "-1";
+                    if(!statusFlag.equals(status)){
+                        BusinessRecord br = findBus.get(tradeNo);
+                        LOGGER.debug("start update table t_history,tradeNo: {}", tradeNo);
+                        hRepository.updateHistory(null, "1", "1",null, tradeNo);
+                        LOGGER.debug("finnish update table t_history,tradeNo: {}", tradeNo);
+                        Transaction transaction = new Transaction();
+                        String transferId = configuration.getProperty(ApiConstants.DA_APPID);
+                        transaction.setGoodsId(gId);
+                        transaction.setFromUserId(transferId);
+                        transaction.setPrice(br.getAmount().doubleValue());
+                        transaction.setToUserId(br.getUserNo());
+                        transaction.setTxId(businessNo);
+                        transaction.setTxTime(System.currentTimeMillis()/1000);
+                        tRepository.insertTransaction(transaction);
+                    }
+                }
+            }
         }
 
     }
@@ -550,7 +594,7 @@ public class DappService {
         List<History> list = hRepository.checkNoPayTx();
         list.removeAll(Collections.singleton(null));
         for (History history : list) {
-            Map<String,Object> data = doQueryTxStatus(history.getTradeNo());
+            Map<String,String> data = doQueryTxStatus(history.getTradeNo());
             //表示交易已经完成
             if (data.get("status").equals("0")) {
                 hRepository.updateHistory("1", null, "1",null, history.getTradeNo());
@@ -561,10 +605,10 @@ public class DappService {
                     String transferId = appClient.getConfiguration().getProperty(ApiConstants.DA_APPID);
                     transaction.setGoodsId(history.getGoodsId());
                     transaction.setFromUserId(history.getUserId());
-                    transaction.setPrice(Double.parseDouble(data.get("amount").toString()));
+                    transaction.setPrice(Double.parseDouble(data.get("amount")));
                     transaction.setToUserId(transferId);
-                    transaction.setTxId(String.valueOf(data.get("business_no")));
-                    transaction.setTxTime(Long.parseLong(data.get("last_time").toString()));
+                    transaction.setTxId(data.get("business_no"));
+                    transaction.setTxTime(Long.parseLong(data.get("last_time")));
                     transaction.setTemp("1");
                     tRepository.insertTransaction(transaction);
                 }
