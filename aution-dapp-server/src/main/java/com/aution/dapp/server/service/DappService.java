@@ -217,13 +217,13 @@ public class DappService {
             maxPrice = temp.getStartPrice();
             if (price < maxPrice) {
                 throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),
-                        "Current price is higher than  bid price");
+                        "竞拍价小于当前价，请重新选择竞拍价");
             }
         } else {
             maxPrice = temp.getCurrentPrice();
             if (price <= maxPrice) {
                 throw new ApiException(Integer.parseInt(ApiConstants.CODE_PRICE_ERROR),
-                        "Current price is higher than  bid price");
+                        "竞拍价小于当前价，请重新选择竞拍价");
             }
         }
         Double bidPrice = price;
