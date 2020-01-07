@@ -1,16 +1,34 @@
 # 日志配置
-logging.level: 
+logging.level:
   root: INFO
 # 系统配置
 # 服务器配置
 server:
-  port: 8084
+  port: 8080
   servlet:
     context-path: /dapp
 #框架配置
 platform:
+  shiro:
+    max-session: 10
+    jcaptcha-enable: false
+    session-timeout: 30
+    login-url: /login
+    submit-url: /login
+    success-url: /index.html
+    kickout-last: false
+    logout-url: /logout
+    ignore-urls:
+      - /login
+      - /scoin
+      - /api/order/pay/notify
+      - /api/order/issue/single/notify
+      - /api/order/issue/notify
+      - /api/order/pay/successed
+    jwt-secret-key: cesgroup-blockchain
+    jwt-param: token
 
-# 系统管理平台配置
+  # 系统管理平台配置
   authsystem:
     url: http://10.250.218.104:8081/authsys_test/
     system-code: blockchain
@@ -19,69 +37,73 @@ platform:
 #      initialize-schema: always
 # Spring原生配置
 spring:
-#servlet配置
+  #servlet配置
   servlet:
-      multipart:
-         enabled: true
-         max-file-size: 20MB
-         max-request-size: 200MB
-### Redis配置
-#  redis:
-#    host: localhost
-#    port: 6379
-#    password: 123456
-#    jedis:
-#      pool:
-#        max-active: 8
-#        max-wait: 0
-#        max-idle: 400
-#        min-idle: 0
-#    timeout: 30s
-# 数据库配置
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 200MB
+  ### Redis配置
+  #  redis:
+  #    host: localhost
+  #    port: 6379
+  #    password: 123456
+  #    jedis:
+  #      pool:
+  #        max-active: 8
+  #        max-wait: 0
+  #        max-idle: 400
+  #        min-idle: 0
+  #    timeout: 30s
+  # 数据库配置
   datasource:
     druid:
       driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://10.250.218.101:3306/aution-dapp?useSSL=false&characterEncoding=UTF-8
+      url: jdbc:mysql://10.250.218.104:3306/aution-dapp?useSSL=false&characterEncoding=UTF-8
+      #url: jdbc:mysql://localhost:3306/aution-dapp?useUnicode=true&characterEncoding=utf-8
       username: root
       password: cimysqltest
       filter:
         slf4j:
           enabled: true
-quartz:
-  job:
-    issue:
-      cronExpression:  0 0/5 * * * ?
-## Cache配置
-#  cache:
-#    redis:
-#      time-to-live: 300s
-# Freemarker配置
-  freemarker: 
-#    #req访问request
-#    request-context-attribute: req
+
+  ## Cache配置
+  #  cache:
+  #    redis:
+  #      time-to-live: 300s
+  # Freemarker配置
+  freemarker:
+    #    #req访问request
+    #    request-context-attribute: req
     #后缀名，默认为.ftl
     suffix: .html
-#    #Content-Type默认为text/html
-#    content-type: text/html
-#    #缓存配置
-#    cache: false 
-    #模板加载路径，默认classpath:/templates/ 
+    #    #Content-Type默认为text/html
+    #    content-type: text/html
+    #    #缓存配置
+    #    cache: false
+    #模板加载路径，默认classpath:/templates/
     template-loader-path: classpath:/resources/
 #    #编码格式
-#    charset: UTF-8 
+#    charset: UTF-8
 #    settings:
 #      #数字格式化，无小数点
 #      number_format: '0.##'
 ## Thymeleaf配置
-#  thymeleaf: 
-#    #模板加载路径，默认classpath:/templates/ 
-#    prefix: classpath:/resources/ 
+#  thymeleaf:
+#    #模板加载路径，默认classpath:/templates/
+#    prefix: classpath:/resources/
 #    #后缀名，默认为.html
 #    suffix: .xhtml
 ##    #缓存配置
-##    cache: false 
+##    cache: false
 ##    #编码格式
-##    encoding: UTF-8 
+##    encoding: UTF-8
 ##    servlet:
 ##      #Content-Type默认为text/html
 ##      content-type: text/html
+quartz:
+  job:
+    issue:
+      cronExpression: 0 0 0/1 * * ? *
+    check:
+      cronExpression: 0 30 0/1 * * ? *
