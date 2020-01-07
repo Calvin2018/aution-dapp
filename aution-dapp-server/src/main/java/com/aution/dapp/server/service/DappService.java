@@ -397,6 +397,7 @@ public class DappService {
     public void bidCompletedMethod(List<History> historyList, String gId, String sellerId,
             Double currentPrice) throws IOException {
 
+
         Goods goods = new Goods();
         goods.setGoodsId(gId);
 
@@ -410,6 +411,8 @@ public class DappService {
 
         Properties configuration = appClient.getConfiguration();
         DBaseApiService dBaseApiService = appClient.getdBaseApiService();
+
+        Map<String,BusinessRecord> findBus = new HashMap<>();
 
         TypeToken<RestApiResponse<List<Map<String, String>>>> typeToken = new TypeToken<RestApiResponse<List<Map<String, String>>>>() {
         };
@@ -436,7 +439,7 @@ public class DappService {
             }else if(null == isIssue || isIssue.equals("0")){
                 businessRecord.setAmount(new BigDecimal(history.getBidPrice()));
             }
-            businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
+            //businessRecord.setNotifyUrl(configuration.getProperty(ApiConstants.DA_ISSUE_NOTIFY_URL));
             String issueTradeNo = history.getIssueTradeNo();
             if(Strings.isNullOrEmpty(issueTradeNo)) {
                 businessRecord.setTradeNo(GenerateNoUtil.generateTradeNo());
@@ -467,10 +470,12 @@ public class DappService {
 
             if(Strings.isNullOrEmpty(issueTradeNo)) {
                 hRepository.updateHistory(null,null,null,businessRecord.getTradeNo(),history.getTradeNo());
+                businessRecords.add(businessRecord);
+                findBus.put(businessRecord.getTradeNo(),businessRecord);
             }else{
                 Map<String,Object> data = doQueryTxStatus(issueTradeNo);
 
-                if (data.get("status").equals("0")) {
+                if (data.get("status").equals("0")||data.get("status").equals("1")) {
                     hRepository.updateHistory(null, "1", null,null, history.getTradeNo());
 
                     String txId = String.valueOf(data.get("business_no"));
@@ -490,6 +495,7 @@ public class DappService {
                 //交易不存在
                 } else if (data.get("status").equals("2")) {
                     businessRecords.add(businessRecord);
+                    findBus.put(businessRecord.getTradeNo(),businessRecord);
                 }
             }
 
@@ -500,9 +506,33 @@ public class DappService {
             }
         }
         if(businessRecords.size()>0) {
-            dBaseApiService
+            List<Map<String, String>> data = dBaseApiService
                     .doIssue(appClient.getConfiguration().getProperty(ApiConstants.DA_APPID),
                             accessToken, businessRecords, typeToken, appClient).getData();
+
+            if(null != data) {
+                for (Map<String, String> temp : data) {
+                    String tradeNo = temp.get("trade_no");
+                    String status = temp.get("status");
+                    String businessNo = temp.get("business_no");
+                    String statusFlag = "-1";
+                    if(!statusFlag.equals(status)){
+                        BusinessRecord br = findBus.get(tradeNo);
+                        LOGGER.debug("start update table t_history,tradeNo: {}", tradeNo);
+                        hRepository.updateHistory(null, "1", "1",null, tradeNo);
+                        LOGGER.debug("finnish update table t_history,tradeNo: {}", tradeNo);
+                        Transaction transaction = new Transaction();
+                        String transferId = configuration.getProperty(ApiConstants.DA_APPID);
+                        transaction.setGoodsId(gId);
+                        transaction.setFromUserId(transferId);
+                        transaction.setPrice(br.getAmount().doubleValue());
+                        transaction.setToUserId(br.getUserNo());
+                        transaction.setTxId(businessNo);
+                        transaction.setTxTime(System.currentTimeMillis()/1000);
+                        tRepository.insertTransaction(transaction);
+                    }
+                }
+            }
         }
 
     }
