@@ -72,14 +72,36 @@ public class  GoodsService{
    * @return
    */
   public List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(String priceSort,String timeSort,Integer type,Pageable pageable){
+	  String asc = "ASC";
+	  String desc = "DESC";
 	  if(Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)) {
 		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time").descending());
 	  }else if(!Strings.isNullOrEmpty(priceSort)&&!Strings.isNullOrEmpty(timeSort)){
-		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time","start_price").descending());
+		  Sort.Direction priceS = null;
+		  Sort.Direction timeS = null;
+		  if(priceSort.toUpperCase().equals(asc)||timeSort.toUpperCase().equals(asc)){
+			   priceS = Sort.Direction.ASC;
+			  timeS = Sort.Direction.ASC;
+		  }else if(priceSort.toUpperCase().equals(desc)||timeSort.toUpperCase().equals(desc)){
+			  priceS = Sort.Direction.DESC;
+			  timeS = Sort.Direction.DESC;
+		  }
+		  Sort sort = new Sort(timeS, "end_time")
+				  .and(new Sort(priceS, "start_price"));
+		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),sort);
 	  }else if(Strings.isNullOrEmpty(priceSort)&&!Strings.isNullOrEmpty(timeSort)){
-		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("end_time").descending());
+		  if(timeSort.toUpperCase().equals(asc)) {
+			  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("end_time").ascending());
+		  }else{
+			  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("end_time").descending());
+		  }
 	  }else if(!Strings.isNullOrEmpty(priceSort)&&Strings.isNullOrEmpty(timeSort)){
-		  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_price").descending());
+	  	  if(priceSort.toUpperCase().equals(asc)){
+			  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_price").ascending());
+		  }else{
+			  pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),Sort.by("start_price").descending());
+		  }
+
 	  }
 	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,pageable);
   }

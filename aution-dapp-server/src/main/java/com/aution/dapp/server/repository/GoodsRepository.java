@@ -13,6 +13,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -64,11 +66,12 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   
   @InsertProvider(type=DappProvider.class,method="insertGoods")
   Integer insertGoods(@RequestBody Goods goods);
-  
+
+  @Transactional(propagation= Propagation.REQUIRES_NEW)
   @UpdateProvider(type=DappProvider.class,method="updateGoods")
   Integer updateGoods(@RequestBody Goods goods);
   
   @Delete("delete from t_goods where goods_id = #{gId}")
   Integer deleteGoodsByGid(@Param("gId")String gId);  
-  
+
 }
