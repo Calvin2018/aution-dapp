@@ -17,7 +17,7 @@ import java.util.*;
 
 
 @Configuration
-@EnableShiroJWT(EnableShiroJWT.Mode.SSO)
+//@EnableShiroJWT(EnableShiroJWT.Mode.SSO)
 public class ShiroConfiguration  extends AbstractShiroBaseWebConfiguration{
 
 
@@ -39,29 +39,30 @@ public class ShiroConfiguration  extends AbstractShiroBaseWebConfiguration{
         return sessionManager;
 
     }
-    @Bean
-    public UserJwtRealm userJwtRealm() {
-        UserJwtRealm realm = new UserJwtRealm();
-        realm.setSecretKey(properties.getJwtSecretKey());
-        //使用缓存
-        realm.setCachingEnabled(true);
-        realm.setCacheManager(cacheManager);
-        realm.setAuthenticationCachingEnabled(true);
-        realm.setAuthenticationCacheName(Optional.ofNullable(properties.getAuthenticationCache())
-                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHENTICATION));
-        realm.setAuthorizationCachingEnabled(true);
-        realm.setAuthorizationCacheName(Optional.ofNullable(properties.getAuthorizationCache())
-                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHORIZATION));
-        return realm;
-    }
+//    @Bean
+//    public UserJwtRealm userJwtRealm() {
+//        UserJwtRealm realm = new UserJwtRealm();
+//        realm.setSecretKey(properties.getJwtSecretKey());
+//        //使用缓存
+//        realm.setCachingEnabled(true);
+//        realm.setCacheManager(cacheManager);
+//        realm.setAuthenticationCachingEnabled(true);
+//        realm.setAuthenticationCacheName(Optional.ofNullable(properties.getAuthenticationCache())
+//                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHENTICATION));
+//        realm.setAuthorizationCachingEnabled(true);
+//        realm.setAuthorizationCacheName(Optional.ofNullable(properties.getAuthorizationCache())
+//                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHORIZATION));
+//        return realm;
+//    }
     //权限管理，配置主要是Realm的管理认证
     @Bean(value = "securityManager")
     public DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        List<Realm> realms = new ArrayList<>();
-        realms.add(myShiroRealm());
-        realms.add(userJwtRealm());
-        securityManager.setRealms(realms);
+//        List<Realm> realms = new ArrayList<>();
+//        realms.add(myShiroRealm());
+//        realms.add(userJwtRealm());
+//        securityManager.setRealms(realms);
+        securityManager.setRealm(myShiroRealm());
         securityManager.setSessionManager(sessionManager());
         return securityManager;
     }

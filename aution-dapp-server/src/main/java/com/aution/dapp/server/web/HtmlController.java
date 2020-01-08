@@ -70,7 +70,7 @@ public class HtmlController {
 
 		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
 		if(!state.equals(dappState)){
-			return "redirect:unauthorized.html";
+			return "redirect:/unauthorized.html";
 		}
 
 		LOGGER.info("code: {}",code);
@@ -102,7 +102,7 @@ public class HtmlController {
 		}
 		
 
-		return "redirect:index.html";
+		return "redirect:/index.html";
 		
 	}
 	

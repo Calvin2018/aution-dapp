@@ -381,6 +381,7 @@ public class  GoodsService{
 			fileName = (gId+i)+"." + temp[temp.length-1];
 			
 			tempFile = new File(path,fileName);
+
 			out = new FileOutputStream(tempFile); 
 			bufferedOutputStream = new BufferedOutputStream(out);
 			byte[] buff = new byte[1024];
@@ -390,7 +391,8 @@ public class  GoodsService{
 			}
 			bufferedOutputStream.flush();
 			out.flush();
-			
+
+			Runtime.getRuntime().exec("chmod 644 "+tempFile.getAbsolutePath());
 			
 			imgUrl = imgUrl.append(fileName);
 			imgUrl = imgUrl.append(";");

@@ -12,6 +12,7 @@ public interface ApiConstants {
   String UTF_8 = "UTF-8";
   String DA_ARG_DELIMITER = ";";
   String DA_IMG_FILENAME = "dapp.img.filename";
+  String DA_DAPP_INDEX_URL = "dapp.index.url";
 
   String DA_COMMA = ",";
   String DA_SEMICOLON = ";";
