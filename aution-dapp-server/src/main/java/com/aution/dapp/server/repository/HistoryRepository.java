@@ -122,8 +122,8 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   List<History> checkNoPayTx();
 
   @Select("SELECT h.trade_no,h.issue_trade_no,temp1.goods_id,temp1.user_id,temp1.bid_price,u.seller_id,u.current_price,u.buyer_id,temp2.is_issue,h.pay_price FROM (\n" +
-          "SELECT user_id,goods_id,Max(bid_price) bid_price FROM t_history h GROUP BY user_id,goods_id) temp1 LEFT JOIN t_history h ON h.user_id=temp1.user_id AND h.goods_id=temp1.goods_id AND temp1.bid_price=h.bid_price RIGHT JOIN (\n" +
+          "SELECT user_id,goods_id,Max(bid_price) bid_price FROM t_history h WHERE h.temp='1' GROUP BY user_id,goods_id) temp1 LEFT JOIN t_history h ON h.user_id=temp1.user_id AND h.goods_id=temp1.goods_id AND temp1.bid_price=h.bid_price LEFT JOIN (\n" +
           "SELECT user_id,goods_id,Max(is_issue) is_issue FROM t_history WHERE temp='1' GROUP BY user_id,goods_id) temp2 ON temp1.goods_id=temp2.goods_id AND temp1.user_id=temp2.user_id LEFT JOIN (\n" +
-          "SELECT goods_id,seller_id,current_price,buyer_id,end_time FROM t_goods) u ON u.goods_id=temp1.goods_id WHERE u.end_time< #{endTime} AND h.temp='1' AND h.is_issue='0' ORDER BY goods_id,bid_price DESC")
+          "SELECT goods_id,seller_id,current_price,buyer_id,end_time FROM t_goods) u ON u.goods_id=temp1.goods_id WHERE u.end_time< #{endTime} AND h.is_issue='0' ORDER BY goods_id,bid_price DESC")
   List<History> findTransactionForNoIssueOrder(@Param("endTime")Long endTime);
 }
