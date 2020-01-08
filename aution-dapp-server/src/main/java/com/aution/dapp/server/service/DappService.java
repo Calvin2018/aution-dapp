@@ -241,7 +241,7 @@ public class DappService {
         String accessToken = appClient.getAccessToken();
         String tradeNo = GenerateNoUtil.generateTradeNo();
         PayRequest payRequest = new PayRequest();
-        payRequest.setAmount(new BigDecimal(price));
+        payRequest.setAmount(new BigDecimal(price).setScale(2, BigDecimal.ROUND_HALF_DOWN));
         // 支付结果提醒url 必填
         payRequest.setNotifyUrl(configuration.getProperty(ApiConstants.DA_NOTIFY_URL));
         payRequest.setUserNo(userId);
@@ -539,6 +539,7 @@ public class DappService {
                         transaction.setToUserId(br.getUserNo());
                         transaction.setTxId(businessNo);
                         transaction.setTxTime(System.currentTimeMillis()/1000);
+                        transaction.setTemp("1");
                         tRepository.insertTransaction(transaction);
                     }
                 }
@@ -609,7 +610,11 @@ public class DappService {
                     transaction.setPrice(Double.parseDouble(data.get("amount")));
                     transaction.setToUserId(transferId);
                     transaction.setTxId(data.get("business_no"));
-                    transaction.setTxTime(Long.parseLong(data.get("last_time")));
+                    try {
+                        transaction.setTxTime(sdf.parse(data.get("last_time")).getTime());
+                    } catch (ParseException e) {
+                        LOGGER.info("ParseException error:checkNoPayTx");
+                    }
                     transaction.setTemp("1");
                     tRepository.insertTransaction(transaction);
                 }

@@ -1,6 +1,7 @@
 package com.aution.dapp.server.core.internal;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.apache.http.client.CookieStore;
@@ -160,8 +161,12 @@ public class DBaseApiService extends BaseApiService{
 		String jsonParam = JsonUtil.toSnakeJson(payRequest);
 		
 		@SuppressWarnings("unchecked")
-		Map<String, String> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
-		
+		Map<String, Object> params = JsonUtil.toObjectFromSnakeJson(jsonParam, Map.class);
+		if(null != params) {
+			Object amount = params.get("amount");
+		    double amountTemp = Double.parseDouble(amount.toString());
+            params.put("amount", new BigDecimal(amountTemp).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+		}
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 		Map<String, String> signParam = new LinkedHashMap<>();
         signParam.put("_body", jsonParam);	

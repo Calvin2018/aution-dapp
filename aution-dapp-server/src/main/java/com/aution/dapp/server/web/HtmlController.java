@@ -66,7 +66,7 @@ public class HtmlController {
 
 
 	@RequestMapping(value="/scoin",method=RequestMethod.GET)
-	public  String getCode(@RequestParam("code")String code, @RequestParam("state")String state, HttpServletRequest request) throws IOException {
+	public  String getCode(@RequestParam("code")String code, @RequestParam("state")String state) throws IOException {
 
 		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
 		if(!state.equals(dappState)){
@@ -105,49 +105,5 @@ public class HtmlController {
 		return "redirect:index.html";
 		
 	}
-	private static final Log LOG = LogFactory.getLog(HtmlController.class);
-	@RequestMapping(value = "/test",method = RequestMethod.GET)
-	public void test(){
-		try {
-			//1、job
-			LOG.debug("开始执行退款");
-			List<List<History>> list = dappService.findHistoryForNoIssueOrder();
-			if(null != list) {
-				list.removeAll(Collections.singleton(null));
-			}
-			if(null == list || list.size() == 0) {
-				LOG.debug("未找到需要退款记录");
-				return ;
-			}
-			for(List<History> temp:list) {
-
-				dappService.bidCompletedMethod(temp, temp.get(0).getGoodsId(), temp.get(0).getSellerId(),temp.get(0).getCurrentPrice());
-			}
-			LOG.debug("完成执行退款操作");
-		}catch(ApiException e) {
-			if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_INSUFFICIENT_BALANCE)) {
-				LOG.debug("定时任务NoIssueJob下发失败,账号余额不足");
-			}
-		}catch (IOException e) {
-			LOG.error("IOException："+e.getMessage());
-		}
-	}
-
-    @RequestMapping(value = "/test1",method = RequestMethod.GET)
-    public void test1(){
-       String test = "_body=[{\"user_no\":\"10012019102102386143256887992328\",\"trade_no\":\"aa055b1f-b26c-471c-9d5a-b7ac554a72da\",\"amount\":2,\"notify_url\":\"http://172.16.214.200:8080/dapp/api/order/issue/notify\"}]&access_token=fd0a3c52c0ed4c5ea5a07860883cb0e5&appid=xft98nu5rp8px848dqbwyw5liiz&appsecret=f5bd32e2e43c4667b081a5401e85a4c8&timestamp=1577709344";
-       String sign =  DigestUtils.sha1Hex(test);
-       System.out.println(sign);
-        Map<String, String> signParam = new LinkedHashMap<>();
-        signParam.put("_body", "[{\"user_no\":\"10012019102102386143256887992328\",\"trade_no\":\"aa055b1f-b26c-471c-9d5a-b7ac554a72da\",\"amount\":2,\"notify_url\":\"http://172.16.214.200:8080/dapp/api/order/issue/notify\"}]");
-        signParam.put("access_token", "fd0a3c52c0ed4c5ea5a07860883cb0e5");
-        signParam.put("appid", "xft98nu5rp8px848dqbwyw5liiz");
-        signParam.put("appsecret", "f5bd32e2e43c4667b081a5401e85a4c8");
-        signParam.put("timestamp", "1577709344");
-        String sign1 = SignUtil.createCommonSign(signParam);
-        System.out.println(sign1);
-        System.out.println(sign.equals(sign1));
-    }
-
 	
 }

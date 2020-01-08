@@ -50,6 +50,9 @@ public class DappController {
 				result.setCode(ApiConstants.CODE_TIMT_OUT);
 			}
 			result.setData(data);
+			if(null != data.get("msg")) {
+				result.setMsg(data.get("msg").toString());
+			}
 		}catch(IllegalArgumentException e) {
 			result.setCode(ApiConstants.CODE_ARGS_ERROR);
 			result.setMsg(e.getMessage());
