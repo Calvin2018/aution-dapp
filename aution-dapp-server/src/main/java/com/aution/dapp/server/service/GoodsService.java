@@ -375,12 +375,11 @@ public class  GoodsService{
 			
 			inputStream = file.getInputStream();
 			bufferedInputStream = new BufferedInputStream(inputStream);
-			File tempFile = new File(path,fileName);
 			String[] temp = fileName.split("\\.");
 			
 			fileName = (gId+i)+"." + temp[temp.length-1];
-			
-			tempFile = new File(path,fileName);
+
+			File tempFile = new File(path,fileName);
 
 			out = new FileOutputStream(tempFile); 
 			bufferedOutputStream = new BufferedOutputStream(out);
