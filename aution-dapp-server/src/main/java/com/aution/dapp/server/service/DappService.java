@@ -378,12 +378,10 @@ public class DappService {
         Goods goods = new Goods();
         goods.setGoodsId(gId);
         if (null != historyList && historyList.size() > 0) {
-            //设置商品完成
-            goods.setStatus(2);
-            goodsRepository.updateGoods(goods);
-            //推迟5分钟下发
+
+            //推迟10秒下发
             try {
-                Thread.sleep(1000*60*5L);
+                Thread.sleep(1000*10L);
             } catch (InterruptedException e) {
                 LOGGER.error(e.getMessage());
             }

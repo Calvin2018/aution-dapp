@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class DappProvider {
 
 	public String findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type,@Param("time")Long time) {
-		StringBuffer sb = new StringBuffer("SELECT goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone FROM t_goods g,t_user u WHERE g.seller_id=u.user_id AND g.end_time< #{time} ");
+		StringBuffer sb = new StringBuffer("SELECT goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone FROM t_goods g,t_user u WHERE g.seller_id=u.user_id AND g.end_time>= #{time} ");
 		if(null != type) {
 			sb.append(" and type = #{type} ");
 		}
