@@ -219,6 +219,10 @@
           <version>${junit.version}</version>
           <scope>test</scope>
       </dependency>
+      <dependency>
+          <groupId>com.cesgroup.platform</groupId>
+          <artifactId>platform-shiro-jwt-spring-boot-starter</artifactId>
+      </dependency>
    <!--  <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
@@ -247,6 +251,10 @@
 	    <!-- 演示部署的打包参数profile -->
 	    <profile>
 	      <id>target.uat</id>
+<!--            <activation>-->
+<!--                <activeByDefault>true</activeByDefault>-->
+<!--                <jdk>1.8</jdk>-->
+<!--            </activation>-->
 	      <properties>
 	        <target.for>For Local Debug</target.for>
 	        <target.label>uat</target.label>
@@ -312,6 +320,7 @@
 	                    <include>**/*.yml</include>
                         <include>**/dapp.properties</include>
                         <include>**/quartz.properties</include>
+                        <include>**/logback.xml</include>
 	                  </includes>
 	                </resource>
 	              </resources>

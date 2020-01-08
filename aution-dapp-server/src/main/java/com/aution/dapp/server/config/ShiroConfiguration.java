@@ -5,6 +5,8 @@ import com.cesgroup.authen4.ws.OrganizeHttpClientWS;
 import com.cesgroup.platform.autoconfigure.shiro.AbstractShiroBaseWebConfiguration;
 import com.cesgroup.platform.autoconfigure.shiro.PlatformShiroProperties;
 import com.cesgroup.platform.autoconfigure.shiro.jwt.EnableShiroJWT;
+import com.cesgroup.platform.shiro.ShiroConstants;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.annotation.Bean;
@@ -37,11 +39,29 @@ public class ShiroConfiguration  extends AbstractShiroBaseWebConfiguration{
         return sessionManager;
 
     }
+    @Bean
+    public UserJwtRealm userJwtRealm() {
+        UserJwtRealm realm = new UserJwtRealm();
+        realm.setSecretKey(properties.getJwtSecretKey());
+        //使用缓存
+        realm.setCachingEnabled(true);
+        realm.setCacheManager(cacheManager);
+        realm.setAuthenticationCachingEnabled(true);
+        realm.setAuthenticationCacheName(Optional.ofNullable(properties.getAuthenticationCache())
+                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHENTICATION));
+        realm.setAuthorizationCachingEnabled(true);
+        realm.setAuthorizationCacheName(Optional.ofNullable(properties.getAuthorizationCache())
+                .map(c -> c.getName()).orElse(ShiroConstants.CACHE_AUTHORIZATION));
+        return realm;
+    }
     //权限管理，配置主要是Realm的管理认证
     @Bean(value = "securityManager")
     public DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(myShiroRealm());
+        List<Realm> realms = new ArrayList<>();
+        realms.add(myShiroRealm());
+        realms.add(userJwtRealm());
+        securityManager.setRealms(realms);
         securityManager.setSessionManager(sessionManager());
         return securityManager;
     }
