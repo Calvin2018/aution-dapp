@@ -40,7 +40,7 @@ public class GoodsController {
 	public ApiResult<List<Goods>>  findGoodsByParam(String priceSort,String timeSort,Integer type,Integer page,Integer size) {
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
-			List<Goods> list =  goodsService.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort, timeSort, type, PageRequest.of(page, size));
+			List<Goods> list =  goodsService.findGoodsByTypeAndSpriceSortAndEtimeSort(priceSort, timeSort,type, PageRequest.of(page, size));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(list);

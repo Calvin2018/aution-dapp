@@ -103,7 +103,7 @@ public class  GoodsService{
 		  }
 
 	  }
-	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,pageable);
+	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,System.currentTimeMillis(),pageable);
   }
 	
   /**
