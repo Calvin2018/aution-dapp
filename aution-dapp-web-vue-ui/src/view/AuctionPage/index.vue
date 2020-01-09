@@ -27,7 +27,7 @@
                         <div class="desc-box">
                                 <div class="desc-title">{{item.title}}</div>
                                 <div class="desc-time">截止时间：{{item.endTime}}</div>
-                                <div class="desc-price">起拍价：{{item.startPrice}} Scoin</div>
+                                <div class="desc-price">起拍价：{{item.startPrice}} STC</div>
                         </div>
                         <div class="quiz-btn">
                             竞拍

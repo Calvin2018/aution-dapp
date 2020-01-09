@@ -16,7 +16,16 @@
                 <van-picker show-toolbar :columns="kindList" @cancel="showKindPicker = false" @confirm="onConfirm" />
             </van-popup>
 
-            <van-field readonly required clickable input-align='right' :value="startingPrice" label="起拍价" placeholder="请输入起拍价（Scion）" @touchstart.native.stop="numberShow = true"/>
+            <van-field 
+                readonly 
+                required 
+                clickable 
+                input-align='right' 
+                :value="startingPrice" 
+                label="起拍价" 
+                placeholder="请输入起拍价（Scion）"
+                @click="shouNumberHandler"
+                />
 
             <van-field required input-align='right' readonly clickable label="拍卖截止时间" :value="overTime" placeholder="请选择" @click="showTimePicker = true"/>
             <van-popup v-model="showTimePicker" position="bottom">
@@ -54,7 +63,7 @@
             <van-number-keyboard
                 v-model="startingPrice"
                 :show="numberShow"
-                
+                close-button-text="完成"
                 :maxlength="6"
                 @blur="numberShow = false"
             />
@@ -229,10 +238,25 @@ export default {
             //     return false;
             // }
             // return val.replace(, '')
-            if(!val.match("^[a-zA-Z0-9_\u4e00-\u9fa5]+$")){
-                 Toast('不允许输入特殊字符');
-                return false;
-	        }
+
+            // var reg = new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5]+$");
+            // if(!reg.test(val)) {
+            //     Toast('不允许输入特殊字符');
+            //     return false;
+            // }
+
+
+            // var regRule = /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g;
+            // if(val.match(regRule)) {
+            //     Toast.fail('不支持非法字符');
+            //     return false
+            // }
+
+
+            // if(!val.match("^[a-zA-Z0-9_\u4e00-\u9fa5]+$")){
+            //      Toast('不允许输入特殊字符');
+            //     return false;
+	        // }
 
         },
         onShow () {
@@ -254,6 +278,11 @@ export default {
             }
             if(this.articleName === '' || this.articleKind === '' || this.startingPrice === '' || this.currentDate === null || this.descInfo === '' || this.fileList.length === 0 ) {
                 Toast.fail('请将信息填写完整');
+                return
+            }
+
+            if(this.currentDate.getTime() <= new Date().getTime()) {
+                Toast('截止时间需大于当前时间');
                 return
             }
 
@@ -349,6 +378,10 @@ export default {
                 return
             }
             this.showTimePicker = false
+        },
+        shouNumberHandler() {
+            console.log('shouNumberHandlershouNumberHandler')
+            this.numberShow = true
         }
     },
     watch: {

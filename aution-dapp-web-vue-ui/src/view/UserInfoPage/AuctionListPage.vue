@@ -23,9 +23,9 @@
                                         <div class="desc-title">{{item.title}}</div>
                                         <div class="desc-time" v-if="!(active === 1 || (status === 1 && active === 2))">截止时间：{{item.endTime}}</div>
                                         <div class="desc-time" v-if="active === 1 || (status === 1 && active === 2)">成交时间：{{item.endTime}}</div>
-                                        <div class="desc-price" v-if="active === 0">当前价格：{{item.currentPrice}} Scoin</div>
-                                        <div class="desc-price" v-if="active === 1 || (status === 1 && active === 2)">成交价：{{item.currentPrice}} Scoin</div>
-                                        <div class="desc-price" v-if="status === 0 && active === 2">起拍价：{{item.startPrice}} Scoin</div>
+                                        <div class="desc-price" v-if="active === 0">当前价格：{{item.currentPrice}} STC</div>
+                                        <div class="desc-price" v-if="active === 1 || (status === 1 && active === 2)">成交价：{{item.currentPrice}} STC</div>
+                                        <div class="desc-price" v-if="status === 0 && active === 2">起拍价：{{item.startPrice}} STC</div>
                                 </div>
                                 <div class="quiz-btn">
                                 </div>
@@ -45,7 +45,7 @@ import { Toast } from 'vant';
 
 export default {
     created() {
-    //     this.number =  this.$store.state.user.mySelfListStatus ;
+        this.number =  this.$store.state.user.status ;
     //    if(this.number >= 4){
     //     //    表示竞拍
 
@@ -74,10 +74,10 @@ export default {
     },
     computed: {
         title() {
-            if(this.number <= 3) {
-                return '参与的拍卖'
+            if(this.number == 0) {
+                return '我的拍卖'
             }else {
-                return '参与的竞拍'
+                return '我的竞拍'
             }
         }
     },

@@ -62,7 +62,7 @@
             <div class="auction-box">
                 <div class="auction-title">参与竞拍</div>
                 <div class="price-tips">请出价</div>
-                <van-field readonly :value="priceValue" placeholder="输入的价格，必须必当前出价高" class="price-input" @touchstart.native.stop="numberShow = true"/>
+                <van-field readonly :value="priceValue" placeholder="输入的价格，必须必当前出价高" class="price-input" @click.stop="numberShow = true"/>
                 <van-button type="default" class="upload-btn" @click="uploadHandler">提交</van-button>
                 <van-button type="default" class="cancel-btn" @click="cancelHandler">取消</van-button>
             </div>
@@ -89,6 +89,7 @@
         <van-number-keyboard
             v-model="priceValue"
             :show="numberShow"
+            close-button-text="完成"
             :maxlength="6"
             extra-key="."
             @blur="numberShow = false"

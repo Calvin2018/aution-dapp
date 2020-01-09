@@ -285,6 +285,10 @@ public class  GoodsService{
 	  if(null == goods||null == files) {
 		  throw new IllegalArgumentException("Arguments goods and files are required");
 	  }
+	  long timeFlag = System.currentTimeMillis() + 1000*60L;
+	  if(goods.getEndTime()<timeFlag){
+          throw new IllegalArgumentException("截止时间过短");
+      }
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
 	  //设置为-1，表示未评价
