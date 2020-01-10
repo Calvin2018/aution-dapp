@@ -178,7 +178,7 @@ public class DappService {
             throw new IllegalArgumentException("userId is not exist!");
         }
         //不提供
-        //map.put("job_number", userId);
+        map.put("job_number", userId);
         map.put("avatar", goods.getAvatar());
         map.put("user_name", goods.getUserName());
         map.put("user_phone", goods.getUserPhone());
@@ -330,18 +330,13 @@ public class DappService {
                     return "FAILED";
                 }
 
-            } else {
-                //进入该方法表示用户已经支付成功，因此更新交易状态为1即已经支付
-                LOGGER.debug("start update table t_history,tradeNo: {}", notifyBean.getTradeNo());
-                hRepository.updateHistory("1", null, "1",null,notifyBean.getTradeNo());
-                LOGGER.debug("finnish update table t_history,tradeNo: {}", notifyBean.getTradeNo());
             }
-
             //同步
             synchronized (this) {
                 Double maxPrice = hRepository.findMaxPriceByGid(history.getGoodsId());
                 //当用户1、用户2同时进入支付界面时此时是在灵光币平台本系统无法得知那个支付的金额大因此需要进行验证
                 //验证 当支付金额是最大值时更新当前商品竞拍价格
+
                 if (null == maxPrice || history.getBidPrice() > maxPrice) {
                     Goods goods = new Goods();
                     goods.setGoodsId(history.getGoodsId());
@@ -350,6 +345,10 @@ public class DappService {
                     goodsRepository.updateGoods(goods);
                 }
             }
+            //进入该方法表示用户已经支付成功，因此更新交易状态为1即已经支付
+            LOGGER.debug("start update table t_history,tradeNo: {}", notifyBean.getTradeNo());
+            hRepository.updateHistory("1", null, "1",null,notifyBean.getTradeNo());
+            LOGGER.debug("finnish update table t_history,tradeNo: {}", notifyBean.getTradeNo());
         } else {
             //进入该方法表示用户已经支付成功，因此退款
             LOGGER.debug("start update table t_history,tradeNo: {}", notifyBean.getTradeNo());
