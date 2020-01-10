@@ -177,8 +177,8 @@ public class DappService {
         if (null == goods || Strings.isNullOrEmpty(goods.getUserName())) {
             throw new IllegalArgumentException("userId is not exist!");
         }
-        //TODO 带修改 job_number 字段名称
-        map.put("job_number", userId);
+        //不提供
+        //map.put("job_number", userId);
         map.put("avatar", goods.getAvatar());
         map.put("user_name", goods.getUserName());
         map.put("user_phone", goods.getUserPhone());
@@ -342,7 +342,7 @@ public class DappService {
                 Double maxPrice = hRepository.findMaxPriceByGid(history.getGoodsId());
                 //当用户1、用户2同时进入支付界面时此时是在灵光币平台本系统无法得知那个支付的金额大因此需要进行验证
                 //验证 当支付金额是最大值时更新当前商品竞拍价格
-                if (history.getBidPrice() >= maxPrice) {
+                if (null == maxPrice || history.getBidPrice() > maxPrice) {
                     Goods goods = new Goods();
                     goods.setGoodsId(history.getGoodsId());
                     goods.setCurrentPrice(history.getBidPrice());
@@ -372,26 +372,19 @@ public class DappService {
      */
     public void bidCompleted(String gId, String sellerId) throws IOException {
 
+
+        //推迟2秒下发
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            LOGGER.error(e.getMessage());
+        }
+
         //查询处
         List<History> historyList = hRepository
                 .findBidHistoryByGoodsId(gId);
-        Goods goods = new Goods();
-        goods.setGoodsId(gId);
-        if (null != historyList && historyList.size() > 0) {
+        bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
 
-            //推迟10秒下发
-            try {
-                Thread.sleep(1000*10L);
-            } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage());
-            }
-            bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
-        }else{
-            //设置商品流拍
-            goods.setStatus(3);
-            goodsRepository.updateGoods(goods);
-            msgRepository.insertMessage(sellerId, gId, '2', '0');
-        }
     }
 
 

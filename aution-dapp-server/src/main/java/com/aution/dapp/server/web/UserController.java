@@ -5,6 +5,7 @@ import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.core.ApiResult;
 import com.aution.dapp.server.model.ShiroUser;
 import com.aution.dapp.server.service.DappService;
+import com.aution.dapp.server.utils.ShiroSubjectUtils;
 import com.google.common.base.Strings;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -27,19 +28,23 @@ public class UserController {
     @RequestMapping(value="/getUserInfo",method= RequestMethod.POST)
     public ApiResult<Map<String,String>> getUserInfo() throws ApiException, IOException {
 
-        Subject subject = SecurityUtils.getSubject();
-        ShiroUser user = (ShiroUser)subject.getPrincipal();
+        String userNo = ShiroSubjectUtils.getUserNo();
         ApiResult<Map<String,String>> result = new ApiResult<Map<String,String>>();
         Map<String,String> map = null;
         try {
 
-            if(!Strings.isNullOrEmpty(user.getLoginName())) {
-                map =  dappService.getUserInfoUserId(user.getLoginName());
+            if(!Strings.isNullOrEmpty(userNo)) {
+                map =  dappService.getUserInfoUserId(userNo);
+                result.setCode(ApiConstants.CODE_SUCCESS);
+                result.setMsg("");
+                result.setData(map);
+            }else{
+                result.setCode(ApiConstants.CODE_REQUEST_EROR);
+                result.setMsg("用户不存在，请重新登录");
+                result.setData(null);
             }
 
-            result.setCode(ApiConstants.CODE_SUCCESS);
-            result.setMsg("");
-            result.setData(map);
+
 
         }catch(IllegalArgumentException e) {
             result.setCode(ApiConstants.CODE_ARGS_ERROR);

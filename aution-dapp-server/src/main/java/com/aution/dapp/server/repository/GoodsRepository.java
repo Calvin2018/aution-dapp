@@ -42,7 +42,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   List<Goods> findGoodsBySellerIdAndStatus(@Param("sellerId")String sellerId,@Param("status")Integer status,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByBuyerIdAndStatus")
-  List<Goods> findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status,Pageable pageable);
+  List<Goods> findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status,@Param("bidStatus")Integer bidStatus,Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByEtimeAndSort")	
   List<Goods> findGoodsByEtimeAndSort(Long eTime,Pageable pageable);
@@ -62,7 +62,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   		"current_price,content,status,end_time,temp,avatar,user_name,user_phone  " + 
   		"from t_goods g,t_user u where g.seller_id = u.user_id and goods_id = #{gId}")
   Goods findGoodsByGid(@Param("gId")String gId);
-  
+
   
   @InsertProvider(type=DappProvider.class,method="insertGoods")
   Integer insertGoods(@RequestBody Goods goods);

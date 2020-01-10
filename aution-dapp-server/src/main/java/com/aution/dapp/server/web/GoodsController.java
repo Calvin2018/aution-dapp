@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.List;
 
 
+import com.aution.dapp.server.model.ShiroUser;
+import com.aution.dapp.server.utils.ShiroSubjectUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,10 +58,10 @@ public class GoodsController {
 	}
 	@RequestMapping(name="/findGoodsBySellerId",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>>  findGoodsBySellerId(@RequestParam("sellerId") String sellerId,Integer page,Integer size){
+	public ApiResult<List<Goods>>  findGoodsBySellerId(Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
-			List<Goods> list =  goodsService.findGoodsBySellerId(sellerId, PageRequest.of(page, size));
+			List<Goods> list =  goodsService.findGoodsBySellerId(ShiroSubjectUtils.getUserNo(), PageRequest.of(page, size));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(list);
@@ -71,10 +75,10 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/findGoodsBySellerIdAndStatus",method=RequestMethod.GET) 
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsBySellerIdAndStatus(@RequestParam("sellerId")String sellerId,@RequestParam("status")Integer status,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsBySellerIdAndStatus(@RequestParam("status")Integer status,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
-			List<Goods> list =  goodsService.findGoodsBySellerIdAndStatus(sellerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
+			List<Goods> list =  goodsService.findGoodsBySellerIdAndStatus(ShiroSubjectUtils.getUserNo(),status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(list);
@@ -91,10 +95,10 @@ public class GoodsController {
 	
 	@RequestMapping(value="/findGoodsByBuyerIdAndStatus",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<List<Goods>> findGoodsByBuyerIdAndStatus(@RequestParam("buyerId")String buyerId,@RequestParam("status")Integer status,Integer page,Integer size){
+	public ApiResult<List<Goods>> findGoodsByBuyerIdAndStatus(@RequestParam("status")Integer status,Integer page,Integer size){
 		ApiResult<List<Goods>> result = new ApiResult<List<Goods>>();
 		try {
-			List<Goods> list =  goodsService.findGoodsByBuyerIdAndStatus(buyerId,status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
+			List<Goods> list =  goodsService.findGoodsByBuyerIdAndStatus(ShiroSubjectUtils.getUserNo(),status, PageRequest.of(page, size,Sort.by(Order.desc("end_time"))));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(list);
@@ -234,11 +238,11 @@ public class GoodsController {
 	}
 	@RequestMapping(value="/getNewMessage",method=RequestMethod.GET)
 	@ResponseBody
-	public ApiResult<JSONObject> getNewMessage(@RequestParam("userId") String userId) throws IOException{
+	public ApiResult<JSONObject> getNewMessage() throws IOException{
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
 			JSONObject obj = new JSONObject();
-			obj.put("msg", goodsService.getNewMessage(userId));
+			obj.put("msg", goodsService.getNewMessage(ShiroSubjectUtils.getUserNo()));
 			result.setCode(ApiConstants.CODE_SUCCESS);
 			result.setMsg("");
 			result.setData(obj);

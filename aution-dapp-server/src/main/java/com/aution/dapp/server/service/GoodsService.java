@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.aution.dapp.server.utils.ShiroSubjectUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -148,20 +149,18 @@ public class  GoodsService{
    */
   public List<Goods> findGoodsByBuyerIdAndStatus(String buyerId,Integer status,Pageable pageable){
 	  if(!Strings.isNullOrEmpty(buyerId)&& null != status) {
+		  Integer bidStatus = null ;
 		  if(status == 2) {
 			  msgRepository.updateMessage(buyerId,'3');
+			  bidStatus = status;
 		  } else if(status == 3) {
 			  msgRepository.updateMessage(buyerId,'4');
+			  bidStatus = 2;
 		  } else if(status == 1) {
 			  msgRepository.updateMessage(buyerId,'0');
-		  }
-		  Integer bidStatus = null ;
-		  if(status == 1 || status == 2) {
 			  bidStatus = status;
-		  }else{
-			  bidStatus = 2;
 		  }
-		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,bidStatus, pageable);
+		  List<Goods> list =  goodsRepository.findGoodsByBuyerIdAndStatus(buyerId,status,bidStatus, pageable);
 		  if(status == 3) {
 			  for(Goods temp:list) {
 				  temp.setStatus(6);
@@ -289,6 +288,7 @@ public class  GoodsService{
 	  if(goods.getEndTime()<timeFlag){
           throw new IllegalArgumentException("截止时间过短");
       }
+	  goods.setSellerId(ShiroSubjectUtils.getUserNo());
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
 	  //设置为-1，表示未评价
@@ -388,8 +388,8 @@ public class  GoodsService{
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
 			//File  project= new File(System.getProperty("user.dir"));
-			//File project = ResourceUtils.getFile("classpath:static");
-            //String imgLocation = project.getAbsolutePath();
+//			File project = ResourceUtils.getFile("classpath:static");
+//          String imgLocation = project.getAbsolutePath();
 			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
 			LOGGER.info("图片路径：{}",imgLocation);
 			LOGGER.info(imgLocation);

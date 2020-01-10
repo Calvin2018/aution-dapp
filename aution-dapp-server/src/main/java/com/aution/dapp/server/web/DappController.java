@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
 
+import com.aution.dapp.server.utils.ShiroSubjectUtils;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,14 +36,13 @@ public class DappController {
 	@Autowired
 	private DappService dappService;
 	
-	private static AppClient appClient = AppClient.getInstance();
 
 
 	@RequestMapping(value="/bid",method=RequestMethod.POST)
-	public ApiResult<JSONObject> bid(@RequestParam("gId")String gId, @RequestParam("userId")String userId, @RequestParam("price")Double price) throws Exception {
+	public ApiResult<JSONObject> bid(@RequestParam("gId")String gId,  @RequestParam("price")Double price) throws Exception {
 		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
 		try {
-			JSONObject data =  dappService.createOrder(gId, userId, price);
+			JSONObject data =  dappService.createOrder(gId, ShiroSubjectUtils.getUserNo(), price);
 			Boolean flag = (Boolean)data.get("flag");
 			if(flag) {
 				result.setCode(ApiConstants.CODE_SUCCESS);
