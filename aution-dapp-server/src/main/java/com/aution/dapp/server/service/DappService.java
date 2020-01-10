@@ -244,6 +244,7 @@ public class DappService {
         payRequest.setAmount(new BigDecimal(price).setScale(2, BigDecimal.ROUND_HALF_DOWN));
         // 支付结果提醒url 必填
         payRequest.setNotifyUrl(configuration.getProperty(ApiConstants.DA_NOTIFY_URL));
+        LOGGER.info("支付回调接口："+configuration.getProperty(ApiConstants.DA_NOTIFY_URL));
         payRequest.setUserNo(userId);
         payRequest.setDetail("");
         payRequest.setOrderDetailUrl(configuration.getProperty(ApiConstants.DA_DETAIL_URL));
