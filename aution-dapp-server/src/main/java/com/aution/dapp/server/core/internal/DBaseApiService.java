@@ -82,11 +82,7 @@ public class DBaseApiService extends BaseApiService{
 			if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
 				accessToken = accessToken(appClient);
 				appClient.setAccessToken(accessToken);
-				signParam.put("access_token", accessToken);
-				sign = SignUtil.createCommonSign(signParam);
-				requestUrl = String.format(url,code,timestamp,appid,accessToken,sign);
-				hp = HttpRequests.newHttpPost2(requestUrl, params);
-				result = doPost(hp, context, typeToken);
+				throw e;
 			}else {
 				throw e;
 			}
@@ -103,7 +99,7 @@ public class DBaseApiService extends BaseApiService{
 	 */
 	public  String accessToken(AppClient appClient) throws IOException{
 		
-		
+		LOGGER.info("access_token失效，重新获取");
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         Map<String, String> signParam = new LinkedHashMap<>();
         signParam.put("appid", configuration.getProperty(ApiConstants.DA_APPID));
@@ -189,6 +185,7 @@ public class DBaseApiService extends BaseApiService{
         }catch(ApiException e) {
         	if(String.valueOf(e.getStatusCode()).equals(ApiConstants.CODE_TOKEN_ERROR)) {
     		    accessToken = accessToken(appClient);
+				context = appContext.getHttpContext(accessToken);
     		    appClient.setAccessToken(accessToken);
     		    signParam.put("access_token", accessToken);
     		    sign = SignUtil.createCommonSign(signParam);
