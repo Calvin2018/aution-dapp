@@ -152,7 +152,7 @@ public class DappService {
     /**
      * 调用灵光币接口获取用户信息
      */
-    public Map<String, String> getUserInfo(String authToken) throws IOException {
+    public Map<String, String> getUserInfo(String authToken) throws ApiException,IOException {
 
         DBaseApiService dBaseApiService = appClient.getdBaseApiService();
         TypeToken<RestApiResponse<Map<String, String>>> typeToken = new TypeToken<RestApiResponse<Map<String, String>>>() {

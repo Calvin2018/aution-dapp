@@ -68,6 +68,7 @@ public class HtmlController {
 	@RequestMapping(value="/scoin",method=RequestMethod.GET)
 	public  String getCode(@RequestParam("code")String code, @RequestParam("state")String state) throws IOException {
 
+		//code 只能使用一次
 		String dappState = appClient.getConfiguration().getProperty(ApiConstants.DA_STATE);
 		if(!state.equals(dappState)){
 			return "redirect:/unauthorized.html";
@@ -76,7 +77,14 @@ public class HtmlController {
 		LOGGER.info("code: {}",code);
 
 
-		Map<String,String> temp = dappService.getUserInfo(code);
+		Map<String, String> temp = null;
+
+		try {
+			 temp = dappService.getUserInfo(code);
+		}catch(ApiException e){
+			//access_token 失效则重新获取code
+			return "redirect:/login";
+		}
 
 		String userNo = temp.get("user_no");
 		String avatar = temp.get("avatar");
