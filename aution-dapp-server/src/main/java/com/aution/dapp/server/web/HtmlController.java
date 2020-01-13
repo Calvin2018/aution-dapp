@@ -83,6 +83,7 @@ public class HtmlController {
 			 temp = dappService.getUserInfo(code);
 		}catch(ApiException e){
 			//access_token 失效则重新获取code
+			LOGGER.info("code: {},msg:	{}",e.getStatusCode(),"获取用户信息异常导致重定向到登录页面");
 			return "redirect:/login";
 		}
 
