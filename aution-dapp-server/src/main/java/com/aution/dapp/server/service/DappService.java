@@ -397,7 +397,7 @@ public class DappService {
         goods.setGoodsId(gId);
 
         //没人竞拍
-        if (historyList.size() <= 0) {
+        if (null == historyList||historyList.size() <= 0) {
             goods.setStatus(3);
             goodsRepository.updateGoods(goods);
             msgRepository.insertMessage(sellerId, gId, '2', '0');
