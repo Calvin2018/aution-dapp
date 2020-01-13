@@ -379,14 +379,22 @@ public class DappService {
         } catch (InterruptedException e) {
             LOGGER.error(e.getMessage());
         }
-
+        Goods goods = new Goods();
+        goods.setGoodsId(gId);
         //查询处
         List<History> historyList = hRepository
                 .findBidHistoryByGoodsId(gId);
-        bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
+        if(null == historyList||historyList.size() <= 0) {
+            goods.setStatus(3);
+            goodsRepository.updateGoods(goods);
+            msgRepository.insertMessage(sellerId, gId, '2', '0');
+            return;
+        }else{
+            bidCompletedMethod(historyList, gId, sellerId, historyList.get(0).getCurrentPrice());
+
+        }
 
     }
-
 
 
     public void bidCompletedMethod(List<History> historyList, String gId, String sellerId,
@@ -396,13 +404,6 @@ public class DappService {
         Goods goods = new Goods();
         goods.setGoodsId(gId);
 
-        //没人竞拍
-        if (null == historyList||historyList.size() <= 0) {
-            goods.setStatus(3);
-            goodsRepository.updateGoods(goods);
-            msgRepository.insertMessage(sellerId, gId, '2', '0');
-            return;
-        }
 
         Properties configuration = appClient.getConfiguration();
         DBaseApiService dBaseApiService = appClient.getdBaseApiService();
