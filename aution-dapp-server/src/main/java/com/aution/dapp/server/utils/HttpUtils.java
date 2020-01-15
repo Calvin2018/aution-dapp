@@ -7,6 +7,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Http 工具类，用于提供常用的方法.
  *
@@ -68,5 +70,38 @@ public class HttpUtils {
       }
     }
     return hds;
+  }
+
+  /**
+   * 获取ip地址
+   * @param request
+   * @return
+   */
+  public static String getIpAddress(HttpServletRequest request) {
+    String ip = request.getHeader("x-forwarded-for");
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("WL-Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("HTTP_CLIENT_IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getRemoteAddr();
+    }
+
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      //X-Real-IP：nginx服务代理
+      ip = request.getHeader("X-Real-IP");
+    }
+    if(ip!=null){
+      ip=ip.split(",")[0];
+    }
+    return ip;
   }
 }
