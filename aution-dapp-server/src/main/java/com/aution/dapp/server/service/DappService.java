@@ -521,7 +521,7 @@ public class DappService {
                     if(!statusFlag.equals(status)){
                         BusinessRecord br = findBus.get(tradeNo);
                         LOGGER.debug("start update table t_history,tradeNo: {}", tradeNo);
-                        hRepository.updateHistory(null, "1", "1",null, tradeNo);
+                        hRepository.updateHistory(null, "1", "1", null,br.getTradeNo());
                         LOGGER.debug("finnish update table t_history,tradeNo: {}", tradeNo);
                         Transaction transaction = new Transaction();
                         String transferId = configuration.getProperty(ApiConstants.DA_APPID);

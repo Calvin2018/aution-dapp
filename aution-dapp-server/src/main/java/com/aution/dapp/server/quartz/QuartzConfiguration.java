@@ -21,6 +21,7 @@ import java.util.Properties;
 
 /**
  * quartz定时任务配置
+ * @author hewensheng
  */
 @Configuration
 @EnableScheduling
@@ -74,26 +75,6 @@ public class QuartzConfiguration {
         jobFactory.setApplicationContext(applicationContext);
         return jobFactory;
     }
-
-//    @Value("${datasource.druid.driver-class-name}")
-//    private String mysqlDriverName;
-//    @Value("${datasource.druid.url}")
-//    private String mysqlUrl;
-//    @Value("${datasource.druid.username}")
-//    private String commonUserName;
-//    @Value("${datasource.druid.password}")
-//    private String commonUserPassword;
-//
-//
-//    @Bean(name="quartzDataSource")
-//    public DataSource dataSource() throws Exception {
-//        Properties props = new Properties();
-//        props.put("driverClassName", mysqlDriverName);
-//        props.put("url", mysqlUrl);
-//        props.put("username", commonUserName);
-//        props.put("password", commonUserPassword);
-//        return DruidDataSourceFactory.createDataSource(props);
-//    }
 
     /**
      * 配置任务调度器

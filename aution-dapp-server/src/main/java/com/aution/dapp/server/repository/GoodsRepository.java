@@ -71,6 +71,9 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   Integer updateGoods(@RequestBody Goods goods);
   
   @Delete("delete from t_goods where goods_id = #{gId}")
-  Integer deleteGoodsByGid(@Param("gId")String gId);  
+  Integer deleteGoodsByGid(@Param("gId")String gId);
+
+  @Select("select goods_id,seller_id,end_time FROM t_goods WHERE end_time>= #{startTime} AND end_time<= #{endTime}")
+  List<Goods> findNeedCreateJob(@Param("startTime")Long startTime,@Param("endTime")Long endTime);
 
 }

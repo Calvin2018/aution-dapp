@@ -16,6 +16,10 @@ import com.aution.dapp.server.core.ApiException;
 import com.aution.dapp.server.service.DappService;
 import com.google.common.base.Strings;
 
+/**
+ * 用于执行竞拍结束的定时任务
+ * @author hewensheng
+ */
 @Component
 public class BidJob implements Job{
 

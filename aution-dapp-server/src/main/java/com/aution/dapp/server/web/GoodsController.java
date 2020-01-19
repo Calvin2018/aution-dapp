@@ -214,6 +214,10 @@ public class GoodsController {
 			result.setCode(ApiConstants.CODE_ARGS_ERROR);
 			result.setMsg(e.getMessage());
 			result.setData(null);
+		}catch(ApiException e){
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
 		}
 		return result;
 		

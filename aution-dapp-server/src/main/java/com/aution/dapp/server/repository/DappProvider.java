@@ -22,7 +22,7 @@ public class DappProvider {
 	}
 	
 	public String findGoodsByBuyerIdAndStatus(@Param("buyerId")String buyerId,@Param("status")Integer status,@Param("bidStatus")Integer bidStatus) {
-		
+
 
 		
 		StringBuffer sb = new StringBuffer("select g.goods_id,seller_id,title,imgs,current_price,end_time,temp,avatar,user_name,user_phone " + 
@@ -143,6 +143,23 @@ public class DappProvider {
 		String test = sb.toString();
 		test = test.substring(0, test.length()-1);
 		return test + "where trade_no = #{tradeNo}";
+
+	}
+	public String updateHistoryByIssueTradeNo(@Param("temp")String temp, @Param("isIssue")String isIssue, @Param("isValid")String isValid, @Param("issueTradeNo")String issueTradeNo){
+
+		StringBuffer sb = new StringBuffer("update t_history set ");
+		if(!Strings.isNullOrEmpty(temp)){
+			sb.append(" temp = #{temp},");
+		}
+		if(!Strings.isNullOrEmpty(isIssue)){
+			sb.append(" is_issue = #{isIssue},");
+		}
+		if(!Strings.isNullOrEmpty(isValid)){
+			sb.append(" is_valid = #{isValid},");
+		}
+		String test = sb.toString();
+		test = test.substring(0, test.length()-1);
+		return test + "where issue_trade_no = #{issueTradeNo}";
 
 	}
 	

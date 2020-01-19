@@ -90,6 +90,9 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
 
   @UpdateProvider(type = DappProvider.class,method = "updateHistory")
   Integer updateHistory(@Param("temp")String temp,@Param("isIssue")String isIssue,@Param("isValid")String isValid,@Param("issueTradeNo")String issueTradeNo,@Param("tradeNo")String tradeNo);
+
+  @UpdateProvider(type = DappProvider.class,method = "updateHistoryByIssueTradeNo")
+  Integer updateHistoryByIssueTradeNo(@Param("temp")String temp,@Param("isIssue")String isIssue,@Param("isValid")String isValid,@Param("issueTradeNo")String issueTradeNo);
   @Select("select trade_no,goods_id,user_id,bid_price,bid_time,pay_price,temp FROM t_history WHERE trade_no = #{tradeNo}")
   History findHistoryByTradeNo(@Param("tradeNo")String tradeNo);
   @Select("SELECT\n" +

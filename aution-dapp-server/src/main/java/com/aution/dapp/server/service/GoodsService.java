@@ -7,13 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.aution.dapp.server.core.ApiException;
+import com.aution.dapp.server.utils.MyCalendarUtils;
 import com.aution.dapp.server.utils.ShiroSubjectUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -286,7 +283,7 @@ public class  GoodsService{
 	  }
 	  long timeFlag = System.currentTimeMillis() + 1000*60L;
 	  if(goods.getEndTime()<timeFlag){
-          throw new IllegalArgumentException("截止时间过短");
+          throw new IllegalArgumentException("商品截止时间过短");
       }
 	  goods.setSellerId(ShiroSubjectUtils.getUserNo());
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
@@ -298,40 +295,55 @@ public class  GoodsService{
 	  Integer flag = goodsRepository.insertGoods(goods);
 	  if(flag != 0) {
 		//任务名称
-		Long time = System.currentTimeMillis();
-	    String name = time + goods.getGoodsId();
-	    //任务所属分组
-	    String group = this.getClass().getName();
 
-	    JobDataMap jobDataMap = new JobDataMap();
-	    jobDataMap.put("goodsId", goods.getGoodsId());
-	    jobDataMap.put("userId", goods.getSellerId());
-	    
-	    Date endTime = new Date(goods.getEndTime());
-	    Calendar cal = Calendar.getInstance();
-	    cal.setTime(endTime);
-
-	    String cronExpression = cal.get(Calendar.SECOND) + " " + cal.get(Calendar.MINUTE) + " " + cal.get(Calendar.HOUR_OF_DAY) 
-	    + " " + cal.get(Calendar.DAY_OF_MONTH) + " " + (cal.get(Calendar.MONTH) + 1) + " ? " + cal.get(Calendar.YEAR);
-	    CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-	    //创建任务
-	    JobDetail jobDetail = JobBuilder.newJob(BidJob.class).withIdentity(name,group).usingJobData(jobDataMap).build();
-	    //创建任务触发器
-	    TriggerKey key = TriggerKey.triggerKey(name,group);
-	    //设置优先级为100
-	    Trigger trigger = TriggerBuilder.newTrigger().withIdentity(key).withSchedule(scheduleBuilder).withPriority(100).build();
-	    //将触发器与任务绑定到调度器内
-	    try {
-			if (!scheduler.checkExists(key)) {
-			  LOGGER.info("Schedule job - with key {} , and expression {}", key, cronExpression);
-			  scheduler.scheduleJob(jobDetail, trigger);
-			  scheduler.start();
-			}
-		} catch (SchedulerException e) {
-			  LOGGER.info("SchedulerException:{}",e.getMessage());
-		}
-	  } 
+		createBidJob(goods);
+	  }
 	  return (0 == flag)?false:true;
+  }
+  public void createBidJob(Goods goods) throws ApiException{
+
+	  Long endTime = goods.getEndTime();
+
+	  if(null == endTime){
+	  	throw new ApiException(Integer.parseInt(ApiConstants.CODE_ARGS_ERROR),"发布商品失败！");
+	  }
+//	  Calendar cal = MyCalendarUtils.getNextDayZeroTime();
+//	  Long todayEndTime = cal.getTime().getTime()-1;
+
+	  Long currentTime = System.currentTimeMillis();
+	  if(currentTime <= endTime){
+	  	  //标记定时任务 交给定时任务
+		  String name =  endTime + goods.getGoodsId();
+		  //任务所属分组
+		  String group = "BIDJOB";
+
+		  JobDataMap jobDataMap = new JobDataMap();
+		  jobDataMap.put("goodsId", goods.getGoodsId());
+		  jobDataMap.put("userId", goods.getSellerId());
+
+		  Date endDate = new Date(endTime);
+
+		  String cronExpression = MyCalendarUtils.getCornExpression(endDate);
+		  CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
+		  //创建任务
+		  JobDetail jobDetail = JobBuilder.newJob(BidJob.class).withIdentity(name,group).usingJobData(jobDataMap).build();
+		  //创建任务触发器
+		  TriggerKey key = TriggerKey.triggerKey(name,group);
+		  //设置优先级为100
+		  Trigger trigger = TriggerBuilder.newTrigger().withIdentity(key).withSchedule(scheduleBuilder).withPriority(100).build();
+		  //将触发器与任务绑定到调度器内
+		  try {
+			  if (!scheduler.checkExists(key)) {
+				  LOGGER.info("Schedule job - with key {} , and expression {}", key, cronExpression);
+				  scheduler.scheduleJob(jobDetail, trigger);
+			  }
+		  } catch (SchedulerException e) {
+			  LOGGER.info("SchedulerException:{}",e.getMessage());
+		  }
+	  }else{
+	  	throw new ApiException(Integer.parseInt(ApiConstants.CODE_GOODS_TIME_INVALID),"商品截止时间过短无效！");
+	  }
+
   }
   /**
    * 更新对象
@@ -389,7 +401,7 @@ public class  GoodsService{
 			//当打成jar包时此路径为jar包的父级文件夹路径
 			//File  project= new File(System.getProperty("user.dir"));
 //			File project = ResourceUtils.getFile("classpath:static");
-//          String imgLocation = project.getAbsolutePath();
+//          	String imgLocation = project.getAbsolutePath();
 			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
 			LOGGER.info("图片路径：{}",imgLocation);
 			LOGGER.info(imgLocation);
@@ -473,4 +485,14 @@ public class  GoodsService{
 	  Integer flag = userRepository.updateUser(userId, avatar, userName,userPhone);
 	  return flag ==0?false:true;
   }
+
+  public List<Goods> findNeedCreateJob(){
+  	Long endTime = MyCalendarUtils.getNextDayZeroTime().getTimeInMillis();
+  	Long startTime = MyCalendarUtils.getToDayZeroTime().getTimeInMillis();
+  	List<Goods> list = goodsRepository.findNeedCreateJob(startTime,endTime);
+  	list.removeAll(Collections.singleton(null));
+  	return list;
+  }
+
+
 }
