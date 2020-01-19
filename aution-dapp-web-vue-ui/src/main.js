@@ -4,6 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
+// import './view/ReleasePage/exif-js-master/exif'
+
 import '@/static/css/bass.css'
 
 import store from '@/store'
