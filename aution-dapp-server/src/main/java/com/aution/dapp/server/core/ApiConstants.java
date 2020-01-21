@@ -22,6 +22,8 @@ public interface ApiConstants {
   String CODE_ARGS_ERROR = "100004";
   String CODE_TIMT_OUT = "100005";
   String CODE_GOODS_NOT_EXIST = "100006";
+  String CODE_GOODS_TIME_INVALID = "100007";
+
 
   /**
    * 成功
