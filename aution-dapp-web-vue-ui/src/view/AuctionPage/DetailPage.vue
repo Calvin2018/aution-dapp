@@ -490,7 +490,7 @@ export default {
                 }
 
             }else{
-                if(res.code === '1003'){
+                if(res.code === '100003'){
                     Toast.fail('出价不能低于起拍价或竞拍价');
                 }else{
                     Toast.fail(res.msg);
