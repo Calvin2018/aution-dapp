@@ -36,20 +36,20 @@ public class MyInterceptor implements HandlerInterceptor {
         Method method = handlerMethod.getMethod();
         String methodName = method.getName();
         LOGGER.info("====拦截到了方法：{}，在该方法执行之前执行====", methodName);
-        Map<String,String> data = configService.getServiceStatus();
-        if(null != data){
-            String serviceStatus = data.get("service_status");
-            String flag = "0";
-            if(flag.equals(serviceStatus)){
-                String bid = "bid";
-                String create = "create";
-                if(methodName.endsWith(bid)||methodName.endsWith(create)){
+
+        String bid = "bid";
+        String create = "create";
+        if(methodName.endsWith(bid)||methodName.endsWith(create)){
+            Map<String,String> data = configService.getServiceStatus();
+            if(null != data){
+                String serviceStatus = data.get("service_status");
+                String flag = "0";
+                if(flag.equals(serviceStatus)){
                     returnJson(response);
                     return false;
                 }
             }
         }
-
         // 返回 true 才会继续执行，返回 false 则取消当前请求
         return true;
     }

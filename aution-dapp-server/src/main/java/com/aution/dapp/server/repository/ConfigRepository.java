@@ -1,6 +1,5 @@
 package com.aution.dapp.server.repository;
 
-import com.cesgroup.platform.mybatis.search.PlatformMybatisRepository;
 import org.apache.ibatis.annotations.*;
 
 import java.util.Map;
@@ -12,7 +11,7 @@ import java.util.Map;
  *
  */
 @Mapper
-public interface ConfigRepository extends PlatformMybatisRepository {
+public interface ConfigRepository {
 
   @Select("select keywords,result from t_config where keywords = #{key}")
   Map<String,String> getServiceStatus(@Param("key")String key);
