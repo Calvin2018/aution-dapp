@@ -201,7 +201,7 @@ public class GoodsController {
 		return result;  
 	}
 	@RequestMapping(value="/create",method=RequestMethod.POST)
-	public ApiResult<Boolean> insertGoods(Goods goods,@RequestParam("files")MultipartFile[] files) throws IOException {
+	public ApiResult<Boolean> create(Goods goods,@RequestParam("files")MultipartFile[] files) throws IOException {
 		
 		ApiResult<Boolean> result = new ApiResult<Boolean>();
 		try {
