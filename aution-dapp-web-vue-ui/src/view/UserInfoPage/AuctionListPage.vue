@@ -69,9 +69,9 @@ export default {
             refreshLoading: false,
             loading: false,
             commodityList: [],
-
+            // activeLoad:false,
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 0,
             loadingArr:[false,false,false]
         }
     },
@@ -88,12 +88,19 @@ export default {
         onLoad() {
 
             this.updateList();
+            console.log("activeLoad-----"+this.$store.state.user.activeLoad)
+             if(this.$store.state.user.activeLoad ===0){
+                this.currentPage ++
+             }
+
         },
         onRefresh(index) {
 
-            this.currentPage === 1
+            this.currentPage = 0;
+            this.finished =true
+            this.commodityList = []
             // this.loading =true;
-            this.updateList()
+            this.updateList(true)
 
         },
         backHandler() {
@@ -111,8 +118,10 @@ export default {
                 }
             })
         },
-        updateList() {
-            let opts
+        updateList(fBopol) {
+            // this.activeLoad=false;
+
+            let opts;
             if(this.status === 0) {
                 if(this.active === 0) {
                     opts = {
@@ -120,7 +129,7 @@ export default {
                         query: {
                             sellerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 1
                         }
                     }
@@ -130,7 +139,7 @@ export default {
                         query: {
                             sellerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 2
                         }
                     }
@@ -140,7 +149,7 @@ export default {
                         query: {
                             sellerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 3
                         }
                     }
@@ -152,7 +161,7 @@ export default {
                         query: {
                             buyerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 1
                         }
                     }
@@ -162,7 +171,7 @@ export default {
                         query: {
                             buyerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 2
                         }
                     }
@@ -172,7 +181,7 @@ export default {
                         query: {
                             buyerId: this.$store.state.user.id,
                             size: this.pageSize,
-                            page: this.currentPage - 1,
+                            page: this.currentPage,
                             status: 3
                         }
                     }
@@ -186,25 +195,53 @@ export default {
                         return ;
                     }
 
+                    this.loading = false;
+                    this.refreshLoading = false;
+                    if(fBopol) {
+                        this.finished = false;
+                    }
+                    if(res.data.length === 0) {
+                        this.finished = true
+                        return
+                    }
+
+
                     console.log(this.loading);
-                    this.commodityList.splice(0);
-                    this.commodityList = res.data;
+                    // this.commodityList.splice(0);
+                    if(res.data.length < this.pageSize) {
+                        this.finished = true
+                    }
+                    console.log("currentPage:---"+this.currentPage);
+                    if(this.$store.state.user.activeLoad ===1){
+                        this.currentPage = 1
+                    }
+                    if(this.currentPage === 1) {
+                        this.commodityList = res.data
+                    }else {
+                        this.commodityList = this.commodityList.concat(res.data)
+                    }
+                    // this.commodityList = res.data;
                     this.commodityList.forEach(item => {
                         item.endTime = util.dateToStr(new Date(item.endTime), 5)
                     })
                     this.commodityList.forEach(item => {
-                        item.imgs = item.imgs.split(";");
-                        console.log(item.imgs[0]);
+                        if(!Array.isArray(item.imgs)){
+                            item.imgs = item.imgs.split(";");
+                            console.log(item.imgs[0]);
+                        }
+                        // item.imgs = item.imgs.split(";");
+                        // console.log(item.imgs[0]);
                     })
-                    this.loading = false;
-                    this.refreshLoading = false;
-
-                    // this.loadingArr[index-1] =false;/
-                    if(this.commodityList.length <= this.currentPage * this.pageSize) {
-                        this.finished = true;
-                    }else {
-                        this.currentPage ++
-                    }
+                    this.$store.commit('user/setActiveLoad', 0);
+                    // this.loading = false;
+                    // this.refreshLoading = false;
+                    //
+                    // // this.loadingArr[index-1] =false;/
+                    // if(this.commodityList.length <= this.currentPage * this.pageSize) {
+                    //     this.finished = true;
+                    // }else {
+                    //     this.currentPage ++
+                    // }
                 }, rej => {
                     this.commodityList = []
                     this.loading = false;
@@ -214,8 +251,15 @@ export default {
     },
     watch: {
         active() {
-            this.$store.commit('user/setStatusA', {status: this.status, active: this.active})
+
+            // this.activeLoad=true;
+            this.$store.commit('user/setStatusA', {status: this.status, active: this.active});
+            this.$store.commit('user/setActiveLoad', 1);
+            this.commodityList=[];
+            this.currentPage = 0
             this.updateList()
+            this.finished = false
+            this.loading = false
         }
     }
 }

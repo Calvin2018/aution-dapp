@@ -3,7 +3,7 @@ const user = {
     state: {
 
         userInfo :{},
-
+        activeLoad:0,
         // 竞拍还是拍卖
         status: 0,
         active: 0,
@@ -22,6 +22,9 @@ const user = {
         setStatusA(state, params) {
             state.status = params.status
             state.active = params.active
+        },
+      setActiveLoad(state, params) {
+            state.activeLoad = params
         },
         setUserInfo(state, params) {
             state.userInfo = params

@@ -57,7 +57,10 @@
                     v-model="fileList"
                     :after-read="onRead"
                     multiple
-                    :max-count="5"/>
+                    :preview-image="true"
+                    :max-count="5">
+                </van-uploader>
+
             </div>
 
 
@@ -104,6 +107,18 @@ export default {
             this.getDetial();
         }
 
+    },
+    updated(){
+        //手动给预览图片赋值
+        this.$nextTick(()=>{
+            let previewImg=document.getElementsByClassName("van-image van-uploader__preview-image");
+            for(let j=0;j<previewImg.length;j++){
+                let url =this.fileList[j].url === undefined ? this.fileList[j].content:"http://10.250.218.104:8089/image/"+this.fileList[j].url;
+                previewImg[j].children[0].src = url;
+                // previewImg[j].children[0].src = "http://10.250.218.104:8089/image/"+this.fileList[j].url;
+            }
+
+        });
     },
     computed: {
         overTime() {
@@ -196,38 +211,49 @@ export default {
                 }
                 this.articleName = res.data.title //名称
                 this.startingPrice = res.data.startPrice.toString();//起拍价
-                this.currentDate = util.dateToStr(new Date(res.data.endTime), 3)//截止时间
+                this.currentDate = null//截止时间
+                // this.currentDate = util.dateToStr(new Date(res.data.endTime), 3)//截止时间
                 this.descInfo = res.data.details;//拍卖详情
                 let imgArr = [];
                 imgArr = res.data.imgs.split(";");
                 imgArr.splice(imgArr.length-1,1);
                 for(let i=0;i<imgArr.length;i++){
                     this.fileList.push({
-                        url:imgArr[i]
+                        url:imgArr[i],
+                        content:imgArr[i]
                     })
                 }
                 console.log(this.fileList);
+
+
                 switch (res.data.type) { // 物品类别
                     case 1:
-                        this.articleKindText = '手机数码'
+                        this.articleKindText = '手机数码';
+                        this.articleKind = 1;
                         break
                     case 2:
-                        this.articleKindText = '生活电器'
+                        this.articleKindText = '生活电器';
+                        this.articleKind = 2;
                         break
                     case 3:
                         this.articleKindText = '护肤/化妆品'
+                        this.articleKind = 3;
                         break
                     case 4:
                         this.articleKindText = '影音图书'
+                        this.articleKind = 4;
                         break
                     case 5:
                         this.articleKindText = '零食'
+                        this.articleKind = 5;
                         break
                     case 6:
                         this.articleKindText = '珠宝首饰'
+                        this.articleKind = 6;
                         break
                     case 7:
                         this.articleKindText = '其他'
+                        this.articleKind = 7;
                         break
                 }
             })
@@ -424,7 +450,7 @@ export default {
 
 
 
-        async onRead(file) {
+         onRead(file) {
             this.files.name = file.file.name; // 获取文件名
             this.files.type = file.file.type; // 获取类型
             this.picValue = file.file; // 文件流
