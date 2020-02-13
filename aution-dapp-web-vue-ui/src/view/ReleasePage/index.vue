@@ -16,13 +16,13 @@
                 <van-picker show-toolbar :columns="kindList" @cancel="showKindPicker = false" @confirm="onConfirm" />
             </van-popup>
 
-            <van-field 
-                readonly 
-                required 
-                clickable 
-                input-align='right' 
-                :value="startingPrice" 
-                label="起拍价" 
+            <van-field
+                readonly
+                required
+                clickable
+                input-align='right'
+                :value="startingPrice"
+                label="起拍价"
                 placeholder="请输入起拍价（STC）"
                 @click="shouNumberHandler"
                 />
@@ -64,7 +64,6 @@
             <van-number-keyboard
                 v-model="startingPrice"
                 :show="numberShow"
-                extra-key="."
                 close-button-text="完成"
                 :maxlength="6"
                 @blur="numberShow = false"
@@ -169,6 +168,17 @@ export default {
         }
     },
     methods: {
+        iosOrAndroid() {
+            var u = navigator.userAgent;
+            var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+            var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+
+            if (isAndroid) {
+                return 'and';
+            } else {
+                return 'ios';
+            }
+        },
         getDetial(){
         const opts = {
                 apiObj: apiUrl.findGoodsByGid,
@@ -228,8 +238,16 @@ export default {
             }
 
             // this.filterInput(value);
+            if(value.indexOf(" ") > -1){
+                // this.articleName ='';
+                Toast('标题不能包含空格');
+            }
             if(value.length > 15){
                 Toast('标题长度不能超过十五位');
+            }
+            //不能有特殊字符及表情
+            if(value !=="" && !value.match("^[a-zA-Z0-9_\u4e00-\u9fa5]+$")){
+                Toast('标题不允许输入特殊字符');
             }
         },
         textareInput(value){
@@ -280,6 +298,14 @@ export default {
         showSuccess() {
             if(this.articleName.length > 15){
                 Toast('标题长度不能超过十五位');
+                return;
+            }
+            if(this.articleName.indexOf(" ") > -1){
+                Toast('标题不能包含空格');
+                return;
+            }
+            if(this.articleName !=="" && !this.articleName.match("^[a-zA-Z0-9_\u4e00-\u9fa5]+$")){
+                Toast('不允许输入特殊字符');
                 return;
             }
             if(this.articleName === '' || this.articleKind === '' || this.startingPrice === '' || this.currentDate === null || this.descInfo === '' || this.fileList.length === 0 ) {
@@ -565,7 +591,7 @@ export default {
                 type: this.files.type
             });
             },
-            //这里写接口 
+            //这里写接口
             async postImg() {
             let file = this.dataURLtoFile(this.headerImage);
             let formData = new window.FormData();

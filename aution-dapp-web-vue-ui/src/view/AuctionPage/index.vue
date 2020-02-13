@@ -14,15 +14,19 @@
         <!-- 商品列表 -->
         <van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
             <van-list
+                   v-model="loading"
                   :finished="finished"
-                  finished-text="没有更多了"
+                  :finished-text="commodityList.length == 0? '暂无数据' : '没有更多了'"
                   @load="onLoad">
                     <div class="commodity-item" v-for="(item, index) in commodityList"
                         @click="goDetailHandler(index)"
                         :key="item.goodsId"
                         :title="item.title">
                         <div class="img-box">
-                            <img :src="'http://aution.cclcloud.net/image/'+item.imgs[0]" alt="">
+                          <!--测试环境-->
+                            <img :src="'http://10.250.218.104:8089/image/'+item.imgs[0]" alt="">
+                          <!--正式环境-->
+<!--                            <img :src="'http://aution.cclcloud.net/image/'+item.imgs[0]" alt="">-->
                         </div>
                         <div class="desc-box">
                                 <div class="desc-title">{{item.title}}</div>
@@ -77,8 +81,8 @@ export default {
                     {text: "起拍价从高到低", value: 'DESC'}],
             priceSort: '',
             timeSortList: [{text: "截止时间默认", value: ''},
-                    {text: "截止时间正序", value: 'DESC'},
-                    {text: "截止时间倒序", value: 'ASC'}],
+                    {text: "截止时间正序", value: 'ASC'},
+                    {text: "截止时间倒序", value: 'DESC'}],
             timeSort: '',
             kindSortList: [{text: "标的类别", value: ''},
                     {text: "手机数码", value: 1},
@@ -96,19 +100,23 @@ export default {
             refreshLoading: false,
 
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 0,
         }
     },
     methods: {
+        // isArray(o){
+        //     return Object.prototype.toString.call(o)== '[object Array]';
+        // },
         demo01_onIndexChange (index) {
             this.demo01_index = index
         },
 
-        updateList() {
+        updateList(fBopol) {
             const opts = {
                 apiObj: apiUrl.findAllGoods,
                 query: {
-                    page: this.currentPage - 1,
+                    page: this.currentPage,
+                    // page: this.currentPage - 1,
                     size: this.pageSize,
                     priceSort: this.priceSort,
                     timeSort: this.timeSort,
@@ -117,87 +125,117 @@ export default {
             }
             httpService.accessAPI(opts)
                 .then(res => {
-                    this.commodityList.splice(0);
-                    res.data.forEach((item, index) => {
-                        this.commodityList.push(item)
-                    })
+                    this.loading = false;
+                    this.refreshLoading = false;
+                    if(fBopol) {
+                        this.finished = false;
+                    }
+                    if(res.data.length === 0) {
+                        this.finished = true
+                        return
+                    }
+
+                    console.log(this.commodityList)
+                    // this.commodityList.splice(0);
+                    // res.data.forEach((item, index) => {
+                    //     this.commodityList.push(item)
+                    // })
+                    if(res.data.length < this.pageSize) {
+                        this.finished = true
+                    }
+                    if(this.currentPage === 1) {
+                        this.commodityList = res.data
+                    }else {
+                        this.commodityList = this.commodityList.concat(res.data)
+                    }
+                    console.log(this.commodityList)
                     this.commodityList.forEach(item => {
                         item.endTime = util.dateToStr(new Date(item.endTime), 5)
                     })
                     this.commodityList.forEach(item => {
-                        item.imgs = item.imgs.split(";");
-                        console.log(item.imgs[0]);
+                        if(!Array.isArray(item.imgs)){
+                            item.imgs = item.imgs.split(";");
+                            console.log(item.imgs[0]);
+                        }
+
                     })
 
                     console.log(this.refreshLoading);
                     console.log(this.loading);
 
-                    this.refreshLoading = false;
+                    // this.refreshLoading = false;
                     // this.loading = false;
-
-                    if(this.commodityList.length <= this.currentPage * this.pageSize) {
-                        this.finished = true;
-                    }else {
-                        this.currentPage ++
-                    }
+                    //  console.log(this.commodityList.length)
+                    //  console.log(this.currentPage * this.pageSize)
+                    // if(this.commodityList.length <= this.currentPage * this.pageSize) {
+                    //     debugger
+                    //     this.loading =false;
+                    //     this.finished = true;
+                    // }else {
+                    //     this.currentPage ++
+                    // }
                 }, rej => {
                      Toast(res.msg);
-                    this.commodityList = []
-                    // this.loading = false;
                     this.finished = true;
+                    this.loading = false;
+                    this.refreshLoading = false;
                 })
         },
         onLoad() {
+
+
             this.updateList()
+            this.currentPage ++
         },
         onRefresh() {
 
             console.log(this.finished);
             console.log(this.refreshLoading);
-            this.currentPage = 1
+            this.currentPage =  0;
+            this.finished =true
             this.commodityList = []
-            this.updateList();
+            this.updateList(true);
             return;
 
-            this.currentPage = 1
-            this.commodityList = []
-            const opts = {
-                apiObj: apiUrl.findAllGoods,
-                query: {
-                    page: this.currentPage - 1,
-                    size: this.pageSize,
-                    priceSort: this.priceSort,
-                    timeSort: this.timeSort,
-                    type: this.kindSort,
-                }
-            }
-            httpService.accessAPI(opts)
-                .then(res => {
-                    if(res.code !== '0'){
-                        Toast(res.msg);
-                        return;
-                    }
-
-                    this.refreshLoading = false;
-                    this.commodityList.splice(0);
-                    res.data.forEach((item, index) => {
-                        this.commodityList.push(item)
-                    })
-                    this.commodityList.forEach(item => {
-                        item.endTime = util.dateToStr(new Date(item.endTime), 5)
-                    })
-                    this.commodityList.forEach(item => {
-                        item.imgs = item.imgs.split(";");
-                        console.log(item.imgs[0]);
-                    })
-                    if(this.commodityList.length <= this.currentPage * this.pageSize) {
-                        this.finished = true;
-                    }else {
-                        this.currentPage ++
-                        this.finished = false
-                    }
-
-                })
+            // this.currentPage = 1
+            // // this.commodityList = []
+            // const opts = {
+            //     apiObj: apiUrl.findAllGoods,
+            //     query: {
+            //         page: this.currentPage - 1,
+            //         size: this.pageSize,
+            //         priceSort: this.priceSort,
+            //         timeSort: this.timeSort,
+            //         type: this.kindSort,
+            //     }
+            // }
+            // httpService.accessAPI(opts)
+            //     .then(res => {
+            //         if(res.code !== '0'){
+            //             Toast(res.msg);
+            //             return;
+            //         }
+            //
+            //         this.refreshLoading = false;
+            //         this.commodityList.splice(0);
+            //         res.data.forEach((item, index) => {
+            //             this.commodityList.push(item)
+            //         })
+            //         this.commodityList.forEach(item => {
+            //             item.endTime = util.dateToStr(new Date(item.endTime), 5)
+            //         })
+            //         this.commodityList.forEach(item => {
+            //             item.imgs = item.imgs.split(";");
+            //             console.log(item.imgs[0]);
+            //         })
+            //         if(this.commodityList.length <= this.currentPage * this.pageSize) {
+            //             this.finished = true;
+            //         }else {
+            //             this.currentPage ++
+            //             this.finished = false
+            //         }
+            //
+            //     })
         },
         goDetailHandler(index) {
             // 判断当前点击是否为自身的拍卖商品，通过id判断
@@ -225,21 +263,30 @@ export default {
     },
     watch: {
         priceSort() {
+            this.commodityList=[];
             this.timeSort = ''
             this.toTop()
-            this.currentPage = 1
+            this.currentPage = 0
             this.updateList()
+            this.finished = false
+            this.loading = false
         },
         timeSort() {
+            this.commodityList=[];
             this.priceSort = ''
             this.toTop()
-            this.currentPage = 1
+            this.currentPage = 0
             this.updateList()
+            this.finished = false
+            this.loading = false
         },
         kindSort() {
+            this.commodityList=[];
             this.toTop()
-            this.currentPage = 1
+            this.currentPage = 0
             this.updateList()
+            this.finished = false
+            this.loading = false
         },
     },
 }

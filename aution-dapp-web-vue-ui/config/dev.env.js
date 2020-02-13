@@ -6,5 +6,5 @@ module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
 
 
-  BASE_API: '"/abc/dapp/"',
+  BASE_API: '"/abc/"',
 })

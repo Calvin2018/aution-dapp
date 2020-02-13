@@ -7,7 +7,7 @@
         <van-tabs v-model="active" animated>
             <van-tab v-for="index in 3" :title="status === 0? barList1[index - 1]:barList2[index - 1]" :key="index">
                 <van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
-                    <van-list 
+                    <van-list
                         v-model="loading"
                         :finished="finished"
                         finished-text="没有更多了"
@@ -17,13 +17,16 @@
                                 :key="item.goodsId"
                                 :title="item.goodsId">
                                 <div class="img-box">
-                                    <img :src="'http://aution.cclcloud.net/image/'+item.imgs[0]" alt="">
+                                  <!--测试环境-->
+                                    <img :src="'http://10.250.218.104:8089/image/'+item.imgs[0]" alt="">
+                                  <!--正式环境-->
+<!--                                    <img :src="'http://aution.cclcloud.net/image/'+item.imgs[0]" alt="">-->
                                 </div>
                                 <div class="desc-box">
                                         <div class="desc-title">{{item.title}}</div>
                                         <div class="desc-time" v-if="!(active === 1 || (status === 1 && active === 2))">截止时间：{{item.endTime}}</div>
                                         <div class="desc-time" v-if="active === 1 || (status === 1 && active === 2)">成交时间：{{item.endTime}}</div>
-                                        <div class="desc-price" v-if="active === 0">当前价格：{{item.currentPrice}} STC</div>
+                                        <div class="desc-price" v-if="active === 0">当前价格：{{item.currentPrice ===null ? 0:item.currentPrice}} STC</div>
                                         <div class="desc-price" v-if="active === 1 || (status === 1 && active === 2)">成交价：{{item.currentPrice}} STC</div>
                                         <div class="desc-price" v-if="status === 0 && active === 2">起拍价：{{item.startPrice}} STC</div>
                                 </div>
@@ -91,7 +94,7 @@ export default {
             this.currentPage === 1
             // this.loading =true;
             this.updateList()
-            
+
         },
         backHandler() {
             this.$router.go(-1)
@@ -109,10 +112,10 @@ export default {
             })
         },
         updateList() {
-            let opts 
+            let opts
             if(this.status === 0) {
                 if(this.active === 0) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsBySellerIdAndStatus,
                         query: {
                             sellerId: this.$store.state.user.id,
@@ -122,7 +125,7 @@ export default {
                         }
                     }
                 }else if(this.active === 1) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsBySellerIdAndStatus,
                         query: {
                             sellerId: this.$store.state.user.id,
@@ -132,7 +135,7 @@ export default {
                         }
                     }
                 }else if(this.active === 2) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsBySellerIdAndStatus,
                         query: {
                             sellerId: this.$store.state.user.id,
@@ -141,10 +144,10 @@ export default {
                             status: 3
                         }
                     }
-                } 
+                }
             }else if(this.status === 1) {
                 if(this.active === 0) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsByBuyerIdAndStatus,
                         query: {
                             buyerId: this.$store.state.user.id,
@@ -154,7 +157,7 @@ export default {
                         }
                     }
                 }else if(this.active === 1) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsByBuyerIdAndStatus,
                         query: {
                             buyerId: this.$store.state.user.id,
@@ -164,7 +167,7 @@ export default {
                         }
                     }
                 }else if(this.active === 2) {
-                    opts = {  
+                    opts = {
                         apiObj: apiUrl.findGoodsByBuyerIdAndStatus,
                         query: {
                             buyerId: this.$store.state.user.id,
@@ -173,7 +176,7 @@ export default {
                             status: 3
                         }
                     }
-                } 
+                }
             }
 
             httpService.accessAPI(opts)
@@ -182,7 +185,7 @@ export default {
                         Toast(res.msg);
                         return ;
                     }
-                    
+
                     console.log(this.loading);
                     this.commodityList.splice(0);
                     this.commodityList = res.data;

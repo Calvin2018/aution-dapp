@@ -91,7 +91,6 @@
             :show="numberShow"
             close-button-text="完成"
             :maxlength="6"
-            extra-key="."
             @blur="numberShow = false"
         />
 
@@ -344,7 +343,10 @@ export default {
                 this.images.splice(this.images.length-1,1);
 
                 for(let i=0;i<this.images.length;i++){
-                    this.images[i]='http://aution.cclcloud.net/image/'+this.images[i];
+                    /*测试环境*/
+                    this.images[i]='http://10.250.218.104:8089/image/'+this.images[i];
+                    /*正式环境*/
+                    // this.images[i]='http://aution.cclcloud.net/image/'+this.images[i];
                 }
                         // console.log(item.imgs[0]);
 
@@ -463,7 +465,9 @@ export default {
             this.assessDetailShow = false;
         },
         assessWriteHandler() {
-
+            if(this.assessInfo ===""){
+                Toast('未输入评价信息');
+            }
             this.assessWriteShow = false;
             console.log(this.starNumWrite);
             console.log(this.assessInfo);
