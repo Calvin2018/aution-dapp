@@ -73,7 +73,7 @@
                 <div class="assess-title" >成交评价</div>
                 <div class="assess-tips" >{{goodsContent}}</div>
                 <van-rate v-model="starNum" size='30px' gutter='8px' readonly/>
-                <van-button type="default" class="assess-btn" @click="assessHandler">确认</van-button>
+<!--                <van-button type="default" class="assess-btn" @click="assessHandler" v-if='assessBtn === 0'>确认</van-button>-->
             </div>
         </van-popup>
 
@@ -111,6 +111,7 @@ import { allianceReq } from '@/view/allpool/deteil/pool.js'
 export default {
     data() {
         return {
+            // assessBtn:0,
             phone:'',
             biddingwinner:'',
             goodsContent:'',
@@ -465,9 +466,14 @@ export default {
             this.assessDetailShow = false;
         },
         assessWriteHandler() {
-            if(this.assessInfo ===""){
+
+            if(this.assessInfo ==="" && this.starNumWrite ===0){
                 Toast('未输入评价信息');
+                return;
             }
+            // if(this.assessInfo ==="" && this.starNumWrite !==0){
+            //     Toast('未输入评价信息');
+            // }
             this.assessWriteShow = false;
             console.log(this.starNumWrite);
             console.log(this.assessInfo);
