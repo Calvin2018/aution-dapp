@@ -87,9 +87,10 @@ export default {
     methods: {
         onLoad() {
 
-            this.updateList();
+
             console.log("activeLoad-----"+this.$store.state.user.activeLoad)
              if(this.$store.state.user.activeLoad ===0){
+                 this.updateList();
                 this.currentPage ++
              }
 

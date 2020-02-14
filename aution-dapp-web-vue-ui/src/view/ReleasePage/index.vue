@@ -351,11 +351,21 @@ export default {
 
             let newFileList = []
             this.fileList.forEach(item => {
-                newFileList.push(item.file)
-                fd.append('files', item.file)
+                let _creatFile;
+                if(!(item.url === undefined)){
+                    _creatFile = new File([],item.url, { type: "image/jpeg" });
+                    newFileList.push(_creatFile);
+                    fd.append('files', _creatFile)
+                }else {
+                    newFileList.push(item.file);
+                    fd.append('files', item.file)
+                }
+
             })
 
+            // console.log("------:"+file1);
             console.log(newFileList)
+            console.log( this.fileList);
 
             let url = apiUrl.create.url
             fd.append('sellerId', this.$store.state.user.userInfo.job_number)
