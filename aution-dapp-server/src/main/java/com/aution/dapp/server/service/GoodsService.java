@@ -285,6 +285,7 @@ public class  GoodsService{
 	  if(goods.getEndTime()<timeFlag){
           throw new IllegalArgumentException("商品截止时间过短");
       }
+	  LOGGER.info("开始创建商品");
 	  goods.setSellerId(ShiroSubjectUtils.getUserNo());
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);
@@ -298,6 +299,7 @@ public class  GoodsService{
 
 		createBidJob(goods);
 	  }
+	  LOGGER.info("结束创建商品");
 	  return (0 == flag)?false:true;
   }
   public void createBidJob(Goods goods) throws ApiException{
@@ -355,7 +357,6 @@ public class  GoodsService{
 		  throw new IllegalArgumentException("Arguments goods are required");
 	  }
 	  //清除不能修改数据
-	  goods.setTemp(null);
 	  goods.setSellerId(null);
 	  goods.setStartPrice(null);
 	  goods.setStatus(null);
@@ -363,6 +364,9 @@ public class  GoodsService{
 	  goods.setEndTime(null);
 	  goods.setCurrentPrice(null);
 	  goods.setBuyerId(null);
+	  if(Strings.isNullOrEmpty(goods.getTemp())&&Strings.isNullOrEmpty(goods.getContent())){
+	  	return false;
+	  }
 	  Integer flag = goodsRepository.updateGoods(goods);
 	  return (0 == flag)?false:true;
   }
@@ -396,57 +400,64 @@ public class  GoodsService{
 	  BufferedOutputStream bufferedOutputStream = null;
 	  try {
 		
-		for(int i=0;i<files.length;i++){
+		for(int i=0;i<files.length;i++) {
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
 			//File  project= new File(System.getProperty("user.dir"));
 //			File project = ResourceUtils.getFile("classpath:static");
 //          	String imgLocation = project.getAbsolutePath();
 			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
-			LOGGER.info("图片路径：{}",imgLocation);
+			LOGGER.info("图片路径：{}", imgLocation);
 			LOGGER.info(imgLocation);
-			String path = imgLocation+File.separator;
-			if(!new File(imgLocation).exists()){
+			String path = imgLocation + File.separator;
+			if (!new File(imgLocation).exists()) {
 				new File(imgLocation).mkdirs();
 			}
 			String fileName = file.getOriginalFilename();
-			
+
 			inputStream = file.getInputStream();
 			bufferedInputStream = new BufferedInputStream(inputStream);
 			String[] temp = fileName.split("\\.");
-			
-			fileName = (gId+i)+"." + temp[temp.length-1];
 
-			File tempFile = new File(path,fileName);
+			String fileNamePrefix = temp[0];
 
-			out = new FileOutputStream(tempFile); 
-			bufferedOutputStream = new BufferedOutputStream(out);
-			byte[] buff = new byte[1024];
-			int length = 0;
-			while( (length = bufferedInputStream.read(buff)) != -1){
-				bufferedOutputStream.write(buff,0,length);
-			}
-			bufferedOutputStream.flush();
-			out.flush();
+			if (!isOldPhone(fileNamePrefix)){
 
-			Runtime.getRuntime().exec("chmod 644 "+tempFile.getAbsolutePath());
-			
-			imgUrl = imgUrl.append(fileName);
-			imgUrl = imgUrl.append(";");
-			
-			if(bufferedOutputStream != null){
-				bufferedOutputStream.close();
+				fileName = (gId + i) + "." + temp[temp.length - 1];
+
+				File tempFile = new File(path, fileName);
+
+				out = new FileOutputStream(tempFile);
+				bufferedOutputStream = new BufferedOutputStream(out);
+				byte[] buff = new byte[1024];
+				int length = 0;
+				while ((length = bufferedInputStream.read(buff)) != -1) {
+					bufferedOutputStream.write(buff, 0, length);
+				}
+				bufferedOutputStream.flush();
+				out.flush();
+
+				Runtime.getRuntime().exec("chmod 644 " + tempFile.getAbsolutePath());
+
+				imgUrl = imgUrl.append(fileName);
+				imgUrl = imgUrl.append(";");
+
+				if (bufferedOutputStream != null) {
+					bufferedOutputStream.close();
+				}
+				if (bufferedInputStream != null) {
+					bufferedInputStream.close();
+				}
+				if (out != null) {
+					out.close();
+				}
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			}else{
+				imgUrl = imgUrl.append(fileName);
+				imgUrl = imgUrl.append(";");
 			}
-			if(bufferedInputStream != null) {
-				bufferedInputStream.close();
-			}
-			if(out != null){
-				out.close();
-			}
-			if(inputStream != null){
-				inputStream.close();
-			}
-			
 		}
 	  }catch(IOException e) {
 		  throw new  IOException();
@@ -492,6 +503,28 @@ public class  GoodsService{
   	List<Goods> list = goodsRepository.findNeedCreateJob(startTime,endTime);
   	list.removeAll(Collections.singleton(null));
   	return list;
+  }
+
+  public boolean isOldPhone(String fileName){
+
+  	String index = fileName.substring(fileName.length()-1);
+  	if(index.equals(ApiConstants.ZERO)||index.equals(ApiConstants.ONE)||index.equals(ApiConstants.TWO)||index.equals(ApiConstants.THREE)||index.equals(ApiConstants.FOUR)){
+  		fileName = fileName.substring(0,fileName.length()-1);
+  		if(fileName.endsWith(ShiroSubjectUtils.getUserNo())){
+  			fileName = fileName.split(ShiroSubjectUtils.getUserNo())[0];
+  			int flag = 13;
+  			if(fileName.length()==flag){
+				return true;
+			}
+  			return false;
+
+		}else{
+  			return false;
+		}
+
+	}else{
+  		return false;
+	}
   }
 
 

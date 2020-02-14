@@ -16,6 +16,6 @@ public class GenerateNoUtil {
         return UUID.randomUUID().toString();
     }
     public static String generateGid(String userId) {
-        return String.valueOf(System.currentTimeMillis()) + userId;
+        return System.currentTimeMillis() + userId;
     }
 }
