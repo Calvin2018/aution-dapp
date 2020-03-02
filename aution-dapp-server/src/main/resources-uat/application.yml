@@ -25,6 +25,8 @@ platform:
       - /api/order/issue/single/notify
       - /api/order/issue/notify
       - /api/order/pay/successed
+      - /api/goods/createForTest
+      - /api/order/bidForTest
     jwt-secret-key: cesgroup-blockchain
     jwt-param: token
 
@@ -59,10 +61,10 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://10.250.218.104:3306/aution-dapp?useSSL=false&characterEncoding=UTF-8
+      url: jdbc:mysql://10.250.218.104:3307/aution-dapp?useSSL=false&characterEncoding=UTF-8
       #url: jdbc:mysql://localhost:3306/aution-dapp?useUnicode=true&characterEncoding=utf-8
       username: root
-      password: cimysqltest
+      password: xinfalian
       filter:
         slf4j:
           enabled: true
