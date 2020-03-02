@@ -24,7 +24,7 @@ public interface HistoryRepository extends PlatformMybatisRepository<History> {
   @Select("select trade_no,goods_id,h.user_id,bid_price,bid_time,pay_price,temp,avatar,user_name,user_phone from t_history h LEFT JOIN t_user u on h.user_id=u.user_id where temp = '1' and is_valid = '1'  and h.user_id = #{userId} and goods_id = #{gId} order by bid_price DESC,bid_time ASC")
   List<History> findHistorysByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId,Pageable pageable);
   
-      @Select("select trade_no,g.goods_id,h.user_id,bid_time,bid_price,h.temp,avatar,user_name,user_phone,start_price,current_price,end_time\n" +
+      @Select("select trade_no,g.goods_id,h.user_id,bid_time,bid_price,h.temp,avatar,user_name,user_phone,start_price,current_price,end_time,seller_id\n" +
               "          from  t_goods g  LEFT JOIN (select user_id,goods_id,trade_no,bid_price,temp,bid_time from t_history where temp = '1' and is_valid = '1'  and \n" +
               "          user_id = #{userId}) h on g.goods_id = h.goods_id left join t_user u on h.user_id=u.user_id    where  g.goods_id = #{gId} order by bid_time desc LIMIT 1")
   History findMaxHistoryByUserIdAndGoodsId(@Param("userId")String userId,@Param("gId")String gId);

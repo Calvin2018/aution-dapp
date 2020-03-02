@@ -23,6 +23,7 @@ public interface ApiConstants {
   String CODE_TIMT_OUT = "100005";
   String CODE_GOODS_NOT_EXIST = "100006";
   String CODE_GOODS_TIME_INVALID = "100007";
+  String CODE_USERID_SELLID_IS_SAME = "100007";
   String ZERO = "0";
   String ONE = "1";
   String TWO = "2";

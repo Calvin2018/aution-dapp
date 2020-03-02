@@ -196,6 +196,10 @@ public class DappService {
 
     public JSONObject createOrder(String gId, String userId, Double price) throws Exception {
 
+        if(Strings.isNullOrEmpty(userId)){
+            throw new ApiException(Integer.parseInt(ApiConstants.CODE_ACCOUNT_NOT_EXSIT),
+                    "账号不存在，请重新登录！");
+        }
         JSONObject obj = new JSONObject();
         //检查竞拍价格比当前价格高
         History temp = hRepository.findMaxHistoryByUserIdAndGoodsId(userId, gId);
@@ -210,6 +214,11 @@ public class DappService {
             obj.put("flag", false);
             obj.put("msg", "拍卖已结束");
             return obj;
+        }
+        String sellId = temp.getSellerId();
+        if(userId.equals(sellId)){
+            throw new ApiException(Integer.parseInt(ApiConstants.CODE_USERID_SELLID_IS_SAME),
+                    "不能竞拍自己发布的商品");
         }
 
         Double maxPrice = null;

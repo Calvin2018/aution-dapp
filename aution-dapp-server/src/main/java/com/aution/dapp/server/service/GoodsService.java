@@ -302,6 +302,32 @@ public class  GoodsService{
 	  LOGGER.info("结束创建商品");
 	  return (0 == flag)?false:true;
   }
+
+	public boolean createGoodsForTest(Goods goods,MultipartFile[] files,String sellerId) throws IOException {
+		if(null == goods||null == files) {
+			throw new IllegalArgumentException("Arguments goods and files are required");
+		}
+		long timeFlag = System.currentTimeMillis() + 1000*60L;
+		if(goods.getEndTime()<timeFlag){
+			throw new IllegalArgumentException("商品截止时间过短");
+		}
+		LOGGER.info("开始创建商品");
+		goods.setSellerId(sellerId);
+		goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
+		goods.setStatus(1);
+		//设置为-1，表示未评价
+		goods.setTemp("-1");
+		String imgUrl = imgStore(files,goods.getGoodsId());
+		goods.setImgs(imgUrl);
+		Integer flag = goodsRepository.insertGoods(goods);
+		if(flag != 0) {
+			//任务名称
+
+			createBidJob(goods);
+		}
+		LOGGER.info("结束创建商品");
+		return (0 == flag)?false:true;
+	}
   public void createBidJob(Goods goods) throws ApiException{
 
 	  Long endTime = goods.getEndTime();

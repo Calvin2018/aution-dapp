@@ -222,6 +222,29 @@ public class GoodsController {
 		return result;
 		
 	}
+
+	@RequestMapping(value="/createForTest",method=RequestMethod.POST)
+	public ApiResult<Boolean> createForTest(Goods goods,@RequestParam("files")MultipartFile[] files,@RequestParam("sellerId")String sellerId) throws IOException {
+
+		ApiResult<Boolean> result = new ApiResult<Boolean>();
+		try {
+			boolean flag = goodsService.createGoodsForTest(goods,files,sellerId);
+			result.setCode(ApiConstants.CODE_SUCCESS);
+			result.setMsg("");
+			result.setData(flag);
+
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e){
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+
+	}
 	
 	@RequestMapping(value="/updateGoods",method=RequestMethod.POST)
 	public ApiResult<Boolean> updateGoods(Goods goods) {

@@ -64,6 +64,33 @@ public class DappController {
 		}
 		return result;
 	}
+	@RequestMapping(value="/bidForTest",method=RequestMethod.POST)
+	public ApiResult<JSONObject> bidForTest(@RequestParam("gId")String gId,  @RequestParam("price")Double price,@RequestParam("userId") String userId) throws Exception {
+		ApiResult<JSONObject> result = new ApiResult<JSONObject>();
+
+		try {
+			JSONObject data =  dappService.createOrder(gId, userId, price);
+			Boolean flag = (Boolean)data.get("flag");
+			if(flag) {
+				result.setCode(ApiConstants.CODE_SUCCESS);
+			}else {
+				result.setCode(ApiConstants.CODE_TIMT_OUT);
+			}
+			result.setData(data);
+			if(null != data.get("msg")) {
+				result.setMsg(data.get("msg").toString());
+			}
+		}catch(IllegalArgumentException e) {
+			result.setCode(ApiConstants.CODE_ARGS_ERROR);
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}catch(ApiException e) {
+			result.setCode(String.valueOf(e.getStatusCode()));
+			result.setMsg(e.getMessage());
+			result.setData(null);
+		}
+		return result;
+	}
 	@RequestMapping(value="/pay/notify",method=RequestMethod.POST)
 	public String notify( @RequestBody PayNotifyBean notifyBean) throws ApiException, ParseException {
 		//flag ：true 支付回调 false :下发回调
