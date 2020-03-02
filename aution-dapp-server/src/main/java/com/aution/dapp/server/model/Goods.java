@@ -35,6 +35,9 @@ public class Goods {
 	//商品竞拍截止时间
 	@Column(name = "end_time")
 	private Long endTime;
+	//商品交付要求
+	@Column(name = "delivery_demand")
+	private String deliveryDemand;
 	//商品详情
 	private String details;
 	//商品图片地址
@@ -148,6 +151,15 @@ public class Goods {
 	public void setEndTime(Long endTime) {
 		this.endTime = endTime;
 	}
+
+	public String getDeliveryDemand() {
+		return deliveryDemand;
+	}
+
+	public void setDeliveryDemand(String deliveryDemand) {
+		this.deliveryDemand = deliveryDemand;
+	}
+
 	public String getDetails() {
 		return details;
 	}
@@ -187,12 +199,30 @@ public class Goods {
 	public Goods() {
 		super();
 	}
+
 	@Override
 	public String toString() {
-		return "Goods [goodsId=" + goodsId + ", sellerId=" + sellerId + ", buyerId=" + buyerId + ", title=" + title
-				+ ", type=" + type + ", startPrice=" + startPrice + ", startTime=" + startTime + ", endTime=" + endTime
-				+ ", details=" + details + ", imgs=" + imgs + ", currentPrice=" + currentPrice + ", content=" + content
-				+ ", status=" + status + ", avatar=" + avatar + ", userName=" + userName + ", userPhone=" + userPhone
-				+ ", buyName=" + buyName + ", buyPhone=" + buyPhone + ", temp=" + temp + "]";
+		return "Goods{" +
+				"goodsId='" + goodsId + '\'' +
+				", sellerId='" + sellerId + '\'' +
+				", buyerId='" + buyerId + '\'' +
+				", title='" + title + '\'' +
+				", type=" + type +
+				", startPrice=" + startPrice +
+				", startTime=" + startTime +
+				", endTime=" + endTime +
+				", deliveryDemand='" + deliveryDemand + '\'' +
+				", details='" + details + '\'' +
+				", imgs='" + imgs + '\'' +
+				", currentPrice=" + currentPrice +
+				", content='" + content + '\'' +
+				", status=" + status +
+				", avatar='" + avatar + '\'' +
+				", userName='" + userName + '\'' +
+				", userPhone='" + userPhone + '\'' +
+				", buyName='" + buyName + '\'' +
+				", buyPhone='" + buyPhone + '\'' +
+				", temp='" + temp + '\'' +
+				'}';
 	}
 }

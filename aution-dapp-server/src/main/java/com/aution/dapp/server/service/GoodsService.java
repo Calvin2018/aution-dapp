@@ -429,9 +429,11 @@ public class  GoodsService{
 		for(int i=0;i<files.length;i++) {
 			MultipartFile file = files[i];
 			//当打成jar包时此路径为jar包的父级文件夹路径
-			//File  project= new File(System.getProperty("user.dir"));
+//			File  project= new File(System.getProperty("user.dir"));
+			//本地测试，打开下面俩行
 //			File project = ResourceUtils.getFile("classpath:static");
 //          	String imgLocation = project.getAbsolutePath();
+			//打包时，打开下面一行
 			String imgLocation = AppClient.getInstance().getConfiguration().getProperty(ApiConstants.DA_IMG_FILENAME);
 			LOGGER.info("图片路径：{}", imgLocation);
 			LOGGER.info(imgLocation);
@@ -462,7 +464,7 @@ public class  GoodsService{
 				}
 				bufferedOutputStream.flush();
 				out.flush();
-
+				//本地时注掉
 				Runtime.getRuntime().exec("chmod 644 " + tempFile.getAbsolutePath());
 
 				imgUrl = imgUrl.append(fileName);

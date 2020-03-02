@@ -58,7 +58,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   		"from t_goods g,t_user u where g.seller_id = u.user_id and LOCATE( #{title},title)>0 ")
   List<Goods> findGoodsByTitle(@Param("title")String title,Pageable pageable);
   
-  @Select("select goods_id,seller_id,buyer_id,title,type,start_price,start_time,details,imgs, " + 
+  @Select("select goods_id,seller_id,buyer_id,title,type,start_price,start_time,delivery_demand,details,imgs, " +
   		"current_price,content,status,end_time,temp,avatar,user_name,user_phone  " + 
   		"from t_goods g,t_user u where g.seller_id = u.user_id and goods_id = #{gId}")
   Goods findGoodsByGid(@Param("gId")String gId);

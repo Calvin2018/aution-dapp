@@ -63,12 +63,12 @@ public class DappProvider {
 	
 	public String insertGoods(@RequestBody Goods goods) {
 		
-		StringBuffer sb = new StringBuffer("insert into t_goods(goods_id,seller_id,title,type,start_price,start_time,details,imgs," + 
+		StringBuffer sb = new StringBuffer("insert into t_goods(goods_id,seller_id,title,type,start_price,start_time,delivery_demand,details,imgs," +
 				"status,end_time");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(" ,temp");
 		}
-		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{details},#{imgs},#{status},#{endTime}");
+		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{deliveryDemand},#{details},#{imgs},#{status},#{endTime}");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(",#{temp}");
 		}
@@ -93,6 +93,9 @@ public class DappProvider {
 		}
 		if(!Strings.isNullOrEmpty(goods.getContent())) {
 			sb.append(" content = #{content}, ");
+		}
+		if (!Strings.isNullOrEmpty(goods.getDeliveryDemand())){
+			sb.append("delivery_demand = #{delivery_demand}, ");
 		}
 		if(!Strings.isNullOrEmpty(goods.getDetails())) {
 			sb.append(" details = #{details}, ");
