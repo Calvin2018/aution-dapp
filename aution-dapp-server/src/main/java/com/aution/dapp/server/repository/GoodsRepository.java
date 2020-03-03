@@ -31,7 +31,7 @@ public interface GoodsRepository extends PlatformMybatisRepository<Goods> {
   List<Goods> findAllGoods(Pageable pageable);
   
   @SelectProvider(type=DappProvider.class,method="findGoodsByTypeAndSpriceSortAndEtimeSort")
-  List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type,@Param("time")Long time,Pageable pageable);
+  List<Goods> findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type,@Param("time")Long time,@Param("tenantId")String tenantId,Pageable pageable);
 	
   @Select("select goods_id,title,imgs,current_price," + 
   		"end_time,temp,avatar,user_name,user_phone from t_goods g,t_user u where g.seller_id = u.user_id and seller_id = #{sellerId}")	

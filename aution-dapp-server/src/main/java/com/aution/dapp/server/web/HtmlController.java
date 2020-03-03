@@ -98,6 +98,7 @@ public class HtmlController {
 		String avatar = temp.get("avatar");
 		String userName = temp.get("user_name");
 		String userPhone = temp.get("user_phone");
+		String tenantId = temp.get("tenant_no");
 
 		LOGGER.info("code: {},user_no:{},user_name:{},ip:{}",code,userNo,userName,ip);
 		String info = "code: "+code+",user_no:"+userNo+",user_name:"+userName+",ip:"+ip;
@@ -107,6 +108,7 @@ public class HtmlController {
 
 		Subject subject = SecurityUtils.getSubject();
 		ShiroUser user = new ShiroUser();
+		user.setTenantId(tenantId);
 		user.setLoginName(userNo);
 		user.setPassword(code);
 		user.setUserName(userName);

@@ -1,5 +1,6 @@
 package com.aution.dapp.server.service;
 
+import com.aution.dapp.server.model.ShiroUser;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -101,7 +102,9 @@ public class  GoodsService{
 		  }
 
 	  }
-	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,System.currentTimeMillis(),pageable);
+	  ShiroUser shiroUser = ShiroSubjectUtils.getShiroUser();
+	  String tenantId = shiroUser.getTenantId();
+	  return goodsRepository.findGoodsByTypeAndSpriceSortAndEtimeSort(type,System.currentTimeMillis(),tenantId,pageable);
   }
 	
   /**
@@ -286,6 +289,9 @@ public class  GoodsService{
           throw new IllegalArgumentException("商品截止时间过短");
       }
 	  LOGGER.info("开始创建商品");
+	  ShiroUser shiroUser = ShiroSubjectUtils.getShiroUser();
+	  String tenantId = shiroUser.getTenantId();
+	  goods.setTenantId(tenantId);
 	  goods.setSellerId(ShiroSubjectUtils.getUserNo());
 	  goods.setGoodsId(GenerateNoUtil.generateGid(goods.getSellerId()));
 	  goods.setStatus(1);

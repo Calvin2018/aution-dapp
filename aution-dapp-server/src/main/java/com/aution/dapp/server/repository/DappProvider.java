@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public class DappProvider {
 
-	public String findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type,@Param("time")Long time) {
-		StringBuffer sb = new StringBuffer("SELECT goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone FROM t_goods g,t_user u WHERE g.seller_id=u.user_id AND g.end_time>= #{time} ");
+	public String findGoodsByTypeAndSpriceSortAndEtimeSort(@Param("type")Integer type,@Param("time")Long time,@Param("tenantId")String tenantId) {
+		StringBuffer sb = new StringBuffer("SELECT goods_id,seller_id,title,imgs,start_price,end_time,temp,avatar,user_name,user_phone FROM t_goods g,t_user u WHERE g.seller_id=u.user_id AND g.end_time>= #{time} AND g.tenant_no=#{tenantId} ");
 		if(null != type) {
 			sb.append(" and type = #{type} ");
 		}
@@ -63,12 +63,12 @@ public class DappProvider {
 	
 	public String insertGoods(@RequestBody Goods goods) {
 		
-		StringBuffer sb = new StringBuffer("insert into t_goods(goods_id,seller_id,title,type,start_price,start_time,delivery_demand,details,imgs," +
+		StringBuffer sb = new StringBuffer("insert into t_goods(goods_id,seller_id,title,type,start_price,start_time,tenant_no,delivery_demand,details,imgs," +
 				"status,end_time");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(" ,temp");
 		}
-		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{deliveryDemand},#{details},#{imgs},#{status},#{endTime}");
+		sb.append(") values(#{goodsId},#{sellerId},#{title},#{type},#{startPrice},#{startTime},#{tenantId},#{deliveryDemand},#{details},#{imgs},#{status},#{endTime}");
 		if(!Strings.isNullOrEmpty(goods.getTemp())) {
 			sb.append(",#{temp}");
 		}

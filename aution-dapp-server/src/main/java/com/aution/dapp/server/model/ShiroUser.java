@@ -7,6 +7,7 @@ public class ShiroUser implements IUser {
     private String userName;
     private String loginName;
     private String password;
+    private String tenantId;
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -18,6 +19,10 @@ public class ShiroUser implements IUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class ShiroUser implements IUser {
 
     @Override
     public String getTenantId() {
-        return null;
+        return tenantId;
     }
 
     @Override
