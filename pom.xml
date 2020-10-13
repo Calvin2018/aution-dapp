@@ -37,7 +37,7 @@
   <properties>
   	<platform-base.version>1.0.3</platform-base.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
 <!--     <spring.version>4.3.13.RELEASE</spring.version> -->
     <httpclient.version>4.5.5</httpclient.version>
     <httpcore.version>4.4.9</httpcore.version>
