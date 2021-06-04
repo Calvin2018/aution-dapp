@@ -39,7 +39,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.12</junit.version>
 <!--     <spring.version>4.3.13.RELEASE</spring.version> -->
-    <httpclient.version>4.5.5</httpclient.version>
+    <httpclient.version>4.5.13</httpclient.version>
     <httpcore.version>4.4.9</httpcore.version>
     <easymock.version>3.6</easymock.version>
     <java.source.version>1.8</java.source.version>
